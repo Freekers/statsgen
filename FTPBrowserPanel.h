@@ -29,11 +29,8 @@ class FTPBrowserPanel : public wxPanel
 		void CreateScreen();
 		void Update(int fileIndex);
 		void CreateList();
-		void OnResize(wxSizeEvent &event);
 		void OnRemoteRequest(wxCommandEvent &event);
 
-		RemoteMachine	*remoteMachine;
-		wxArrayString	fileNames;
 		void StartThreadWork();	
 		void StopThreadWork();	
 		bool DoingThreadWork();
@@ -42,22 +39,25 @@ class FTPBrowserPanel : public wxPanel
 		void OnListDoubleClick(wxListEvent &event);
 		void OnListSingleClick(wxListEvent &event);
 		wxString GetCurrentSelection();
-		long selectedSize;
 		wxString CurrentPath();
 
+		RemoteMachine	*mRemoteMachine;
+		wxArrayString	mFileNames;
+		long			mSelectedSize;
 	protected:
-		wxListCtrl		*directoryListing;
+		wxListCtrl		*mDirectoryListing;
 
 
 	private:
-		wxImageList				imageList;
-		wxString				configGroup;
-		wxArrayLong				fileSizes;
-		wxString				currentPath;
+		wxImageList				mImageList;
+		wxString				mConfigGroup;
+		wxArrayLong				mFileSizes;
+		wxString				mCurrentPath;
 		bool					workingForThread;
 		RemoteFTPBrowserThread	*thread;
-		wxTextCtrl				*currentSelection;
-		ProgressPanel			*progressPanel;
+		wxTextCtrl				*mCurrentSelection;
+		ProgressPanel			*mProgressPanel;
+		wxBoxSizer				*mMainSizer;
 
 		DECLARE_EVENT_TABLE()
 };

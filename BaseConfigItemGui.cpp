@@ -6,20 +6,43 @@
 #include "WindowIDs.h"
 #include "GlobalStatistics.h"
 
+BaseConfigItemGUI::BaseConfigItemGUI()
+{
+	mConfigKey		= "";
+	mDefaultValue	= "";
+	mMainSizer		= NULL;
+}
+
+void BaseConfigItemGUI::SetConfigKey(wxString configKey,char *defaultValue)
+{
+	wxString	defaultValueStr = defaultValue;
+	SetConfigKey(configKey,defaultValueStr);
+}
+void BaseConfigItemGUI::SetConfigKey(wxString configKey,wxString defaultValue)
+{
+	mConfigKey		= configKey;
+	mDefaultValue	= defaultValue;
+}
+void BaseConfigItemGUI::SetConfigKey(wxString configKey)
+{
+	mConfigKey		= configKey;
+}
+
 void BaseConfigItemGUI::SetTriggerCondition(GUITriggerList &listIn)
 {
-	triggerList=listIn;
+	mTriggerList=listIn;
 }
 
 bool BaseConfigItemGUI::UpdateFromTrigger()
 {
 	bool	retVal;
 
-	retVal=triggerList.PerformTrigger(this);
+	retVal=mTriggerList.PerformTrigger(this);
 	return (retVal);
 }
 
-int BaseConfigItemGUI::PreferredHeight()
+void BaseConfigItemGUI::ConfigureSizer()
 {
-	return (20);
+	mMainSizer->SetSizeHints(this);
+	SetSizer(mMainSizer);
 }

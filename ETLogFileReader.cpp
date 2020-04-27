@@ -161,9 +161,9 @@ bool ETLogFileReader::StripTimeFromLine(wxString &lineRead,wxDateTime &lineTime)
 		hourString.IsNumber())
 	{
 		retVal=true;
-		hours=atoi(hourString.GetData());
-		minutes=atoi(minuteString.GetData());
-		seconds=atoi(secondString.GetData());
+		hours=atoi(STRING_TO_CHAR(hourString));
+		minutes=atoi(STRING_TO_CHAR(minuteString));
+		seconds=atoi(STRING_TO_CHAR(secondString));
 		since1970=(3600*hours)+(60*minutes)+seconds;
 		lineTime.Set(since1970);
 	}

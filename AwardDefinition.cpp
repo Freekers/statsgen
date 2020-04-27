@@ -16,24 +16,24 @@ void AwardDefinition::ReadConfig()
 
 	baseGroup="AWARDDEFINITION"+id;
 
-	globalStatistics.configData.ReadList(baseGroup,"WEAPONKILLCODES",weaponKillComponents);
-	globalStatistics.configData.ReadList(baseGroup,"WEAPONDEATHCODES",weaponDeathComponents);
-	globalStatistics.configData.ReadList(baseGroup,"WEAPONTKCODES",weaponTKComponents);
-	globalStatistics.configData.ReadList(baseGroup,"LOCATIONKILLCODES",locationKillComponents);
-	globalStatistics.configData.ReadList(baseGroup,"LOCATIONDEATHCODES",locationDeathComponents);
-	globalStatistics.configData.ReadList(baseGroup,"LOCATIONTKCODES",locationTKComponents);
-	globalStatistics.configData.ReadList(baseGroup,"ACTIONCODES",actionComponents);
-	globalStatistics.configData.ReadList(baseGroup,"MISCCODES",miscComponents);
-	globalStatistics.configData.ReadList(baseGroup,"XPCODES",xpComponents);
-	globalStatistics.configData.ReadList(baseGroup,"GAMETYPECODES",allowedGameTypes);
+	globalStatistics.configData.ReadList(baseGroup,(char *)"WEAPONKILLCODES",weaponKillComponents);
+	globalStatistics.configData.ReadList(baseGroup,(char *)"WEAPONDEATHCODES",weaponDeathComponents);
+	globalStatistics.configData.ReadList(baseGroup,(char *)"WEAPONTKCODES",weaponTKComponents);
+	globalStatistics.configData.ReadList(baseGroup,(char *)"LOCATIONKILLCODES",locationKillComponents);
+	globalStatistics.configData.ReadList(baseGroup,(char *)"LOCATIONDEATHCODES",locationDeathComponents);
+	globalStatistics.configData.ReadList(baseGroup,(char *)"LOCATIONTKCODES",locationTKComponents);
+	globalStatistics.configData.ReadList(baseGroup,(char *)"ACTIONCODES",actionComponents);
+	globalStatistics.configData.ReadList(baseGroup,(char *)"MISCCODES",miscComponents);
+	globalStatistics.configData.ReadList(baseGroup,(char *)"XPCODES",xpComponents);
+	globalStatistics.configData.ReadList(baseGroup,(char *)"GAMETYPECODES",allowedGameTypes);
 
-	configBase.Printf("/%s/",baseGroup.GetData());
+	configBase.Printf("/%s/",STRING_TO_CHAR(baseGroup));
 	configKey=configBase+"Name";
-	globalStatistics.configData.ReadTextValue(configKey,&name,"");
+	globalStatistics.configData.ReadTextValue(configKey,&name,(char *)"");
 	configKey=configBase+"Image";
-	globalStatistics.configData.ReadTextValue(configKey,&image,"");
+	globalStatistics.configData.ReadTextValue(configKey,&image,(char *)"");
 	configKey=configBase+"Weighted";
-	globalStatistics.configData.ReadTextValue(configKey,&configValue,"N");
+	globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"N");
 	weighted=(configValue.CmpNoCase("Y")==0);
 }
 
@@ -80,10 +80,10 @@ wxString AwardDefinition::SQLCreateTableComponent(const char *component)
 				"%s,"
 				"%s"
 			")",
-			SQLTableNameComponent(component).GetData(),
-		StatsgenDatabase::StringFieldDefinition("id","awardid",FIELD_WIDTH_KEY_ID).GetData(),
-		StatsgenDatabase::StringFieldDefinition("name","awardname",FIELD_WIDTH_KEY_REALNAME).GetData(),
-		StatsgenDatabase::StringFieldDefinition("image","awardimage",FIELD_WIDTH_KEY_IMAGE).GetData()
+			STRING_TO_CHAR(SQLTableNameComponent(component)),
+		STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("id","awardid",FIELD_WIDTH_KEY_ID)),
+		STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("name","awardname",FIELD_WIDTH_KEY_REALNAME)),
+		STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("image","awardimage",FIELD_WIDTH_KEY_IMAGE))
 		);
 
 	return SQL;
@@ -101,10 +101,10 @@ wxString AwardDefinition::SQLCreateTable()
 				"%s,"
 				"weighted varchar(1)"
 			")",
-			SQLTableName().GetData(),
-		StatsgenDatabase::StringFieldDefinition("id","awardcomponentid",FIELD_WIDTH_AWARD_ID).GetData(),
-		StatsgenDatabase::StringFieldDefinition("name","awardcomponentname",FIELD_WIDTH_AWARD_NAME).GetData(),
-		StatsgenDatabase::StringFieldDefinition("image","awardcomponentimage",FIELD_WIDTH_AWARD_IMAGE).GetData()
+			STRING_TO_CHAR(SQLTableName()),
+		STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("id","awardcomponentid",FIELD_WIDTH_AWARD_ID)),
+		STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("name","awardcomponentname",FIELD_WIDTH_AWARD_NAME)),
+		STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("image","awardcomponentimage",FIELD_WIDTH_AWARD_IMAGE))
 		);
 
 	return SQL;
@@ -153,26 +153,26 @@ bool AwardDefinition::WriteToDatabaseComponent(int itemIndex,
 			componentRealName="";
 			if (strlen(idPrefix)>0)
 			{
-				componentID.Printf("%s_%s",idPrefix,thisID.GetData());
-				configKey.Printf("/RealNames/%s",componentID.GetData());
-				globalStatistics.configData.ReadTextValue(configKey,&componentRealName,(char *)componentID.GetData());
-				configKey.Printf("/Images/%s",componentID.GetData());
+				componentID.Printf("%s_%s",idPrefix,STRING_TO_CHAR(thisID));
+				configKey.Printf("/RealNames/%s",STRING_TO_CHAR(componentID));
+				globalStatistics.configData.ReadTextValue(configKey,&componentRealName,componentID);
+				configKey.Printf("/Images/%s",STRING_TO_CHAR(componentID));
 				globalStatistics.configData.ReadTextValue(configKey,&componentImage);
 			}
 			else
 			{
-				componentID.Printf("%s",thisID.GetData());
+				componentID.Printf("%s",STRING_TO_CHAR(thisID));
 			}
 			SQL.Printf("Insert into %s"
 				"(awardindex,componentindex,id,posneg,image,name)"
 				"values('%d','%d','%s','%c','%s','%s')",
-				SQLTableNameComponent(component).GetData(),
+				STRING_TO_CHAR(SQLTableNameComponent(component)),
 				itemIndex,
 				componentIndex,
-				componentID.GetData(),
+				STRING_TO_CHAR(componentID),
 				posneg,
-				componentImage.GetData(),
-				StatsgenDatabase::SafeForInsert(componentRealName).GetData());
+				STRING_TO_CHAR(componentImage),
+				STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(componentRealName)));
 			globalStatistics.statsgenDatabase.SimpleExecute(SQL);
 		}
 	}
@@ -206,11 +206,11 @@ bool AwardDefinition::WriteToDatabase(int itemIndex)
 	SQL.Printf("Insert into %s"
 				"(awardindex,id,image,name,weighted)"
 				"values('%d','%s','%s','%s','%c')",
-				SQLTableName().GetData(),
+				STRING_TO_CHAR(SQLTableName()),
 				itemIndex,
-				id.GetData(),
-				image.GetData(),
-				StatsgenDatabase::SafeForInsert(name).GetData(),
+				STRING_TO_CHAR(id),
+				STRING_TO_CHAR(image),
+				STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(name)),
 				weightedChar);
 	globalStatistics.statsgenDatabase.SimpleExecute(SQL);
 	return retVal;
@@ -449,16 +449,16 @@ void AwardDefinition::WriteConfig()
 
 	baseGroup="AWARDDEFINITION"+id;
 
-	globalStatistics.configData.WriteList(baseGroup,"WEAPONKILLCODES",weaponKillComponents);
-	globalStatistics.configData.WriteList(baseGroup,"WEAPONDEATHCODES",weaponDeathComponents);
-	globalStatistics.configData.WriteList(baseGroup,"WEAPONTKCODES",weaponTKComponents);
-	globalStatistics.configData.WriteList(baseGroup,"LOCATIONKILLCODES",locationKillComponents);
-	globalStatistics.configData.WriteList(baseGroup,"LOCATIONDEATHCODES",locationDeathComponents);
-	globalStatistics.configData.WriteList(baseGroup,"LOCATIONTKCODES",locationTKComponents);
-	globalStatistics.configData.WriteList(baseGroup,"ACTIONCODES",actionComponents);
-	globalStatistics.configData.WriteList(baseGroup,"MISCCODES",miscComponents);
-	globalStatistics.configData.WriteList(baseGroup,"XPCODES",xpComponents);
-	globalStatistics.configData.WriteList(baseGroup,"GAMETYPECODES",allowedGameTypes);
+	globalStatistics.configData.WriteList(baseGroup,(char *)"WEAPONKILLCODES",weaponKillComponents);
+	globalStatistics.configData.WriteList(baseGroup,(char *)"WEAPONDEATHCODES",weaponDeathComponents);
+	globalStatistics.configData.WriteList(baseGroup,(char *)"WEAPONTKCODES",weaponTKComponents);
+	globalStatistics.configData.WriteList(baseGroup,(char *)"LOCATIONKILLCODES",locationKillComponents);
+	globalStatistics.configData.WriteList(baseGroup,(char *)"LOCATIONDEATHCODES",locationDeathComponents);
+	globalStatistics.configData.WriteList(baseGroup,(char *)"LOCATIONTKCODES",locationTKComponents);
+	globalStatistics.configData.WriteList(baseGroup,(char *)"ACTIONCODES",actionComponents);
+	globalStatistics.configData.WriteList(baseGroup,(char *)"MISCCODES",miscComponents);
+	globalStatistics.configData.WriteList(baseGroup,(char *)"XPCODES",xpComponents);
+	globalStatistics.configData.WriteList(baseGroup,(char *)"GAMETYPECODES",allowedGameTypes);
 
 	/*
 		THESE DON'T NEED TO BE WRITTEN - THEY ARE TAKEN CARE OF

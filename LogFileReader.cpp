@@ -89,13 +89,13 @@ bool LogFileReader::DecodeTeamLoss(wxString &line,DecodedTeamLoss &decode)
 
 	if (line.StartsWith("L;"))
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Team Loss Found")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Team Loss Found")
 		decode.Clear();
-		decode.teamName=GetLineToken(line,";",2,&tokenCount);
+		decode.teamName=GetLineToken(line,(char *)";",2,&tokenCount);
 		for (tokenIndex=4;tokenIndex<=tokenCount;tokenIndex+=2)
 		{
-			id=GetLineToken(line,";",tokenIndex-1,&tokenCount);
-			name=GetLineToken(line,";",tokenIndex,&tokenCount);
+			id=GetLineToken(line,(char *)";",tokenIndex-1,&tokenCount);
+			name=GetLineToken(line,(char *)";",tokenIndex,&tokenCount);
 			decode.playerIDs.Add(id);
 			decode.playerRoundIDs.Add(roundID);
 			decode.playerNames.Add(name);
@@ -106,19 +106,19 @@ bool LogFileReader::DecodeTeamLoss(wxString &line,DecodedTeamLoss &decode)
 	{
 		if (line.StartsWith("RL;"))
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"COD4 PAM Team Loss Found")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"COD4 PAM Team Loss Found")
 			decode.Clear();
-			decode.teamName=GetLineToken(line,";",1,&tokenCount);
+			decode.teamName=GetLineToken(line,(char *)";",1,&tokenCount);
 			decode.teamName="";
 			for(tokenIndex=3;tokenIndex<=tokenCount;tokenIndex+=2)
 			{
-				id=GetLineToken(line,";",tokenIndex-1,&tokenCount);
-				name=GetLineToken(line,";",tokenIndex,&tokenCount);
+				id=GetLineToken(line,(char *)";",tokenIndex-1,&tokenCount);
+				name=GetLineToken(line,(char *)";",tokenIndex,&tokenCount);
 				decode.playerIDs.Add(id);
 				decode.playerRoundIDs.Add(roundID);
 				decode.playerNames.Add(name);
 				STATSGEN_DEBUG_CODE(
-				msg.Printf("id[%s] name[%s]",id.GetData(),name.GetData());
+				msg.Printf("id[%s] name[%s]",STRING_TO_CHAR(id),STRING_TO_CHAR(name));
 									)
 				
 				STATSGEN_DEBUG(DEBUG_RARELY,msg);
@@ -146,13 +146,13 @@ bool LogFileReader::DecodeTeamWin(wxString &line,DecodedTeamWin &decode)
 
 	if (line.StartsWith("W;"))
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Normal Team Win Found")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Normal Team Win Found")
 		decode.Clear();
-		decode.teamName=GetLineToken(line,";",2,&tokenCount);
+		decode.teamName=GetLineToken(line,(char *)";",2,&tokenCount);
 		for (tokenIndex=4;tokenIndex<=tokenCount;tokenIndex+=2)
 		{
-			id=GetLineToken(line,";",tokenIndex-1,&tokenCount);
-			name=GetLineToken(line,";",tokenIndex,&tokenCount);
+			id=GetLineToken(line,(char *)";",tokenIndex-1,&tokenCount);
+			name=GetLineToken(line,(char *)";",tokenIndex,&tokenCount);
 			decode.playerIDs.Add(id);
 			decode.playerRoundIDs.Add(roundID);
 			decode.playerNames.Add(name);
@@ -163,19 +163,19 @@ bool LogFileReader::DecodeTeamWin(wxString &line,DecodedTeamWin &decode)
 	{
 		if (line.StartsWith("RW;"))
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"COD4 PAM Team Win Found")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"COD4 PAM Team Win Found")
 			decode.Clear();
-			decode.teamName=GetLineToken(line,";",1,&tokenCount);
+			decode.teamName=GetLineToken(line,(char *)";",1,&tokenCount);
 			decode.teamName="";
 			for(tokenIndex=3;tokenIndex<=tokenCount;tokenIndex+=2)
 			{
-				id=GetLineToken(line,";",tokenIndex-1,&tokenCount);
-				name=GetLineToken(line,";",tokenIndex,&tokenCount);
+				id=GetLineToken(line,(char *)";",tokenIndex-1,&tokenCount);
+				name=GetLineToken(line,(char *)";",tokenIndex,&tokenCount);
 				decode.playerIDs.Add(id);
 				decode.playerRoundIDs.Add(roundID);
 				decode.playerNames.Add(name);
 				STATSGEN_DEBUG_CODE(
-				msg.Printf("id[%s] name[%s]",id.GetData(),name.GetData());
+				msg.Printf("id[%s] name[%s]",STRING_TO_CHAR(id),STRING_TO_CHAR(name));
 									)
 				
 				STATSGEN_DEBUG(DEBUG_RARELY,msg);
@@ -210,10 +210,10 @@ bool LogFileReader::DecodeKill(wxString &line,DecodedKill &decode)
 	STATSGEN_DEBUG_FUNCTION_START("LogFileReader","DecodeKill");
 	if ((line.StartsWith("D;")) || (line.StartsWith("AD;")) || (line.StartsWith("VD;")))
 	{
-		decode.targetID=GetLineToken(line,";",2,&tokenCount);
-		decode.targetTeam=GetLineToken(line,";",4,&tokenCount);
-		decode.playerID=GetLineToken(line,";",6,&tokenCount);
-		decode.playerTeam=GetLineToken(line,";",8,&tokenCount);
+		decode.targetID=GetLineToken(line,(char *)";",2,&tokenCount);
+		decode.targetTeam=GetLineToken(line,(char *)";",4,&tokenCount);
+		decode.playerID=GetLineToken(line,(char *)";",6,&tokenCount);
+		decode.playerTeam=GetLineToken(line,(char *)";",8,&tokenCount);
 		if (fakeTeamIDs)
 		{
 			UpdatePlayerRoundInfo2(decode.targetID,
@@ -228,20 +228,20 @@ bool LogFileReader::DecodeKill(wxString &line,DecodedKill &decode)
 	}
 	if (line.StartsWith("K;"))
 	{
-		decode.targetID=GetLineToken(line,";",2,&tokenCount);
-		decode.targetRoundID=GetLineToken(line,";",3,&tokenCount);
-		decode.targetTeam=GetLineToken(line,";",4,&tokenCount);
-		decode.targetName=GetLineToken(line,";",5,&tokenCount);
+		decode.targetID=GetLineToken(line,(char *)";",2,&tokenCount);
+		decode.targetRoundID=GetLineToken(line,(char *)";",3,&tokenCount);
+		decode.targetTeam=GetLineToken(line,(char *)";",4,&tokenCount);
+		decode.targetName=GetLineToken(line,(char *)";",5,&tokenCount);
 		decode.targetClass="Soldier";
-		decode.playerID=GetLineToken(line,";",6,&tokenCount);
-		decode.playerRoundID=GetLineToken(line,";",7,&tokenCount);
-		decode.playerTeam=GetLineToken(line,";",8,&tokenCount);
-		decode.playerName=GetLineToken(line,";",9,&tokenCount);
+		decode.playerID=GetLineToken(line,(char *)";",6,&tokenCount);
+		decode.playerRoundID=GetLineToken(line,(char *)";",7,&tokenCount);
+		decode.playerTeam=GetLineToken(line,(char *)";",8,&tokenCount);
+		decode.playerName=GetLineToken(line,(char *)";",9,&tokenCount);
 		decode.playerClass="Soldier";
-		decode.playerWeapon=GetLineToken(line,";",10,&tokenCount);
-		decode.targetDamage=GetLineToken(line,";",11,&tokenCount);
-		decode.playerAmmo=GetLineToken(line,";",12,&tokenCount);
-		decode.targetLocation=GetLineToken(line,";",13,&tokenCount);
+		decode.playerWeapon=GetLineToken(line,(char *)";",10,&tokenCount);
+		decode.targetDamage=GetLineToken(line,(char *)";",11,&tokenCount);
+		decode.playerAmmo=GetLineToken(line,(char *)";",12,&tokenCount);
+		decode.targetLocation=GetLineToken(line,(char *)";",13,&tokenCount);
 		if ((decode.playerWeapon.Length()==0)||
 			(decode.playerWeapon.Cmp("none")==0))
 		{
@@ -249,7 +249,7 @@ bool LogFileReader::DecodeKill(wxString &line,DecodedKill &decode)
 		}
 		if (tokenCount==13)
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"Kill Found")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Kill Found")
 			retVal=true;
 			if (decode.targetTeam.Length()==0)
 			{
@@ -257,7 +257,7 @@ bool LogFileReader::DecodeKill(wxString &line,DecodedKill &decode)
 							decode.targetID,
 							playerIDs,
 							playerTeamList,
-							"");
+							(char *)"");
 			}
 			if (decode.playerTeam.Length()==0)
 			{
@@ -265,7 +265,7 @@ bool LogFileReader::DecodeKill(wxString &line,DecodedKill &decode)
 							decode.playerID,
 							playerIDs,
 							playerTeamList,
-							"");
+							(char *)"");
 			}
 		}
 	}
@@ -283,11 +283,11 @@ bool LogFileReader::DecodeAction(wxString &line,DecodedAction &decode)
 	STATSGEN_DEBUG_FUNCTION_START("LogFileReader","DecodeAction");
 	if (line.StartsWith("A;"))
 	{
-		decode.playerID=GetLineToken(line,";",2,&tokenCount);
-		decode.playerRoundID=GetLineToken(line,";",3,&tokenCount);
-		decode.playerTeam=GetLineToken(line,";",4,&tokenCount);
-		decode.playerName=GetLineToken(line,";",5,&tokenCount);
-		decode.action=GetLineToken(line,";",6,&tokenCount);
+		decode.playerID=GetLineToken(line,(char *)";",2,&tokenCount);
+		decode.playerRoundID=GetLineToken(line,(char *)";",3,&tokenCount);
+		decode.playerTeam=GetLineToken(line,(char *)";",4,&tokenCount);
+		decode.playerName=GetLineToken(line,(char *)";",5,&tokenCount);
+		decode.action=GetLineToken(line,(char *)";",6,&tokenCount);
 		if (tokenCount==6)
 		{
 			// COD4 Kill Assist is differently organised *sigh*
@@ -306,17 +306,17 @@ bool LogFileReader::DecodeAction(wxString &line,DecodedAction &decode)
 				decode.playerName		=decode.playerRoundID;
 				decode.playerRoundID	="";
 				decode.playerTeam		="";
-				STATSGEN_DEBUG(DEBUG_RARELY,"COD4 Kill Assist Action Found")
+				STATSGEN_DEBUG(DEBUG_RARELY,(char *)"COD4 Kill Assist Action Found")
 			}
 			else
 			{
-				STATSGEN_DEBUG(DEBUG_RARELY,"Normal Action Found")
+				STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Normal Action Found")
 			}
 			retVal=true;
 		}
 		if (tokenCount==4)
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"COD4 PAM MOD activity")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"COD4 PAM MOD activity")
 			decode.action=decode.playerID;
 			decode.playerID=decode.playerRoundID;
 			decode.playerName=decode.playerTeam;
@@ -325,9 +325,9 @@ bool LogFileReader::DecodeAction(wxString &line,DecodedAction &decode)
 			decode.playerTeam="";
 			STATSGEN_DEBUG_CODE(
 			msg.Printf("id[%s] name[%s] action[%s]",
-						decode.playerID.GetData(),
-						decode.playerName.GetData(),
-						decode.action.GetData());
+						STRING_TO_CHAR(decode.playerID),
+						STRING_TO_CHAR(decode.playerName),
+						STRING_TO_CHAR(decode.action));
 								)
 			retVal=true;
 			STATSGEN_DEBUG(DEBUG_RARELY,msg)
@@ -341,11 +341,11 @@ bool LogFileReader::DecodeAction(wxString &line,DecodedAction &decode)
 				// 4th token a numeric, 5th token shots_fired or shots_hit
 				// not really a action
 				retVal=false;
-				STATSGEN_DEBUG(DEBUG_RARELY,"COD4 PAM MOD Action Found")
+				STATSGEN_DEBUG(DEBUG_RARELY,(char *)"COD4 PAM MOD Action Found")
 			}
 			else
 			{
-				STATSGEN_DEBUG(DEBUG_RARELY,"Extreme MOD Action Found")
+				STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Extreme MOD Action Found")
 				// This is a (extreme) mod with no team line
 				decode.action=decode.playerName;
 				decode.playerName=decode.playerTeam;
@@ -357,13 +357,13 @@ bool LogFileReader::DecodeAction(wxString &line,DecodedAction &decode)
 	if (line.StartsWith("heal;"))
 	{
 		decode.playerID="";
-		decode.playerRoundID=GetLineToken(line,";",2,&tokenCount);
+		decode.playerRoundID=GetLineToken(line,(char *)";",2,&tokenCount);
 		decode.playerTeam="";
-		decode.playerName=GetLineToken(line,";",3,&tokenCount);
-		decode.action=GetLineToken(line,";",1,&tokenCount);
+		decode.playerName=GetLineToken(line,(char *)";",3,&tokenCount);
+		decode.action=GetLineToken(line,(char *)";",1,&tokenCount);
 		if (tokenCount==5)
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"Admiral Action Found")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Admiral Action Found")
 			retVal=true;
 		}
 	}
@@ -391,11 +391,11 @@ bool LogFileReader::DecodeSpeech(wxString &line,DecodedSpeech &decode)
 	if ((line.StartsWith("say;"))||
 		(line.StartsWith("sayteam;")))
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Speech Found")
-		decode.playerID=GetLineToken(line,";",2,&tokenCount);
-		decode.playerRoundID=GetLineToken(line,";",3,&tokenCount);
-		decode.playerName=GetLineToken(line,";",4,&tokenCount);
-		decode.speech=GetLineToken(line,";",5,&tokenCount);
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Speech Found")
+		decode.playerID=GetLineToken(line,(char *)";",2,&tokenCount);
+		decode.playerRoundID=GetLineToken(line,(char *)";",3,&tokenCount);
+		decode.playerName=GetLineToken(line,(char *)";",4,&tokenCount);
+		decode.speech=GetLineToken(line,(char *)";",5,&tokenCount);
 
 		tempGUID=serverType+"_"+decode.playerID;
 		
@@ -451,14 +451,14 @@ bool LogFileReader::DecodePlayerJoin(wxString &line,DecodedPlayerJoin &decode)
 	STATSGEN_DEBUG_FUNCTION_START("LogFileReader","DecodePlayerJoin");
 	if (line.StartsWith("J;"))
 	{
-		decode.playerID=GetLineToken(line,";",2,&tokenCount);
-		decode.playerRoundID=GetLineToken(line,";",3,&tokenCount);
-		decode.playerName=GetLineToken(line,";",4,&tokenCount);
+		decode.playerID=GetLineToken(line,(char *)";",2,&tokenCount);
+		decode.playerRoundID=GetLineToken(line,(char *)";",3,&tokenCount);
+		decode.playerName=GetLineToken(line,(char *)";",4,&tokenCount);
 		decode.playerClass="";
 		decode.playerTeam="";
 		if (tokenCount==4)
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"Join Found")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Join Found")
 			retVal=true;
 		}
 	}
@@ -475,12 +475,12 @@ bool LogFileReader::DecodePlayerQuit(wxString &line,DecodedPlayerQuit &decode)
 
 	if (line.StartsWith("Q;"))
 	{
-		decode.playerID=GetLineToken(line,";",2,&tokenCount);
-		decode.playerRoundID=GetLineToken(line,";",3,&tokenCount);
-		decode.playerName=GetLineToken(line,";",4,&tokenCount);
+		decode.playerID=GetLineToken(line,(char *)";",2,&tokenCount);
+		decode.playerRoundID=GetLineToken(line,(char *)";",3,&tokenCount);
+		decode.playerName=GetLineToken(line,(char *)";",4,&tokenCount);
 		if (tokenCount==4)
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"Quit Found")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Quit Found")
 			retVal=true;
 		}
 	}
@@ -524,13 +524,13 @@ bool LogFileReader::DecodeInitGame(wxString &line,
 		round->logfileVariableKeys.Clear();
 		round->logfileVariableValues.Clear();
 		remainder=line.AfterFirst(' ');
-		key=GetLineToken(remainder,"\\",1,&tokenCount);
+		key=GetLineToken(remainder,(char *)"\\",1,&tokenCount);
 		for (tokenIndex=1;tokenIndex<=tokenCount;tokenIndex++)
 		{
 			if ((tokenIndex % 2)!=0)
 			{
 				// odd numbers are the values
-				value=GetLineToken(remainder,"\\",tokenIndex,&tokenCount);
+				value=GetLineToken(remainder,(char *)"\\",tokenIndex,&tokenCount);
 				// We have decoded a value - the key should represent what
 				// it means
 				if (key.CmpNoCase("g_gametype")==0)
@@ -557,12 +557,12 @@ bool LogFileReader::DecodeInitGame(wxString &line,
 			else
 			{
 				// even numbers are the keys
-				key=GetLineToken(remainder,"\\",tokenIndex,&tokenCount);
+				key=GetLineToken(remainder,(char *)"\\",tokenIndex,&tokenCount);
 			}
 		}
 		if (gameTypeFound && mapFound)
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"Round Start Found")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Round Start Found")
 			retVal=true;
 		}
 	}
@@ -627,7 +627,7 @@ bool LogFileReader::StripTimeFromLine(wxString &lineRead,wxDateTime &lineTime)
 
 	if (timeString.IsNumber())
 	{
-		since1970=atoi(timeString.GetData());
+		since1970=atoi(STRING_TO_CHAR(timeString));
 		lineTime.Set(since1970);
 		retVal=true;
 	}
@@ -639,8 +639,8 @@ bool LogFileReader::StripTimeFromLine(wxString &lineRead,wxDateTime &lineTime)
 			secondString.IsNumber())
 		{
 			retVal=true;
-			minutes=atoi(minuteString.GetData());
-			seconds=atoi(secondString.GetData());
+			minutes=atoi(STRING_TO_CHAR(minuteString));
+			seconds=atoi(STRING_TO_CHAR(secondString));
 			since1970=(60*minutes)+seconds;
 			lineTime.Set(since1970);
 		}
@@ -703,11 +703,13 @@ void LogFileReader::ProcessLogFile(Server *server,int serverIndex,long maxLogfil
 	ErrorData			errorData;
 	int					lineNumber=0;
 	long				maxLogfilePosition=0;
+	long				lastRoundEndedAtLong;
 
 	STATSGEN_DEBUG_FUNCTION_START("LogFileReader","ProcessLogFile")
 	thisServer=server;
 	if (logfile.Ok())
 	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Step 1");
 		// File appears to be open
 
 		logfileSize=logfile.Length();
@@ -716,6 +718,7 @@ void LogFileReader::ProcessLogFile(Server *server,int serverIndex,long maxLogfil
 			lastRoundEndedAt=0;
 			secondaryLastRoundEndedAt=0;
 		}
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Step 2");
 		/*
 		STATSGEN_DEBUG_CODE(errorMessage.Printf("File [%s] opened OK %d bytes",
 					 filename.GetData(),
@@ -726,6 +729,7 @@ void LogFileReader::ProcessLogFile(Server *server,int serverIndex,long maxLogfil
 
 		// Seek to the last bit of the logfile read
 		logfile.SeekI(lastRoundEndedAt);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Step 3");
 		if (maxLogfileSize>0)
 		{
 			maxLogfilePosition=lastRoundEndedAt+(1024*1024*maxLogfileSize);
@@ -734,10 +738,14 @@ void LogFileReader::ProcessLogFile(Server *server,int serverIndex,long maxLogfil
 		{
 			maxLogfilePosition=0;
 		}
-		STATSGEN_DEBUG_CODE(msg.Printf("Last Round Ended At %ld",lastRoundEndedAt);)
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Step 4");
+		lastRoundEndedAtLong = lastRoundEndedAt;
+		STATSGEN_DEBUG_CODE(msg.Printf("Last Round Ended At %ld",lastRoundEndedAtLong);)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Step 5");
 		while (!logfile.Eof() && errorData.IsOK())
 		{
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Step 6.1");
 			// Read each line in turn
 			// Stripping leading and trailing spaces
 			currentFilePosition=logfile.TellI();
@@ -746,22 +754,27 @@ void LogFileReader::ProcessLogFile(Server *server,int serverIndex,long maxLogfil
 			lineRead.Trim(true);
 			lineRead.Trim(false);
 			lineNumber++;
-			STATSGEN_DEBUG_CODE(msg.Printf("%9d %s",lineNumber,lineRead.GetData());)
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Step 6.2");
+			STATSGEN_DEBUG_CODE(msg.Printf("%9d %s",lineNumber,STRING_TO_CHAR(lineRead));)
 			STATSGEN_DEBUG(DEBUG_RARELY,msg)
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Step 6.3");
 			if (lineRead.Length()>0)
 			{
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Step 6.4");
 				// Line contains something
 				result=StripTimeFromLine(lineRead,lineTime);
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Step 6.5");
 				if (result)
 				{
+					STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Step 6.6");
 					// Line has a valid time field
 					if (IsRoundStart(lineRead))
 					{
-						STATSGEN_DEBUG(DEBUG_SOMETIMES,"Round Start Encountered")
+						STATSGEN_DEBUG(DEBUG_SOMETIMES,(char *)"Round Start Encountered")
 						// Start of round encountered
 						if (inRound)
 						{
-							STATSGEN_DEBUG(DEBUG_SOMETIMES,"Old Round Ended.Starting new round")
+							STATSGEN_DEBUG(DEBUG_SOMETIMES,(char *)"Old Round Ended.Starting new round")
 							// We were already in a round
 							// Strange situation - new round started
 							// without old round ending
@@ -776,7 +789,7 @@ void LogFileReader::ProcessLogFile(Server *server,int serverIndex,long maxLogfil
 						}
 						else
 						{
-							STATSGEN_DEBUG(DEBUG_SOMETIMES,"Starting new round")
+							STATSGEN_DEBUG(DEBUG_SOMETIMES,(char *)"Starting new round")
 							// We were not in a previous round
 							// so we just need to create a new round
 							currentRound.Initiate(this,
@@ -789,7 +802,7 @@ void LogFileReader::ProcessLogFile(Server *server,int serverIndex,long maxLogfil
 					if (IsRoundEnd(lineRead))
 					{
 						
-						STATSGEN_DEBUG(DEBUG_SOMETIMES,"Round End encountered")
+						STATSGEN_DEBUG(DEBUG_SOMETIMES,(char *)"Round End encountered")
 						// Reached end of a round
 						if (inRound)
 						{
@@ -798,11 +811,14 @@ void LogFileReader::ProcessLogFile(Server *server,int serverIndex,long maxLogfil
 							currentRound.Process(errorData,serverIndex);
 							//currentRound.Debug();
 							globalStatistics.rounds.Add(currentRound);
+							roundCount=globalStatistics.rounds.GetCount();
+							msg.Printf("Processing: Rounds %d",roundCount);
+							progress->SetStatus(msg);
 							lastRoundEndedAt=logfile.TellI();
 						}
 						else
 						{
-							STATSGEN_DEBUG(DEBUG_SOMETIMES,"Not In Round:Line Discarded")
+							STATSGEN_DEBUG(DEBUG_SOMETIMES,(char *)"Not In Round:Line Discarded")
 							// End of an inactive round (start of logfile)
 							// or Start Of Round got corrupted/not recorded.
 							// Just throw away this round
@@ -811,39 +827,43 @@ void LogFileReader::ProcessLogFile(Server *server,int serverIndex,long maxLogfil
 					}
 					else
 					{
+						STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"not round start or end");
 						// Some other sort of line - just add it
 						currentRound.AddLogLine(lineTime,lineRead);
 					}
 				}
 				else
 				{
-					STATSGEN_DEBUG(DEBUG_RARELY,"Bad Time Field")
+					STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Bad Time Field")
 					// Line does not have a valid time field
 					// Ignore
 				}
 			}
 			else
 			{
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"zero length line");
 				// Line is zero length - ignore
 			}
 			if ((maxLogfilePosition>0) && (lastRoundEndedAt>maxLogfilePosition))
 			{
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"reached limit for this process run");
 				// Reached the limit for this process run
 				break;
 			}
 		}
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Step 7");
 		// End of file processed
 		// Search through removing all the dropped rounds
 		roundCount=globalStatistics.rounds.GetCount();
 		roundIndex=0;
-		STATSGEN_DEBUG(DEBUG_SOMETIMES,"Dropping Inactive Rounds")
+		STATSGEN_DEBUG(DEBUG_SOMETIMES,(char *)"Dropping Inactive Rounds")
 		while (roundIndex<roundCount)
 		{
-			STATSGEN_DEBUG(DEBUG_SOMETIMES,"Dropping round 1")
+			STATSGEN_DEBUG(DEBUG_SOMETIMES,(char *)"Dropping round 1")
 			currentRound=globalStatistics.rounds.Item(roundIndex);
 			if (currentRound.IsDropped())
 			{
-				STATSGEN_DEBUG(DEBUG_SOMETIMES,"Dropping round 2")
+				STATSGEN_DEBUG(DEBUG_SOMETIMES,(char *)"Dropping round 2")
 				globalStatistics.rounds.RemoveAt(roundIndex);
 				roundCount--;
 			}
@@ -852,9 +872,11 @@ void LogFileReader::ProcessLogFile(Server *server,int serverIndex,long maxLogfil
 				roundIndex++;
 			}
 		}
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Step 8");
 	}
 	else
 	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Step 9");
 		// Failed to open the logfile
 		errorMessage="Failed to open " /*+ filename + " for reading."*/;
 		errorMessage+=logfile.Filename();
@@ -947,7 +969,7 @@ void LogFileReader::UpdatePlayerRoundInfo2(wxString &name,
 			break;
 		}
 	}
-	STATSGEN_DEBUG_CODE(msg.Printf("[%s] = [%s]",name.GetData(),id.GetData());)
+	STATSGEN_DEBUG_CODE(msg.Printf("[%s] = [%s]",STRING_TO_CHAR(name),STRING_TO_CHAR(id));)
 	STATSGEN_DEBUG(DEBUG_RARELY,msg)
 	listnames.Add(name);
 	listIDs.Add(id);

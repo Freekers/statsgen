@@ -41,7 +41,7 @@ wxString KillTotal::SQLCreateTable(const char *suffix)
 				"suicides integer,"
 				"teamkills integer"
 			")",
-			SQLTableName(suffix).GetData());
+			STRING_TO_CHAR(SQLTableName(suffix)));
 
 	return SQL;
 }
@@ -63,10 +63,10 @@ bool KillTotal::WriteToDatabase(const char *suffix)
 
 		// Inefficient - move this delete from here
 		SQL.Printf("delete from %s where itemindex='%d' and playerindex='%d'",
-				SQLTableName(suffix).GetData(),
+				STRING_TO_CHAR(SQLTableName(suffix)),
 				itemIndex,
 				actualPlayerIndex);
-STATSGEN_DEBUG(DEBUG_RARELY,SQL)
+		STATSGEN_DEBUG(DEBUG_RARELY,SQL)
 		globalStatistics.statsgenDatabase.SimpleExecute(SQL);
 	}
 	
@@ -76,10 +76,10 @@ STATSGEN_DEBUG(DEBUG_RARELY,SQL)
 				"values"
 				"('%d','%d','%d','%d','%d',"
 				"'%d')",
-				SQLTableName(suffix).GetData(),
+				STRING_TO_CHAR(SQLTableName(suffix)),
 				itemIndex,actualPlayerIndex,kills,deaths,suicides,teamkills);
 	globalStatistics.statsgenDatabase.SimpleExecute(SQL);
-STATSGEN_DEBUG(DEBUG_RARELY,SQL)
+	STATSGEN_DEBUG(DEBUG_RARELY,SQL)
 
 	STATSGEN_DEBUG_FUNCTION_END
 	return retVal;

@@ -199,7 +199,7 @@ void DropListEntry::WriteToFile(FILE *fp)
 		dropChar,
 		colouredChar,
 		matchChar,
-		name.GetData());
+		STRING_TO_CHAR(name));
 }
 int DropListEntry::Compare(DropListEntry *item1,DropListEntry *item2)
 {

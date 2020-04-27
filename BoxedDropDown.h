@@ -31,9 +31,11 @@ class BoxedDropDown : public wxPanel
 						wxString &defaultSelection)=0;
 		
 	private:
-		bool				allEntriesAllowed;
-		wxStaticBox			staticBox;
-		wxComboBox			*dropDown;
+		bool				mAllEntriesAllowed;
+		wxStaticBox			*mTitleBox;
+		wxComboBox			*mDropDown;
+		wxStaticBoxSizer		*mTitleSizer;
+		wxBoxSizer			*mContentsSizer;
 
 };
 

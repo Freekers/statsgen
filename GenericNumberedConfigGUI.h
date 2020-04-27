@@ -31,7 +31,6 @@ class GenericNumberedConfigGUI : public wxDialog
 		void OnSave(wxCommandEvent& event);
 		void OnNew(wxCommandEvent& event);
 		void OnDelete(wxCommandEvent& event);
-		void OnResize(wxSizeEvent& event);
 		void OnListItemSelected(wxCommandEvent &event);
 
 		void DisplayDialog();
@@ -40,21 +39,23 @@ class GenericNumberedConfigGUI : public wxDialog
 
 	protected:
 		void CreateDialog();
-
+		void ConfigureSizer();
 	private:
 		void WriteIDList();
-		wxComboBox		idList;
+		wxComboBox		mIDList;
 		//GenericConfigPanel * (*newPanelFunction)(wxWindow *parentID,wxString &listID);
-		wxPanel * (*newPanelFunction)(wxWindow *parentID,wxString &listID);
+		wxPanel * (*mNewPanelFunction)(wxWindow *parentID,wxString &listID);
 		//GenericConfigPanel	*configPanel;
-		wxPanel	*configPanel;
-		wxButton	saveButton;
-		wxButton	quitButton;
-		wxButton	newButton;
-		wxButton	deleteButton;
-		wxString	listGroup;
-		wxString	listGroupPrefix;
-		bool		firstTimeResize;
+		wxPanel		*mConfigPanel;
+		wxButton	mSaveButton;
+		wxButton	mQuitButton;
+		wxButton	mNewButton;
+		wxButton	mDeleteButton;
+		wxString	mListGroup;
+		wxString	mListGroupPrefix;
+
+		wxBoxSizer	*mMainSizer;
+		wxBoxSizer	*mControlsSizer;
 		DECLARE_EVENT_TABLE()
 };
 

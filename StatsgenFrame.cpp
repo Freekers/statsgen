@@ -121,21 +121,20 @@ wxWidgetsFrame::wxWidgetsFrame(const wxString& title, const wxPoint& pos, const 
 : wxFrame((wxFrame *)NULL, -1, title, pos, size)
 {
 	bool		runOnceFlag;
-
 	quitNow=false;
-	workerThread=false;
+	workerThread=NULL;
 	globalStatistics.mainEventHandler=this;
 
-	wxMenu *helpMenu = new wxMenu(_(""), wxMENU_TEAROFF);
-	wxMenu *fileMenu = new wxMenu(_(""), wxMENU_TEAROFF);
-	wxMenu *displayMenu = new wxMenu(_(""), wxMENU_TEAROFF);
-	wxMenu *calculationMenu = new wxMenu(_(""), wxMENU_TEAROFF);
-	wxMenu *mandatoryMenu = new wxMenu(_(""), wxMENU_TEAROFF);
-	wxMenu *optionalMenu = new wxMenu(_(""), wxMENU_TEAROFF);
-	wxMenu *rconMenu = new wxMenu(_(""), wxMENU_TEAROFF);
-	wxMenu *logSubstituteMenu = new wxMenu(_(""), wxMENU_TEAROFF);
-	wxMenu *devMenu = new wxMenu(_(""), wxMENU_TEAROFF);
-	wxMenu *playerData = new wxMenu(_(""), wxMENU_TEAROFF);
+	wxMenu *helpMenu = new wxMenu((char *)"", wxMENU_TEAROFF);
+	wxMenu *fileMenu = new wxMenu((char *)"", wxMENU_TEAROFF);
+	wxMenu *displayMenu = new wxMenu((char *)"", wxMENU_TEAROFF);
+	wxMenu *calculationMenu = new wxMenu((char *)"", wxMENU_TEAROFF);
+	wxMenu *mandatoryMenu = new wxMenu((char *)"", wxMENU_TEAROFF);
+	wxMenu *optionalMenu = new wxMenu((char *)"", wxMENU_TEAROFF);
+	wxMenu *rconMenu = new wxMenu((char *)"", wxMENU_TEAROFF);
+	wxMenu *logSubstituteMenu = new wxMenu((char *)"", wxMENU_TEAROFF);
+	wxMenu *devMenu = new wxMenu((char *)"", wxMENU_TEAROFF);
+	wxMenu *playerData = new wxMenu((char *)"", wxMENU_TEAROFF);
 
 	int argIndex;
 
@@ -144,84 +143,83 @@ wxWidgetsFrame::wxWidgetsFrame(const wxString& title, const wxPoint& pos, const 
 	STATSGEN_DEBUG_UPDATE_DEBUG_LEVEL(WINDOW_ID_PROGRESS_PANEL_GENERAL)
 	globalStatistics.configData.CommitChanges();
 
-	helpMenu->Append(WINDOW_ID_MENU_HELP, _("&Help"), _("Help"));
-	helpMenu->Append(WINDOW_ID_MENU_ABOUT, _("About"), _("Version"));
-	fileMenu->AppendCheckItem(WINDOW_ID_MENU_ADVANCED, _("Advanced Menus"), _("Advanced"));
-	fileMenu->Append(WINDOW_ID_WIZARD, _("First Time Configuration Run"), _("Run this the first time you start statsgen"));
-	fileMenu->Append(WINDOW_ID_MENU_GO, _("Go\tf1"), _("Go"));
-	fileMenu->Append(WINDOW_ID_MENU_EMPTY_DATABASE, _("Empty Database"), _("Empty Database"));
-	fileMenu->Append(WINDOW_ID_MENU_THREAD, _("Priority\tf2"), _("Change Priority"));
-	fileMenu->Append(WINDOW_ID_MENU_PERFORM_UPGRADE, _("Upgrade Configuration"), _("Use an Upgrade file to update configuration"));
-	fileMenu->Append(WINDOW_ID_MENU_RESET_RECOVERY, _("Clear Recovery Status"), _("Clear Recovery Status"));
-	fileMenu->Append(WINDOW_ID_MENU_STORE_PROGRESS, _("Write Errors To File"), _("Write Errors To File"));
-	fileMenu->Append(WINDOW_ID_MENU_QUIT, _("E&xit\tAlt-X"), _("Quit this program"));
+	helpMenu->Append(WINDOW_ID_MENU_HELP, (char *)"&Help", (char *)"Help");
+	helpMenu->Append(WINDOW_ID_MENU_ABOUT, (char *)"About", (char *)"Version");
+	fileMenu->AppendCheckItem(WINDOW_ID_MENU_ADVANCED, (char *)"Advanced Menus", (char *)"Advanced");
+	fileMenu->Append(WINDOW_ID_WIZARD, (char *)"First Time Configuration Run", (char *)"Run this the first time you start statsgen");
+	fileMenu->Append(WINDOW_ID_MENU_GO, (char *)"Go\tf1", (char *)"Go");
+	fileMenu->Append(WINDOW_ID_MENU_EMPTY_DATABASE, (char *)"Empty Database", (char *)"Empty Database");
+	fileMenu->Append(WINDOW_ID_MENU_THREAD, (char *)"Priority\tf2", (char *)"Change Priority");
+	fileMenu->Append(WINDOW_ID_MENU_PERFORM_UPGRADE, (char *)"Upgrade Configuration", (char *)"Use an Upgrade file to update configuration");
+	fileMenu->Append(WINDOW_ID_MENU_RESET_RECOVERY, (char *)"Clear Recovery Status", (char *)"Clear Recovery Status");
+	fileMenu->Append(WINDOW_ID_MENU_STORE_PROGRESS, (char *)"Write Errors To File", (char *)"Write Errors To File");
+	fileMenu->Append(WINDOW_ID_MENU_QUIT, (char *)"E&xit\tAlt-X", (char *)"Quit this program");
 
-	displayMenu->Append(WINDOW_ID_MENU_WEAPON_GROUPS, _("Weapon Groups"), _("Edit Weapon Groupings"));
-	displayMenu->Append(WINDOW_ID_MENU_REAL_NAMES, _("Real Names"), _("Edit Real Names"));
-	displayMenu->Append(WINDOW_ID_MENU_IMAGES, _("Images"), _("Edit Image References"));
+	displayMenu->Append(WINDOW_ID_MENU_WEAPON_GROUPS, (char *)"Weapon Groups", (char *)"Edit Weapon Groupings");
+	displayMenu->Append(WINDOW_ID_MENU_REAL_NAMES, (char *)"Real Names", (char *)"Edit Real Names");
+	displayMenu->Append(WINDOW_ID_MENU_IMAGES, (char *)"Images", (char *)"Edit Image References");
 
-	playerData->Append(WINDOW_ID_MENU_PLAYERDATAAVATAR, _("Avatar Editing"), _("Edit Player Avatar Images"));
-	playerData->Append(WINDOW_ID_MENU_PLAYERDATAREALNAME, _("Real Name Editing"), _("Edit Player Real Names"));
-	playerData->Append(WINDOW_ID_MENU_PLAYERDATAPICTURE, _("Personal Picture"), _("Edit Player Personal Pictures"));
-	playerData->Append(WINDOW_ID_MENU_PLAYERDATACLANROLE, _("Clan Role"), _("Edit Player's Clan Role"));
-	playerData->Append(WINDOW_ID_MENU_PLAYERDATAXFIRE, _("Xfire"), _("Edit Player's Xfire ID"));
-	playerData->Append(WINDOW_ID_MENU_PLAYERDATAWEBSITE, _("Website"), _("Edit Player's Personal Website"));
-	playerData->Append(WINDOW_ID_MENU_PLAYERDATAMISC1, _("Miscellaneous 1"), _("Edit Player's Miscellaneous Data 1"));
-	playerData->Append(WINDOW_ID_MENU_PLAYERDATAMISC2, _("Miscellaneous 2"), _("Edit Player's Miscellaneous Data 2"));
+	playerData->Append(WINDOW_ID_MENU_PLAYERDATAAVATAR, (char *)"Avatar Editing", (char *)"Edit Player Avatar Images");
+	playerData->Append(WINDOW_ID_MENU_PLAYERDATAREALNAME, (char *)"Real Name Editing", (char *)"Edit Player Real Names");
+	playerData->Append(WINDOW_ID_MENU_PLAYERDATAPICTURE, (char *)"Personal Picture", (char *)"Edit Player Personal Pictures");
+	playerData->Append(WINDOW_ID_MENU_PLAYERDATACLANROLE, (char *)"Clan Role", (char *)"Edit Player's Clan Role");
+	playerData->Append(WINDOW_ID_MENU_PLAYERDATAXFIRE, (char *)"Xfire", (char *)"Edit Player's Xfire ID");
+	playerData->Append(WINDOW_ID_MENU_PLAYERDATAWEBSITE, (char *)"Website", (char *)"Edit Player's Personal Website");
+	playerData->Append(WINDOW_ID_MENU_PLAYERDATAMISC1, (char *)"Miscellaneous 1", (char *)"Edit Player's Miscellaneous Data 1");
+	playerData->Append(WINDOW_ID_MENU_PLAYERDATAMISC2, (char *)"Miscellaneous 2", (char *)"Edit Player's Miscellaneous Data 2");
 
-	calculationMenu->Append(WINDOW_ID_MENU_SCORE_WEIGHTS, _("Score Weights"), _("Edit Score Weights"));
-	calculationMenu->Append(WINDOW_ID_MENU_SKILL_WEIGHTS, _("Skill Weights"), _("Edit Skill Weights"));
-	calculationMenu->Append(WINDOW_ID_MENU_AWARD, _("Award Editing"), _("Edit Award Configuration"));
+	calculationMenu->Append(WINDOW_ID_MENU_SCORE_WEIGHTS, (char *)"Score Weights", (char *)"Edit Score Weights");
+	calculationMenu->Append(WINDOW_ID_MENU_SKILL_WEIGHTS, (char *)"Skill Weights", (char *)"Edit Skill Weights");
+	calculationMenu->Append(WINDOW_ID_MENU_AWARD, (char *)"Award Editing", (char *)"Edit Award Configuration");
 
-	mandatoryMenu->Append(WINDOW_ID_MENU_TEMPLATE_CONFIG, _("Template Variable Config"), _("Change variables used by the template during output"));
-	mandatoryMenu->Append(WINDOW_ID_MENU_OUTPUT, _("Output Config"), _("Edit How And Where Output Is Created"));
-	mandatoryMenu->Append(WINDOW_ID_MENU_SERVER, _("Server Config"), _("Edit Server Connection Details"));
-	mandatoryMenu->Append(WINDOW_ID_MENU_WEBSITE, _("Website Config"), _("Edit Website Connection Details"));
-	mandatoryMenu->Append(WINDOW_ID_MENU_IMAGEPACKS, _("Upload Image Packs"), _("Upload appropriate image packs"));
-	mandatoryMenu->Append(WINDOW_ID_MENU_TEMPLATEPACKS, _("Upload Template Packs"), _("Upload Alternative Templates"));
+	mandatoryMenu->Append(WINDOW_ID_MENU_TEMPLATE_CONFIG, (char *)"Template Variable Config", (char *)"Change variables used by the template during output");
+	mandatoryMenu->Append(WINDOW_ID_MENU_OUTPUT, (char *)"Output Config", (char *)"Edit How And Where Output Is Created");
+	mandatoryMenu->Append(WINDOW_ID_MENU_SERVER, (char *)"Server Config", (char *)"Edit Server Connection Details");
+	mandatoryMenu->Append(WINDOW_ID_MENU_WEBSITE, (char *)"Website Config", (char *)"Edit Website Connection Details");
+	mandatoryMenu->Append(WINDOW_ID_MENU_IMAGEPACKS, (char *)"Upload Image Packs", (char *)"Upload appropriate image packs");
+	mandatoryMenu->Append(WINDOW_ID_MENU_TEMPLATEPACKS, (char *)"Upload Template Packs", (char *)"Upload Alternative Templates");
 
-	optionalMenu->Append(WINDOW_ID_MENU_CLAN, _("Clan Config"), _("Edit Clan Details"));
-	optionalMenu->Append(WINDOW_ID_MENU_ALIAS, _("Alias Editing"), _("Edit Player Alias Entries"));
-	optionalMenu->Append(WINDOW_ID_MENU_DROPLIST, _("Drop List Editing"), _("Edit List Of Allowed Players"));
-	optionalMenu->Append(WINDOW_ID_MENU_BAD_WORDS, _("Banned Speech Editing"), _("Edit List Of Words Not Allowed In Speech"));
-	optionalMenu->Append(WINDOW_ID_MENU_WEB_SERVER, _("Web Server Setting"), _("Configure Embedded Webserver"));
-	optionalMenu->Append(WINDOW_ID_MENU_EXTERNAL_DATABASE, _("External Database Config"), _("Configure MySQL connection"));
-	rconMenu->Append(WINDOW_ID_MENU_RCON_CONFIG, _("Message Centre"), _("Configure Game Server Messages"));
-	rconMenu->Append(WINDOW_ID_MENU_MESSAGE_FORMATS, _("Message Centre Formats"), _("Edit Message Centre Formats"));
-	rconMenu->Append(WINDOW_ID_MENU_CUSTOM_MESSAGES, _("Custom Messages"), _("Edit Custom Messages"));
-	logSubstituteMenu->Append(WINDOW_ID_MENU_LOG_SUBSTITUTE_GAMETYPE, _("Game Type"), _("Log File Substitution For Game Type"));
-	logSubstituteMenu->Append(WINDOW_ID_MENU_LOG_SUBSTITUTE_MAP, _("Map"), _("Log File Substitution For Map"));
-	logSubstituteMenu->Append(WINDOW_ID_MENU_LOG_SUBSTITUTE_CLASS, _("Class"), _("Log File Substitution For Class"));
-	logSubstituteMenu->Append(WINDOW_ID_MENU_LOG_SUBSTITUTE_TEAM, _("Team"), _("Log File Substitution For Team"));
-	logSubstituteMenu->Append(WINDOW_ID_MENU_LOG_SUBSTITUTE_WEAPON, _("Weapon"), _("Log File Substitution For Weapon"));
-	logSubstituteMenu->Append(WINDOW_ID_MENU_LOG_SUBSTITUTE_AMMO, _("Ammo"), _("Log File Substitution For Ammo"));
-	logSubstituteMenu->Append(WINDOW_ID_MENU_LOG_SUBSTITUTE_WEAPONAMMO, _("Weapon And Ammo"), _("Log File Substitution For Weapon And Ammo"));
-	logSubstituteMenu->Append(WINDOW_ID_MENU_LOG_SUBSTITUTE_LOCATION, _("Location"), _("Log File Substitution For Location"));
-	logSubstituteMenu->Append(WINDOW_ID_MENU_LOG_SUBSTITUTE_ACTION, _("Action"), _("Log File Substitution For Action"));
+	optionalMenu->Append(WINDOW_ID_MENU_CLAN, (char *)"Clan Config", (char *)"Edit Clan Details");
+	optionalMenu->Append(WINDOW_ID_MENU_ALIAS, (char *)"Alias Editing", (char *)"Edit Player Alias Entries");
+	optionalMenu->Append(WINDOW_ID_MENU_DROPLIST, (char *)"Drop List Editing", (char *)"Edit List Of Allowed Players");
+	optionalMenu->Append(WINDOW_ID_MENU_BAD_WORDS, (char *)"Banned Speech Editing", (char *)"Edit List Of Words Not Allowed In Speech");
+	optionalMenu->Append(WINDOW_ID_MENU_WEB_SERVER, (char *)"Web Server Setting", (char *)"Configure Embedded Webserver");
+	optionalMenu->Append(WINDOW_ID_MENU_EXTERNAL_DATABASE, (char *)"External Database Config", (char *)"Configure MySQL connection");
+	rconMenu->Append(WINDOW_ID_MENU_RCON_CONFIG, (char *)"Message Centre", (char *)"Configure Game Server Messages");
+	rconMenu->Append(WINDOW_ID_MENU_MESSAGE_FORMATS, (char *)"Message Centre Formats", (char *)"Edit Message Centre Formats");
+	rconMenu->Append(WINDOW_ID_MENU_CUSTOM_MESSAGES, (char *)"Custom Messages", (char *)"Edit Custom Messages");
+	logSubstituteMenu->Append(WINDOW_ID_MENU_LOG_SUBSTITUTE_GAMETYPE, (char *)"Game Type", (char *)"Log File Substitution For Game Type");
+	logSubstituteMenu->Append(WINDOW_ID_MENU_LOG_SUBSTITUTE_MAP, (char *)"Map", (char *)"Log File Substitution For Map");
+	logSubstituteMenu->Append(WINDOW_ID_MENU_LOG_SUBSTITUTE_CLASS, (char *)"Class", (char *)"Log File Substitution For Class");
+	logSubstituteMenu->Append(WINDOW_ID_MENU_LOG_SUBSTITUTE_TEAM, (char *)"Team", (char *)"Log File Substitution For Team");
+	logSubstituteMenu->Append(WINDOW_ID_MENU_LOG_SUBSTITUTE_WEAPON, (char *)"Weapon", (char *)"Log File Substitution For Weapon");
+	logSubstituteMenu->Append(WINDOW_ID_MENU_LOG_SUBSTITUTE_AMMO, (char *)"Ammo", (char *)"Log File Substitution For Ammo");
+	logSubstituteMenu->Append(WINDOW_ID_MENU_LOG_SUBSTITUTE_WEAPONAMMO, (char *)"Weapon And Ammo", (char *)"Log File Substitution For Weapon And Ammo");
+	logSubstituteMenu->Append(WINDOW_ID_MENU_LOG_SUBSTITUTE_LOCATION, (char *)"Location", (char *)"Log File Substitution For Location");
+	logSubstituteMenu->Append(WINDOW_ID_MENU_LOG_SUBSTITUTE_ACTION, (char *)"Action", (char *)"Log File Substitution For Action");
 
-	devMenu->Append(WINDOW_ID_MENU_DEBUG, _("Debug Settings"), _("Developer Debug Settings"));
-	devMenu->Append(WINDOW_ID_MENU_EXPORT_TEMPLATE, _("Export Template"), _("Export Template To C++"));
-	devMenu->Append(WINDOW_ID_MENU_EXPORT_UPGRADE, _("Export Upgrade File"), _("Prepare An Upgrade File"));
-	devMenu->Append(WINDOW_ID_MENU_EXPORT_BUILD_INI, _("Export Build INI File"), _("The Build INI File"));
+	devMenu->Append(WINDOW_ID_MENU_DEBUG, (char *)"Debug Settings", (char *)"Developer Debug Settings");
+	devMenu->Append(WINDOW_ID_MENU_EXPORT_TEMPLATE, (char *)"Export Template", (char *)"Export Template To C++");
+	devMenu->Append(WINDOW_ID_MENU_EXPORT_UPGRADE, (char *)"Export Upgrade File", (char *)"Prepare An Upgrade File");
+	devMenu->Append(WINDOW_ID_MENU_EXPORT_BUILD_INI, (char *)"Export Build INI File", (char *)"The Build INI File");
 
 	wxMenuBar *menuBar = new wxMenuBar();
-	menuBar->Append(fileMenu, _("&Run"));
-	menuBar->Append(calculationMenu, _("&Calculation"));
-	menuBar->Append(displayMenu, _("&Display"));
-	menuBar->Append(mandatoryMenu, _("&Mandatory"));
-	menuBar->Append(optionalMenu, _("&Optional"));
-	menuBar->Append(playerData, _("&Player Data"));
-	menuBar->Append(rconMenu, _("&Message Centre"));
-	menuBar->Append(logSubstituteMenu, _("&Logfile Substitutions"));
-	menuBar->Append(devMenu, _("&Developer"));
-	menuBar->Append(helpMenu, _("&Help"));
-
+	menuBar->Append(fileMenu, (char *)"&Run");
+	menuBar->Append(calculationMenu, (char *)"&Calculation");
+	menuBar->Append(displayMenu, (char *)"&Display");
+	menuBar->Append(mandatoryMenu, (char *)"&Mandatory");
+	menuBar->Append(optionalMenu, (char *)"&Optional");
+	menuBar->Append(playerData, (char *)"&Player Data");
+	menuBar->Append(rconMenu, (char *)"&Message Centre");
+	menuBar->Append(logSubstituteMenu, (char *)"&Logfile Substitutions");
+	menuBar->Append(devMenu, (char *)"&Developer");
+	menuBar->Append(helpMenu, (char *)"&Help");
 	SetMenuBar(menuBar);
 	CreateStatusBar(3);
 	progress=new StatusPanel();
-	progress->Create(this,-1);
-//	progress->CreatePanels();
-	SetStatusText(_("Status Text"));
+	progress->Create(this,wxID_ANY);
+	progress->CreatePanels();
+	SetStatusText((char *)"Status Text");
 	globalStatistics.ReadScheduleConfig();
 /*
 	if (FirstTimeRun())
@@ -261,6 +259,11 @@ wxWidgetsFrame::wxWidgetsFrame(const wxString& title, const wxPoint& pos, const 
 			OnGo(dummyEvent);
 	}
 	SetMenuItems();
+	mMainSizer = new wxBoxSizer(wxVERTICAL);
+	mMainSizer->Add(progress,1,wxEXPAND);
+	mMainSizer->SetSizeHints(this);
+	SetSizer(mMainSizer);
+	Fit();
 
 //	globalStatistics.webServer.StartServer();
 }
@@ -273,6 +276,7 @@ void wxWidgetsFrame::OnFullConfig(wxCommandEvent &event)
 
 void wxWidgetsFrame::SetMenuItems()
 {
+	STATSGEN_DEBUG_FUNCTION_START("wxWidgetsFrame","SetMenuItems")
 	wxString		configKey;
 	wxString		configValue;
 	wxMenuBar		*menuBar;
@@ -280,31 +284,48 @@ void wxWidgetsFrame::SetMenuItems()
 	bool			firstTimeRun;
 
 	runningWizard=false;
-	globalStatistics.configData.ReadTextValue(configKey,&configValue,"n");
+	globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"n");
 	globalStatistics.configData.CommitChanges();
 	advanced=(configValue.CmpNoCase("Y")==0);
 	menuBar = GetMenuBar();
-
 	firstTimeRun=NeedsFirstTimeRun();
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling Wizard")
 	menuBar->Enable(WINDOW_ID_WIZARD, firstTimeRun || advanced);
 
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling Advanced")
 	menuBar->Enable(WINDOW_ID_MENU_ADVANCED, true && (!firstTimeRun));
 	menuBar->Check(WINDOW_ID_MENU_ADVANCED, advanced && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling Help")
 	menuBar->Enable(WINDOW_ID_MENU_HELP, true && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling About")
 	menuBar->Enable(WINDOW_ID_MENU_ABOUT, true && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling Go")
 	menuBar->Enable(WINDOW_ID_MENU_GO, true && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling Empty DB")
 	menuBar->Enable(WINDOW_ID_MENU_EMPTY_DATABASE, true && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling Thread")
 	menuBar->Enable(WINDOW_ID_MENU_THREAD, advanced && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling Upgrade")
 	menuBar->Enable(WINDOW_ID_MENU_PERFORM_UPGRADE, true && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling Reset Recovery")
 	menuBar->Enable(WINDOW_ID_MENU_RESET_RECOVERY, advanced && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling Store Progress")
 	menuBar->Enable(WINDOW_ID_MENU_STORE_PROGRESS, advanced && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling Quit")
 	menuBar->Enable(WINDOW_ID_MENU_QUIT, true && (!firstTimeRun));
 
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling Weapon Groups")
 	menuBar->Enable(WINDOW_ID_MENU_WEAPON_GROUPS, advanced && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling Real names")
 	menuBar->Enable(WINDOW_ID_MENU_REAL_NAMES, advanced && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling Images")
 	menuBar->Enable(WINDOW_ID_MENU_IMAGES, advanced && (!firstTimeRun));
-	menuBar->Enable(WINDOW_ID_MENU_FULL_CONFIG, true && (!firstTimeRun));
+	// after
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling Full Config")
+//	menuBar->Enable(WINDOW_ID_MENU_FULL_CONFIG, true && (!firstTimeRun));
 
+//before
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling Playerdata")
 	menuBar->Enable(WINDOW_ID_MENU_PLAYERDATAAVATAR, advanced && (!firstTimeRun));
 	menuBar->Enable(WINDOW_ID_MENU_PLAYERDATAREALNAME, advanced && (!firstTimeRun));
 	menuBar->Enable(WINDOW_ID_MENU_PLAYERDATAPICTURE, advanced && (!firstTimeRun));
@@ -313,26 +334,42 @@ void wxWidgetsFrame::SetMenuItems()
 	menuBar->Enable(WINDOW_ID_MENU_PLAYERDATAWEBSITE, advanced && (!firstTimeRun));
 	menuBar->Enable(WINDOW_ID_MENU_PLAYERDATAMISC1, advanced && (!firstTimeRun));
 	menuBar->Enable(WINDOW_ID_MENU_PLAYERDATAMISC2, advanced && (!firstTimeRun));
-
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling Score/skill weights")
 	menuBar->Enable(WINDOW_ID_MENU_SCORE_WEIGHTS, advanced && (!firstTimeRun));
 	menuBar->Enable(WINDOW_ID_MENU_SKILL_WEIGHTS, advanced && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling awards")
 	menuBar->Enable(WINDOW_ID_MENU_AWARD, advanced && (!firstTimeRun));
 
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling template config")
 	menuBar->Enable(WINDOW_ID_MENU_TEMPLATE_CONFIG, true && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling output")
 	menuBar->Enable(WINDOW_ID_MENU_OUTPUT, true && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling server")
 	menuBar->Enable(WINDOW_ID_MENU_SERVER, true && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling website")
 	menuBar->Enable(WINDOW_ID_MENU_WEBSITE, true && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling imagepacks")
 	menuBar->Enable(WINDOW_ID_MENU_IMAGEPACKS, true && (!firstTimeRun));
 
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling clan")
 	menuBar->Enable(WINDOW_ID_MENU_CLAN, true && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling alias")
 	menuBar->Enable(WINDOW_ID_MENU_ALIAS, advanced && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling droplist")
 	menuBar->Enable(WINDOW_ID_MENU_DROPLIST, true && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling bad words")
 	menuBar->Enable(WINDOW_ID_MENU_BAD_WORDS, advanced && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling web server")
 	menuBar->Enable(WINDOW_ID_MENU_WEB_SERVER, true && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling external db")
 	menuBar->Enable(WINDOW_ID_MENU_EXTERNAL_DATABASE, advanced && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling rcon config")
 	menuBar->Enable(WINDOW_ID_MENU_RCON_CONFIG, true && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling message formats")
 	menuBar->Enable(WINDOW_ID_MENU_MESSAGE_FORMATS, true && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling custom messages")
 	menuBar->Enable(WINDOW_ID_MENU_CUSTOM_MESSAGES, true && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling log substitution")
 	menuBar->Enable(WINDOW_ID_MENU_LOG_SUBSTITUTE_GAMETYPE, advanced && (!firstTimeRun));
 	menuBar->Enable(WINDOW_ID_MENU_LOG_SUBSTITUTE_MAP, advanced && (!firstTimeRun));
 	menuBar->Enable(WINDOW_ID_MENU_LOG_SUBSTITUTE_CLASS, advanced && (!firstTimeRun));
@@ -343,10 +380,15 @@ void wxWidgetsFrame::SetMenuItems()
 	menuBar->Enable(WINDOW_ID_MENU_LOG_SUBSTITUTE_LOCATION, advanced && (!firstTimeRun));
 	menuBar->Enable(WINDOW_ID_MENU_LOG_SUBSTITUTE_ACTION, advanced && (!firstTimeRun));
 
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling advanced")
 	menuBar->Enable(WINDOW_ID_MENU_DEBUG, advanced && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling template")
 	menuBar->Enable(WINDOW_ID_MENU_EXPORT_TEMPLATE, advanced && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling upgrade")
 	menuBar->Enable(WINDOW_ID_MENU_EXPORT_UPGRADE, advanced && (!firstTimeRun));
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Enabling build ini")
 	menuBar->Enable(WINDOW_ID_MENU_EXPORT_BUILD_INI, advanced && (!firstTimeRun));
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void wxWidgetsFrame::OnAdvanced(wxCommandEvent &event)
@@ -355,7 +397,7 @@ void wxWidgetsFrame::OnAdvanced(wxCommandEvent &event)
 	wxString		configValue;
 	configKey="/General/advancedmenus";
 
-	globalStatistics.configData.ReadTextValue(configKey,&configValue,"n");
+	globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"n");
 	advanced=(configValue.CmpNoCase("Y")==0);
 	if (advanced)
 	{
@@ -404,7 +446,7 @@ void wxWidgetsFrame::OnTimerTick(wxTimerEvent& event)
 					schedule=&globalStatistics.messageTimer;
 					schedulePrefix="Message Centre";
 					configKey="/RCONSettings/Enabled";
-					globalStatistics.configData.ReadTextValue(configKey,&override,"n");
+					globalStatistics.configData.ReadTextValue(configKey,&override,(char *)"n");
 					break;
 				case 1:
 					schedule=&globalStatistics.productionRunTimer;
@@ -415,14 +457,14 @@ void wxWidgetsFrame::OnTimerTick(wxTimerEvent& event)
 			needsToRun=(schedule->TimeToRun(&timeLeft)&&(override.CmpNoCase("y")==0));
 			if (needsToRun)
 			{
-				statusText.Printf("%s: Running",schedulePrefix.GetData());
+				statusText.Printf("%s: Running",STRING_TO_CHAR(schedulePrefix));
 			}
 			else
 			{
 				if ((schedule->disabled)||(override.CmpNoCase("n")==0))
 				{
 					statusText.Printf("%s: Disabled",
-								schedulePrefix.GetData());
+								STRING_TO_CHAR(schedulePrefix));
 				}
 				else
 				{
@@ -431,7 +473,7 @@ void wxWidgetsFrame::OnTimerTick(wxTimerEvent& event)
 					seconds=minutes % 60;
 					minutes/=60;
 					statusText.Printf("%s: %02ld:%02ld:%02ld",
-								schedulePrefix.GetData(),
+								STRING_TO_CHAR(schedulePrefix),
 								hours,minutes,seconds);
 				}
 			}
@@ -451,6 +493,7 @@ void wxWidgetsFrame::OnTimerTick(wxTimerEvent& event)
 						wxBusyCursor	cursor;
 						globalStatistics.ProduceStatsInitiate();
 						globalStatistics.ProduceStatsDownload();
+#ifdef USE_THREADS
 						workerThread=new WorkerThread(wxTHREAD_JOINABLE);
 						if (workerThread!=NULL)
 						{
@@ -461,6 +504,9 @@ void wxWidgetsFrame::OnTimerTick(wxTimerEvent& event)
 							delete (workerThread);
 						}
 						workerThread=NULL;
+#else
+						globalStatistics.ProduceStatsProcess();
+#endif
 						globalStatistics.ProduceStatsTransfer();
 						globalStatistics.ProduceStatsFinalise();
 
@@ -491,6 +537,25 @@ void wxWidgetsFrame::OnGo(wxCommandEvent& event)
 	wxString	msg;
 
 	globalStatistics.productionRunTimer.StartNow();
+
+/*
+	int			index;
+	int			maxSize=100;
+	progress->Initiate(maxSize,
+					(char *)"rounds",
+					1,
+					(char *)"rounds",
+					1);
+	for (index=0;index<maxSize;index++)
+	{
+		msg.Printf("doing interation %d",index);
+		progress->Update(index);
+		progress->SetStatus(msg);
+		wxMilliSleep(1000);
+	}
+	progress->Finalise();
+
+*/
 }
 
 void wxWidgetsFrame::OnQuit(wxCommandEvent& event)
@@ -514,7 +579,7 @@ void wxWidgetsFrame::OnEditScoreWeights(wxCommandEvent& event)
 
 	gui=new ConfigEditorGUI(this,
 						-1,
-						_T("Edit Score Weights"),
+						(char *)"Edit Score Weights",
 						wxDefaultPosition,
 						wxDefaultSize,
 						wxCAPTION |
@@ -522,7 +587,7 @@ void wxWidgetsFrame::OnEditScoreWeights(wxCommandEvent& event)
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-						_T(""),
+						(char *)"",
 						(BoxedDropDown *)NULL,
 						(BoxedDropDown *)serverType,
 						(GroupedConfigItemsPanel *)NULL,
@@ -559,11 +624,11 @@ void wxWidgetsFrame::OnEditSkillWeights(wxCommandEvent& event)
 
 	weaponGroups=globalStatistics.configData.ReadWeaponGroups();
 
-	GroupedConfigItemsPanel	*configPanel=new GroupedConfigItemsPanel("Negative Skill");
+	GroupedConfigItemsPanel	*configPanel=new GroupedConfigItemsPanel((char *)"Negative Skill");
 
 	ConfigEditorGUI	gui(this,
-						-1,
-						_T("Edit Skill Weights"),
+						wxID_ANY,
+						(char *)"Edit Skill Weights",
 						wxDefaultPosition,
 						wxDefaultSize,
 						wxCAPTION |
@@ -571,18 +636,16 @@ void wxWidgetsFrame::OnEditSkillWeights(wxCommandEvent& event)
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-						_T(""),
+						(char *)"",
 						(BoxedDropDown *)skillType,
 						(BoxedDropDown *)serverType,
 						configPanel,
 						false);
 
-	configPanel->Create(&gui,
-						-1,
-						wxDefaultPosition,
-						wxDefaultSize);
+	configPanel->CreateDisplay(&gui,wxID_ANY);
+
 	configKey=globalStatistics.SkillCalculationTypeConfigKey();
-	configPanel->AddBoolean("Allow Negative Skill",configKey,true);
+	configPanel->AddBoolean((char *)"Allow Negative Skill",configKey,true);
 	globalStatistics.configData.ReadGroup(group,
 							configKeys,
 							configValues);
@@ -610,7 +673,7 @@ void wxWidgetsFrame::OnEditRealNames(wxCommandEvent& event)
 	ImageTypePanel	*imageType=new ImageTypePanel();
 	ConfigEditorGUI	gui(this,
 						-1,
-						_T("Edit Real Names"),
+						(char *)"Edit Real Names",
 						wxDefaultPosition,
 						wxDefaultSize,
 						wxCAPTION |
@@ -618,7 +681,7 @@ void wxWidgetsFrame::OnEditRealNames(wxCommandEvent& event)
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-						_T(""),
+						(char *)"",
 						(BoxedDropDown *)imageType,
 						(BoxedDropDown *)serverType,
 						(GroupedConfigItemsPanel *)NULL,
@@ -640,29 +703,33 @@ void wxWidgetsFrame::OnEditRealNames(wxCommandEvent& event)
 
 void wxWidgetsFrame::OnEditImages(wxCommandEvent& event)
 {
+	STATSGEN_DEBUG_FUNCTION_START("wxWidgetsFrame","OnEditImages")
 	wxString		group="Images";
 	wxArrayString	configKeys;
 	wxArrayString	configValues;
 	int				keyIndex;
 	int				keyCount;
 	wxString		key;
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Creating Server Type Panel");
 	ServerTypePanel	*serverType=new ServerTypePanel();
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Creating Image Type Panel");
 	ImageTypePanel	*imageType=new ImageTypePanel();
 	wxArrayString	weaponGroups;
 
 	weaponGroups=globalStatistics.configData.ReadWeaponGroups();
 
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Creating GUI");
 	ConfigEditorGUI	gui(this,
 						-1,
-						_T("Edit Image References"),
+						(char *)"Edit Image References",
 						wxDefaultPosition,
-						wxSize(480,600),
+						wxDefaultSize,
 						wxCAPTION |
 						wxCLOSE_BOX |
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-						_T(""),
+						(char *)"",
 						(BoxedDropDown *)imageType,
 						(BoxedDropDown *)serverType,
 						(GroupedConfigItemsPanel *)NULL,
@@ -681,7 +748,9 @@ void wxWidgetsFrame::OnEditImages(wxCommandEvent& event)
 		gui.AddConfigKey(group,key,true);
 	}
 
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Starting GUI");
 	gui.DisplayDialog();
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void wxWidgetsFrame::OnWebsiteConfig(wxCommandEvent& event)
@@ -696,12 +765,12 @@ void wxWidgetsFrame::OnWebsiteConfig(wxCommandEvent& event)
 		GUITriggerList			triggerList;
 		wxString				enabledKey;
 
-		enabledKey.Printf("/%s/FTPEnabled",configGroup.GetData());
-		triggerItem.SetPositiveDisableTrigger(enabledKey,"N");
+		enabledKey.Printf("/%s/FTPEnabled",STRING_TO_CHAR(configGroup));
+		triggerItem.SetPositiveDisableTrigger(enabledKey,(char *)"N");
 		triggerList.Add(triggerItem);
 
 		GenericConfigGUI	gui(this,
-							-1,
+							wxID_ANY,
 							title,
 							wxDefaultPosition,
 							wxDefaultSize,
@@ -710,34 +779,30 @@ void wxWidgetsFrame::OnWebsiteConfig(wxCommandEvent& event)
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-							_T(""));
+							(char *)"");
 
 		FTPConnectionPanel	*ftpSettings;
 		GenericConfigPanel	*configPanel;
 
 		configPanel=new GenericConfigPanel(&gui,
-									-1,
+									wxID_ANY,
 									wxDefaultPosition,
 									wxDefaultSize,
 									0,
-									_T("PANEL"));
+									(char *)"PANEL");
 
 		// Panel holds the various boxed configs
-		ftpSettings=new FTPConnectionPanel();
-		ftpSettings->Create(configPanel,
-						-1,
-						wxDefaultPosition,
-						wxDefaultSize);
+		remoteDirectory=new GroupedConfigItemsPanel((char *)"Remote Directory");
+		remoteDirectory->CreateDisplay(configPanel,wxID_ANY);
 
-		ftpSettings->CreateConfigs((char *)configGroup.GetData());
-		remoteDirectory=new GroupedConfigItemsPanel("Remote Directory");
-		remoteDirectory->Create(configPanel,
-						-1,
-						wxDefaultPosition,
-						wxDefaultSize);
+		ftpSettings=new FTPConnectionPanel();
+		ftpSettings->CreateDisplay(configPanel, wxID_ANY);
+		ftpSettings->CreateConfigs(configGroup);
+
 
 		configKey="/website/FTPRemoteDirectory";
-		remoteDirectory->AddRemoteDirectory("Remote Directory",configKey,"",-1,configGroup,&triggerList);
+		remoteDirectory->AddRemoteDirectory((char *)"Remote Directory",configKey,(char *)"",-1,configGroup,&triggerList);
+
 		configPanel->AddConfigGroup(ftpSettings);
 		configPanel->AddConfigGroup(remoteDirectory);
 	
@@ -766,7 +831,7 @@ void wxWidgetsFrame::OnTemplatePackConfig(wxCommandEvent& event)
 wxPanel *NewServerPanel(wxWindow *parentID,wxString &serverID)
 {
 	FTPConnectionPanel				*ftpSettings;
-	GenericConfigPanel				*configPanel;
+	GenericConfigPanel				*serverConfigPanel;
 	GroupedConfigItemsPanel			*serverType;
 	GroupedConfigItemsPanel			*mainLogFile;
 	GroupedConfigItemsPanel			*archiveLogFile;
@@ -812,9 +877,9 @@ wxPanel *NewServerPanel(wxWindow *parentID,wxString &serverID)
 	logDirectory=baseDirectory;
 	archiveDirectory=baseDirectory;
 	banDirectory=baseDirectory;
-	archiveDirectory.AppendDir("archivelogs");
-	banDirectory.AppendDir("ban");
-	logDirectory.AppendDir("logs");
+	archiveDirectory.AppendDir((char *)"archivelogs");
+	banDirectory.AppendDir((char *)"ban");
+	logDirectory.AppendDir((char *)"logs");
 
 	logDirectoryName=logDirectory.GetPath();
 	banDirectoryName=banDirectory.GetPath();
@@ -842,115 +907,101 @@ wxPanel *NewServerPanel(wxWindow *parentID,wxString &serverID)
 	}
 	configGroup="Server"+serverID;
 
-	enabledKey.Printf("/%s/FTPEnabled",configGroup.GetData());
-	serverTypeConfigKey.Printf("/%s/serverType",configGroup.GetData());
+	enabledKey.Printf("/%s/FTPEnabled",STRING_TO_CHAR(configGroup));
+	serverTypeConfigKey.Printf("/%s/serverType",STRING_TO_CHAR(configGroup));
 
 	
-	triggerItem.SetNegativeHideTrigger(serverTypeConfigKey,"QUAKEWARS");
+	triggerItem.SetNegativeHideTrigger(serverTypeConfigKey,(char *)"QUAKEWARS");
 	serverTypeTriggerList.Add(triggerItem);
 	serverTypeAndFtpTriggerList.Add(triggerItem);
 
-	triggerItem.SetPositiveHideTrigger(enabledKey,"N");
+	triggerItem.SetPositiveHideTrigger(enabledKey,(char *)"N");
 	ftpTriggerList.Add(triggerItem);
 	serverTypeAndFtpTriggerList.Add(triggerItem);
 
 	
 
-	configPanel=new GenericConfigPanel(parentID,
-									-1,
+	serverConfigPanel=new GenericConfigPanel(parentID,
+									wxID_ANY,
 									wxDefaultPosition,
 									wxDefaultSize,
 									0,
-									_T("PANEL"));
+									(char *)"PANEL");
 
 	// Panels holds the various boxed configs
-	serverType		=new GroupedConfigItemsPanel("Server Type");
-	serverType->Create(configPanel,
-						-1,
-						wxDefaultPosition,
-						wxDefaultSize);
-	serverType->AddSelection("Server Type",serverTypeConfigKey,"COD2",serverTypeCodes,serverTypeNames);
+	serverType		=new GroupedConfigItemsPanel((char *)"Server Type");
+	serverType->CreateDisplay(serverConfigPanel,wxID_ANY);
+	serverType->AddSelection((char *)"Server Type",serverTypeConfigKey,(char *)"COD2",serverTypeCodes,serverTypeNames);
 
-	mainLogFile		=new GroupedConfigItemsPanel("Main Log File");
-	mainLogFile->Create(configPanel,
-						-1,
-						wxDefaultPosition,
-						wxDefaultSize);
+	mainLogFile		=new GroupedConfigItemsPanel((char *)"Main Log File");
+	mainLogFile->CreateDisplay(serverConfigPanel,wxID_ANY);
 
-	configKey.Printf("/%s/GuessTeamIDs",configGroup.GetData());
-	mainLogFile->AddBoolean("Guess players team if none found",configKey,true);
+	configKey.Printf("/%s/GuessTeamIDs",STRING_TO_CHAR(configGroup));
+	mainLogFile->AddBoolean((char *)"Guess players team if none found",configKey,true);
 
-	configKey.Printf("/%s/MaxLogfileSize",configGroup.GetData());
-	mainLogFile->Add("Max Logfile Size in MB (0 for no maximum)",configKey,"0",-1);
-	configKey.Printf("/%s/latestDirectory",configGroup.GetData());
-	directoryGUI=mainLogFile->AddDirectory("Latest Active Logfile Directory",
+	configKey.Printf("/%s/MaxLogfileSize",STRING_TO_CHAR(configGroup));
+	mainLogFile->Add((char *)"Max Logfile Size in MB (0 for no maximum)",configKey,(char *)"0",-1);
+	configKey.Printf("/%s/latestDirectory",STRING_TO_CHAR(configGroup));
+	directoryGUI=mainLogFile->AddDirectory((char *)"Latest Active Logfile Directory",
 											configKey,
-											(char *)logDirectoryName.GetData(),-1);
-	configKey.Printf("/%s/latestFilename",configGroup.GetData());
-	mainLogFile->AddFile("Latest Active Logfile Name",configKey,"",-1,directoryGUI);
+											logDirectoryName,-1);
+	configKey.Printf("/%s/latestFilename",STRING_TO_CHAR(configGroup));
+	mainLogFile->AddFile((char *)"Latest Active Logfile Name",configKey,(char *)"",-1,directoryGUI);
 
-	configKey.Printf("/%s/FTPLatestDirectory",configGroup.GetData());
-	remoteDirectoryGUI=mainLogFile->AddRemoteDirectory("Remote Active Logfile Directory",configKey,"",-1,configGroup,&ftpTriggerList);
-	configKey.Printf("/%s/FTPLatestFilename",configGroup.GetData());
-	mainLogFile->AddRemoteFile("Remote Active Logfile Name",configKey,"",-1,configGroup,remoteDirectoryGUI,&ftpTriggerList);
+	configKey.Printf("/%s/FTPLatestDirectory",STRING_TO_CHAR(configGroup));
+	remoteDirectoryGUI=mainLogFile->AddRemoteDirectory((char *)"Remote Active Logfile Directory",configKey,(char *)"",-1,configGroup,&ftpTriggerList);
+	configKey.Printf("/%s/FTPLatestFilename",STRING_TO_CHAR(configGroup));
+	mainLogFile->AddRemoteFile((char *)"Remote Active Logfile Name",configKey,(char *)"",-1,configGroup,remoteDirectoryGUI,&ftpTriggerList);
 
 	// Quake Wars bollox :-(
-	configKey.Printf("/%s/secondarylatestDirectory",configGroup.GetData());
-	secondarydirectoryGUI=mainLogFile->AddDirectory("(Quake Wars Objective) Latest Active Logfile Directory",
+	configKey.Printf("/%s/secondarylatestDirectory",STRING_TO_CHAR(configGroup));
+	secondarydirectoryGUI=mainLogFile->AddDirectory((char *)"(Quake Wars Objective) Latest Active Logfile Directory",
 											configKey,
-											(char *)logDirectoryName.GetData(),-1,&serverTypeTriggerList);
-	configKey.Printf("/%s/secondarylatestFilename",configGroup.GetData());
-	mainLogFile->AddFile("(Quake Wars Objective) Latest Active Logfile Name",configKey,"",-1,secondarydirectoryGUI,&serverTypeTriggerList);
+											logDirectoryName,-1,&serverTypeTriggerList);
 
-	configKey.Printf("/%s/FTPSecondaryLatestDirectory",configGroup.GetData());
-	secondaryremoteDirectoryGUI=mainLogFile->AddRemoteDirectory("(Quake Wars Objective) Remote Active Logfile Directory",configKey,"",-1,configGroup,&serverTypeAndFtpTriggerList);
-	configKey.Printf("/%s/FTPSecondaryLatestFilename",configGroup.GetData());
-	mainLogFile->AddRemoteFile("(Quake Wars Objective) Remote Active Logfile Name",configKey,"",-1,configGroup,secondaryremoteDirectoryGUI,&serverTypeAndFtpTriggerList);
+	configKey.Printf("/%s/secondarylatestFilename",STRING_TO_CHAR(configGroup));
+	mainLogFile->AddFile((char *)"(Quake Wars Objective) Latest Active Logfile Name",configKey,(char *)"",-1,secondarydirectoryGUI,&serverTypeTriggerList);
+
+	configKey.Printf("/%s/FTPSecondaryLatestDirectory",STRING_TO_CHAR(configGroup));
+	secondaryremoteDirectoryGUI=mainLogFile->AddRemoteDirectory((char *)"(Quake Wars Objective) Remote Active Logfile Directory",configKey,(char *)"",-1,configGroup,&serverTypeAndFtpTriggerList);
+	configKey.Printf("/%s/FTPSecondaryLatestFilename",STRING_TO_CHAR(configGroup));
+	mainLogFile->AddRemoteFile((char *)"(Quake Wars Objective) Remote Active Logfile Name",configKey,(char *)"",-1,configGroup,secondaryremoteDirectoryGUI,&serverTypeAndFtpTriggerList);
 
 	
-	archiveLogFile	=new GroupedConfigItemsPanel("Archive Log Files");
-	archiveLogFile->Create(configPanel,
-						-1,
-						wxDefaultPosition,
-						wxDefaultSize);
+	archiveLogFile	=new GroupedConfigItemsPanel((char *)"Archive Log Files");
+	archiveLogFile->CreateDisplay(serverConfigPanel,wxID_ANY);
 
-	configKey.Printf("/%s/archiveDirectory",configGroup.GetData());
-	archiveLogFile->AddDirectory("Archive Directory",
+	configKey.Printf("/%s/archiveDirectory",STRING_TO_CHAR(configGroup));
+	archiveLogFile->AddDirectory((char *)"Archive Directory",
 								configKey,
-								(char *)archiveDirectoryName.GetData(),-1);
-	configKey.Printf("/%s/archiveWildcard",configGroup.GetData());
-	archiveLogFile->AddSelectionFreeForm("Archive Wildcard",configKey,"",wildCardCodes,wildCardNames,-1);
-	configKey.Printf("/%s/FTPArchiveDirectory",configGroup.GetData());
-	remoteDirectoryGUI=archiveLogFile->AddRemoteDirectory("Remote Archive Directory",configKey,"",-1,configGroup,&ftpTriggerList);
-	configKey.Printf("/%s/FTPArchiveWildcard",configGroup.GetData());
+								archiveDirectoryName,-1);
+	configKey.Printf("/%s/archiveWildcard",STRING_TO_CHAR(configGroup));
+	archiveLogFile->AddSelectionFreeForm((char *)"Archive Wildcard",configKey,(char *)"",wildCardCodes,wildCardNames,-1);
+	configKey.Printf("/%s/FTPArchiveDirectory",STRING_TO_CHAR(configGroup));
+	remoteDirectoryGUI=archiveLogFile->AddRemoteDirectory((char *)"Remote Archive Directory",configKey,(char *)"",-1,configGroup,&ftpTriggerList);
+	configKey.Printf("/%s/FTPArchiveWildcard",STRING_TO_CHAR(configGroup));
 	//archiveLogFile->Add("Remote Archive Wildcard",configKey,"",-1,&ftpTriggerList);
-	archiveLogFile->AddSelectionFreeForm("Remote Archive Wildcard",configKey,"",wildCardCodes,wildCardNames,-1,&ftpTriggerList);
+	archiveLogFile->AddSelectionFreeForm((char *)"Remote Archive Wildcard",configKey,(char *)"",wildCardCodes,wildCardNames,-1,&ftpTriggerList);
 
 	// More quake war bollox
-	configKey.Printf("/%s/secondaryarchiveDirectory",configGroup.GetData());
-	archiveLogFile->AddDirectory("(Quake Wars Objective) Archive Directory",
+	configKey.Printf("/%s/secondaryarchiveDirectory",STRING_TO_CHAR(configGroup));
+	archiveLogFile->AddDirectory((char *)"(Quake Wars Objective) Archive Directory",
 								configKey,
-								(char *)archiveDirectoryName.GetData(),-1,&serverTypeTriggerList);
-	configKey.Printf("/%s/secondaryarchiveWildcard",configGroup.GetData());
+								archiveDirectoryName,-1,&serverTypeTriggerList);
+	configKey.Printf("/%s/secondaryarchiveWildcard",STRING_TO_CHAR(configGroup));
 	//archiveLogFile->Add("(Quake Wars Objective) Archive Wildcard",configKey,"",-1,&serverTypeTriggerList);
-	archiveLogFile->AddSelectionFreeForm("(Quake Wars Objective) Archive Wildcard",configKey,"",wildCardCodes,wildCardNames,-1,&serverTypeTriggerList);
-	configKey.Printf("/%s/FTPSecondaryArchiveDirectory",configGroup.GetData());
-	secondaryremoteDirectoryGUI=archiveLogFile->AddRemoteDirectory("(Quake Wars Objective) Remote Archive Directory",configKey,"",-1,configGroup,&serverTypeAndFtpTriggerList);
-	configKey.Printf("/%s/FTPSecondaryArchiveWildcard",configGroup.GetData());
+	archiveLogFile->AddSelectionFreeForm((char *)"(Quake Wars Objective) Archive Wildcard",configKey,(char *)"",wildCardCodes,wildCardNames,-1,&serverTypeTriggerList);
+	configKey.Printf("/%s/FTPSecondaryArchiveDirectory",STRING_TO_CHAR(configGroup));
+	secondaryremoteDirectoryGUI=archiveLogFile->AddRemoteDirectory((char *)"(Quake Wars Objective) Remote Archive Directory",configKey,(char *)"",-1,configGroup,&serverTypeAndFtpTriggerList);
+	configKey.Printf("/%s/FTPSecondaryArchiveWildcard",STRING_TO_CHAR(configGroup));
 	//archiveLogFile->Add("(Quake Wars Objective) Remote Archive Wildcard",configKey,"",-1,&serverTypeAndFtpTriggerList);
-	archiveLogFile->AddSelectionFreeForm("(Quake Wars Objective) Remote Archive Wildcard",configKey,"",wildCardCodes,wildCardNames,-1,&serverTypeTriggerList);
+	archiveLogFile->AddSelectionFreeForm((char *)"(Quake Wars Objective) Remote Archive Wildcard",configKey,(char *)"",wildCardCodes,wildCardNames,-1,&serverTypeTriggerList);
 
-	banFile1		=new GroupedConfigItemsPanel("Ban File 1");
-	banFile1->Create(configPanel,
-						-1,
-						wxDefaultPosition,
-						wxDefaultSize);
+	banFile1		=new GroupedConfigItemsPanel((char *)"Ban File 1");
+	banFile1->CreateDisplay(serverConfigPanel,wxID_ANY);
 
-	banFile2		=new GroupedConfigItemsPanel("Ban File 2");
-	banFile2->Create(configPanel,
-						-1,
-						wxDefaultPosition,
-						wxDefaultSize);
+	banFile2		=new GroupedConfigItemsPanel((char *)"Ban File 2");
+	banFile2->CreateDisplay(serverConfigPanel,wxID_ANY);
 
 	wxArrayString	banCodes;
 	wxArrayString	banNames;
@@ -960,83 +1011,88 @@ wxPanel *NewServerPanel(wxWindow *parentID,wxString &serverID)
 	banCode="PUNKBUSTER";banName="Punk Buster";banCodes.Add(banCode);banNames.Add(banName);
 	banCode="COD";banName="Call Of Duty";banCodes.Add(banCode);banNames.Add(banName);
 
-	configKey.Printf("/%s/banFile1Type",configGroup.GetData());
-	banFile1->AddSelection("Ban File Type",configKey,"PUNKBUSTER",banCodes,banNames);
-	configKey.Printf("/%s/FTPBanFile1Directory",configGroup.GetData());
-	remoteDirectoryGUI=banFile1->AddRemoteDirectory("Remote Ban 1 File Directory",configKey,"",-1,configGroup,&ftpTriggerList);
-	configKey.Printf("/%s/FTPBanFile1Filename",configGroup.GetData());
-	banFile1->AddRemoteFile("Remote Ban 1 File Filename",configKey,"",-1,configGroup,remoteDirectoryGUI,&ftpTriggerList);
-	configKey.Printf("/%s/Ban1Directory",configGroup.GetData());
-	directoryGUI=banFile1->AddDirectory("Local Ban Directory",
+	configKey.Printf("/%s/banFile1Type",STRING_TO_CHAR(configGroup));
+	banFile1->AddSelection((char *)"Ban File Type",configKey,(char *)"PUNKBUSTER",banCodes,banNames);
+	configKey.Printf("/%s/FTPBanFile1Directory",STRING_TO_CHAR(configGroup));
+	remoteDirectoryGUI=banFile1->AddRemoteDirectory((char *)"Remote Ban 1 File Directory",configKey,(char *)"",-1,configGroup,&ftpTriggerList);
+	configKey.Printf("/%s/FTPBanFile1Filename",STRING_TO_CHAR(configGroup));
+	banFile1->AddRemoteFile((char *)"Remote Ban 1 File Filename",configKey,(char *)"",-1,configGroup,remoteDirectoryGUI,&ftpTriggerList);
+	configKey.Printf("/%s/Ban1Directory",STRING_TO_CHAR(configGroup));
+	directoryGUI=banFile1->AddDirectory((char *)"Local Ban Directory",
 										configKey,
-										(char *)banDirectoryName.GetData(),-1);
+										banDirectoryName,-1);
 
-	configKey.Printf("/%s/banFile2Type",configGroup.GetData());
-	banFile2->AddSelection("Ban File Type",configKey,"COD",banCodes,banNames);
-	configKey.Printf("/%s/FTPBanFile2Directory",configGroup.GetData());
-	remoteDirectoryGUI=banFile2->AddRemoteDirectory("Remote Ban 2 File Directory",configKey,"",-1,configGroup,&ftpTriggerList);
-	configKey.Printf("/%s/FTPBanFile2Filename",configGroup.GetData());
-	banFile2->AddRemoteFile("Remote Ban 2 File Filename",configKey,"",-1,configGroup,remoteDirectoryGUI,&ftpTriggerList);
-	configKey.Printf("/%s/Ban2Directory",configGroup.GetData());
-	directoryGUI=banFile2->AddDirectory("Local Ban Directory",
+	configKey.Printf("/%s/banFile2Type",STRING_TO_CHAR(configGroup));
+	banFile2->AddSelection((char *)"Ban File Type",configKey,(char *)"COD",banCodes,banNames);
+	configKey.Printf("/%s/FTPBanFile2Directory",STRING_TO_CHAR(configGroup));
+	remoteDirectoryGUI=banFile2->AddRemoteDirectory((char *)"Remote Ban 2 File Directory",configKey,(char *)"",-1,configGroup,&ftpTriggerList);
+	configKey.Printf("/%s/FTPBanFile2Filename",STRING_TO_CHAR(configGroup));
+	banFile2->AddRemoteFile((char *)"Remote Ban 2 File Filename",configKey,(char *)"",-1,configGroup,remoteDirectoryGUI,&ftpTriggerList);
+	configKey.Printf("/%s/Ban2Directory",STRING_TO_CHAR(configGroup));
+	directoryGUI=banFile2->AddDirectory((char *)"Local Ban Directory",
 										configKey,
-										(char *)banDirectoryName.GetData(),-1);
+										banDirectoryName,-1);
 
 //	configKey.Printf("/%s/serverType",configGroup.GetData());
 //	mainLogFile->Add("Server Type",configKey,"",-1);
 
 	ftpSettings=new FTPConnectionPanel();
-	ftpSettings->Create(configPanel,
-						-1,
-						wxDefaultPosition,
-						wxDefaultSize);
+	ftpSettings->CreateDisplay(serverConfigPanel,wxID_ANY);
 
-	ftpSettings->CreateConfigs((char *)configGroup.GetData());
-	configPanel->AddConfigGroup(serverType);
-	configPanel->AddConfigGroup(ftpSettings);
-	configPanel->AddConfigGroup(mainLogFile);
-	configPanel->AddConfigGroup(archiveLogFile);
-	configPanel->AddConfigGroup(banFile1);
-	configPanel->AddConfigGroup(banFile2);
+	ftpSettings->CreateConfigs(configGroup);
+	serverConfigPanel->AddConfigGroup(serverType);
+	serverConfigPanel->AddConfigGroup(ftpSettings);
+	serverConfigPanel->AddConfigGroup(mainLogFile);
+	serverConfigPanel->AddConfigGroup(archiveLogFile);
+	serverConfigPanel->AddConfigGroup(banFile1);
+	serverConfigPanel->AddConfigGroup(banFile2);
+	serverConfigPanel->ConfigureSizer();
 
-	return (configPanel);
+	return (serverConfigPanel);
 
 }
 
 void wxWidgetsFrame::OnServerConfig(wxCommandEvent& event)
 {
+	STATSGEN_DEBUG_FUNCTION_START("wxWidgetsFrame","OnServerConfig")
 	if (advanced)
 	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Advanced");
 		wxString			title="Server Config";
 		wxString			listGroup="SERVERS";
 		wxString			listPrefix="Server";
-		wxSize				dialogSize(800,600);
 
 		GenericNumberedConfigGUI	gui(
 							NewServerPanel,
 							listGroup,
 							listPrefix,
 							this,
-							-1,
+							wxID_ANY,
 							title,
 							wxDefaultPosition,
-							dialogSize,
+							wxDefaultSize,
 						wxCAPTION |
 						wxCLOSE_BOX |
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-							_T(""));
+							(char *)"");
 
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Display Dialog");
 		gui.DisplayDialog();
 	}
 	else
 	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Simple");
 		GUIWizardPagesServers	wizardPages;
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Run Wizard");
 		RunWizard(&wizardPages);
 	}
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Clear Servers");
 	globalStatistics.ClearServers();
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Read Servers From Config");
 	globalStatistics.ReadServersFromConfig();
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 wxPanel *NewClanPanel(wxWindow *parentID,wxString &clanID)
@@ -1047,11 +1103,11 @@ wxPanel *NewClanPanel(wxWindow *parentID,wxString &clanID)
 	configGroup="Clan"+clanID;
 	configPanel=new ClanEditorPanel(configGroup,
 									parentID,
-									-1,
+									wxID_ANY,
 									wxDefaultPosition,
 									wxDefaultSize,
 									0,
-									_T("PANEL"));
+									(char *)"PANEL");
 
 	return (configPanel);
 
@@ -1062,23 +1118,22 @@ void wxWidgetsFrame::OnClanConfig(wxCommandEvent& event)
 	wxString			title="Clan Config";
 	wxString			listGroup="CLANS";
 	wxString			listPrefix="Clan";
-	wxSize				guiSize(512,400);
 
 	GenericNumberedConfigGUI	gui(
 							NewClanPanel,
 							listGroup,
 							listPrefix,
 							this,
-							-1,
+							wxID_ANY,
 							title,
 							wxDefaultPosition,
-							guiSize,
+							wxDefaultSize,
 						wxCAPTION |
 						wxCLOSE_BOX |
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-							_T(""));
+							(char *)"");
 
 	gui.DisplayDialog();
 }
@@ -1097,7 +1152,7 @@ void wxWidgetsFrame::OnRCONSpamConfig(wxCommandEvent& event)
 	GUITriggerItem		triggerItem;
 
 	GenericConfigGUI	gui(this,
-							-1,
+							wxID_ANY,
 							title,
 							wxDefaultPosition,
 							wxDefaultSize,
@@ -1106,15 +1161,15 @@ void wxWidgetsFrame::OnRCONSpamConfig(wxCommandEvent& event)
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-							_T(""));
+							(char *)"");
 
 
 	configPanel=new GenericConfigPanel(&gui,
-									-1,
+									wxID_ANY,
 									wxDefaultPosition,
 									wxDefaultSize,
 									0,
-									_T("PANEL"));
+									(char *)"PANEL");
 
 	// Panel holds the various boxed configs
 	serverSpecificConfigs=new GenericNumberedConfigPanel
@@ -1123,32 +1178,29 @@ void wxWidgetsFrame::OnRCONSpamConfig(wxCommandEvent& event)
 							listGroup,
 							listPrefix,
 							configPanel,
-							-1,
+							wxID_ANY,
 							wxDefaultPosition,
 							wxDefaultSize,
 							0,
-							_T(""));
+							(char *)"");
 	serverSpecificConfigs->CreateDialog();
 	
-	commonConfigs=new GroupedConfigItemsPanel("Common RCON Settings");
-	commonConfigs->Create(configPanel,
-						-1,
-						wxDefaultPosition,
-						wxDefaultSize);
+	commonConfigs=new GroupedConfigItemsPanel((char *)"Common RCON Settings");
+	commonConfigs->CreateDisplay(configPanel,wxID_ANY);
 
 	configKey="/RCONSettings/Enabled";
-	commonConfigs->AddBoolean("Message Center Enabled",configKey,false);
-	triggerItem.SetPositiveDisableTrigger(configKey,"N");
+	commonConfigs->AddBoolean((char *)"Message Center Enabled",configKey,false);
+	triggerItem.SetPositiveDisableTrigger(configKey,(char *)"N");
 	triggerList.Add(triggerItem);
 
 	configKey="/RCONSettings/MessageIntervalTimer";
-	commonConfigs->Add("Message Interval In Seconds",configKey,"60",5,&triggerList);
+	commonConfigs->Add((char *)"Message Interval In Seconds",configKey,(char *)"60",5,&triggerList);
 	configKey="/RCONSettings/CustomMessageInterval";
-	commonConfigs->Add("Custom Message Interval",configKey,"0",5,&triggerList);
+	commonConfigs->Add((char *)"Custom Message Interval",configKey,(char *)"0",5,&triggerList);
 	configKey="/RCONSettings/MessagePrefix";
-	commonConfigs->Add("Message Prefix",configKey,"^7",-1,&triggerList);
+	commonConfigs->Add((char *)"Message Prefix",configKey,(char *)"^7",-1,&triggerList);
 	configKey="/RCONSettings/ClientPort";
-	commonConfigs->Add("Local TCP/IP Port",configKey,"8000",5,&triggerList);
+	commonConfigs->Add((char *)"Local TCP/IP Port",configKey,(char *)"8000",5,&triggerList);
 
 	configPanel->AddConfigGroup(commonConfigs);
 	configPanel->AddConfigGroup(serverSpecificConfigs);
@@ -1172,58 +1224,52 @@ GenericConfigPanel *NewRCONServerPanel(wxWindow *parentID,wxString &serverID)
 	wxString				usePunkbusterKey;
 
 	configGroup="Server"+serverID;
-	usePunkbusterKey.Printf("/%s/RCONUsePunkBuster",configGroup.GetData());
+	usePunkbusterKey.Printf("/%s/RCONUsePunkBuster",STRING_TO_CHAR(configGroup));
 
 	configKey="/RCONSettings/Enabled";
-	triggerItem.SetPositiveDisableTrigger(configKey,"N");
+	triggerItem.SetPositiveDisableTrigger(configKey,(char *)"N");
 	triggerList.Add(triggerItem);
 	mainTriggerList.Add(triggerItem);
 	pbTriggerList.Add(triggerItem);
 
-	configKey.Printf("/%s/MessagingEnabled",configGroup.GetData());
-	triggerItem.SetPositiveDisableTrigger(configKey,"N");
+	configKey.Printf("/%s/MessagingEnabled",STRING_TO_CHAR(configGroup));
+	triggerItem.SetPositiveDisableTrigger(configKey,(char *)"N");
 	triggerList.Add(triggerItem);
 	pbTriggerList.Add(triggerItem);
 
-	triggerItem.SetPositiveDisableTrigger(usePunkbusterKey,"N");
+	triggerItem.SetPositiveDisableTrigger(usePunkbusterKey,(char *)"N");
 	pbTriggerList.Add(triggerItem);
 
 	configPanel=new GenericConfigPanel(parentID,
-									-1,
+									wxID_ANY,
 									wxDefaultPosition,
 									wxDefaultSize,
 									0,
-									_T("PANEL"));
+									(char *)"PANEL");
 
 	// Panels holds the various boxed configs
-	punkBusterSettings=new GroupedConfigItemsPanel("PunkBuster Settings");
-	punkBusterSettings->Create(configPanel,
-						-1,
-						wxDefaultPosition,
-						wxDefaultSize);
+	punkBusterSettings=new GroupedConfigItemsPanel((char *)"PunkBuster Settings");
+	punkBusterSettings->CreateDisplay(configPanel,wxID_ANY);
 
-	punkBusterSettings->AddBoolean("Use Punkbuster Scheduled Tasks",usePunkbusterKey,false,&triggerList);
-	configKey.Printf("/%s/PunkBusterPostCommand",configGroup.GetData());
-	punkBusterSettings->Add("Post Messaging PB Command",configKey,"",-1,&pbTriggerList);
-	configKey.Printf("/%s/FTPBanFile1Directory",configGroup.GetData());
-	punkBusterSettings->AddRemoteDirectory("Remote Ban 1 File Directory",configKey,"",-1,configGroup,&pbTriggerList);
-	configKey.Printf("/%s/FTPBanFile2Directory",configGroup.GetData());
-	punkBusterSettings->AddRemoteDirectory("Remote Ban 2 File Directory",configKey,"",-1,configGroup,&pbTriggerList);
+	punkBusterSettings->AddBoolean((char *)"Use Punkbuster Scheduled Tasks",usePunkbusterKey,false,&triggerList);
+	configKey.Printf("/%s/PunkBusterPostCommand",STRING_TO_CHAR(configGroup));
+	punkBusterSettings->Add((char *)"Post Messaging PB Command",configKey,(char *)"",-1,&pbTriggerList);
+	configKey.Printf("/%s/FTPBanFile1Directory",STRING_TO_CHAR(configGroup));
+	punkBusterSettings->AddRemoteDirectory((char *)"Remote Ban 1 File Directory",configKey,(char *)"",-1,configGroup,&pbTriggerList);
+	configKey.Printf("/%s/FTPBanFile2Directory",STRING_TO_CHAR(configGroup));
+	punkBusterSettings->AddRemoteDirectory((char *)"Remote Ban 2 File Directory",configKey,(char *)"",-1,configGroup,&pbTriggerList);
 
 
-	gameServer	=new GroupedConfigItemsPanel("Game Server Settings");
-	gameServer->Create(configPanel,
-						-1,
-						wxDefaultPosition,
-						wxDefaultSize);
-	configKey.Printf("/%s/MessagingEnabled",configGroup.GetData());
-	gameServer->AddBoolean("Messaging Enabled",configKey,false,&mainTriggerList);
-	configKey.Printf("/%s/gameIP",configGroup.GetData());
-	gameServer->Add("Game IP (if different from FTP Hostname)",configKey,"",-1,&triggerList);
-	configKey.Printf("/%s/gamePort",configGroup.GetData());
-	gameServer->Add("Game Port",configKey,"",5,&triggerList);
-	configKey.Printf("/%s/RCONPassword",configGroup.GetData());
-	gameServer->Add("RCON Password",configKey,"",-1,&triggerList);
+	gameServer	=new GroupedConfigItemsPanel((char *)"Game Server Settings");
+	gameServer->CreateDisplay(configPanel,wxID_ANY);
+	configKey.Printf("/%s/MessagingEnabled",STRING_TO_CHAR(configGroup));
+	gameServer->AddBoolean((char *)"Messaging Enabled",configKey,false,&mainTriggerList);
+	configKey.Printf("/%s/gameIP",STRING_TO_CHAR(configGroup));
+	gameServer->Add((char *)"Game IP (if different from FTP Hostname)",configKey,(char *)"",-1,&triggerList);
+	configKey.Printf("/%s/gamePort",STRING_TO_CHAR(configGroup));
+	gameServer->Add((char *)"Game Port",configKey,(char *)"",5,&triggerList);
+	configKey.Printf("/%s/RCONPassword",STRING_TO_CHAR(configGroup));
+	gameServer->Add((char *)"RCON Password",configKey,(char *)"",-1,&triggerList);
 
 	configPanel->AddConfigGroup(gameServer);
 	configPanel->AddConfigGroup(punkBusterSettings);
@@ -1234,20 +1280,19 @@ GenericConfigPanel *NewRCONServerPanel(wxWindow *parentID,wxString &serverID)
 void wxWidgetsFrame::OnAliasConfig(wxCommandEvent& event)
 {
 	wxString			title="Alias Config";
-	wxSize				guiSize(512,500);
 
 	AliasDialog	gui(
-							this,
-							-1,
-							title,
-							wxDefaultPosition,
-							guiSize,
-						wxCAPTION |
-						wxCLOSE_BOX |
-						wxSYSTEM_MENU |
-						wxRESIZE_BORDER |
-						wxMAXIMIZE_BOX,
-							_T(""));
+					this,
+					wxID_ANY,
+					title,
+					wxDefaultPosition,
+					wxDefaultSize,
+					wxCAPTION |
+					wxCLOSE_BOX |
+					wxSYSTEM_MENU |
+					wxRESIZE_BORDER |
+					wxMAXIMIZE_BOX,
+					(char *)"");
 
 	gui.DisplayDialog();
 }
@@ -1259,11 +1304,11 @@ wxPanel *NewAwardPanel(wxWindow *parentID,wxString &awardID)
 	// Panels holds the various boxed configs
 	awardPanel=new AwardEditorPanel(
 						parentID,
-						-1,
+						wxID_ANY,
 						wxDefaultPosition,
-						wxSize(640,480),
+						wxDefaultSize,
 						0,
-						_T(""),
+						(char *)"",
 						awardID);
 
 	awardPanel->Enable();
@@ -1272,27 +1317,31 @@ wxPanel *NewAwardPanel(wxWindow *parentID,wxString &awardID)
 
 void wxWidgetsFrame::OnAwardConfig(wxCommandEvent& event)
 {
+	STATSGEN_DEBUG_FUNCTION_START("wxWidgetsFrame","OnAwardConfig")
 	wxString			title="Award Editor";
 	wxString			listGroup="AWARDLIST";
 	wxString			listPrefix="AWARDDEFINITION";
 
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Creating GUI");
 	GenericNumberedConfigGUI	gui(
 							NewAwardPanel,
 							listGroup,
 							listPrefix,
 							this,
-							-1,
+							wxID_ANY,
 							title,
 							wxDefaultPosition,
-							wxSize(640,480),
+							wxDefaultSize,
 						wxCAPTION |
 						wxCLOSE_BOX |
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-							_T(""));
+						(char *)"");
 
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Displaying GUI");
 	gui.DisplayDialog();
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void wxWidgetsFrame::OnLogSubstitute(wxCommandEvent& event)
@@ -1346,7 +1395,7 @@ void wxWidgetsFrame::OnLogSubstitute(wxCommandEvent& event)
 			break;
 	}
 	ConfigEditorGUI	gui(this,
-						-1,
+						wxID_ANY,
 						title,
 						wxDefaultPosition,
 						wxDefaultSize,
@@ -1355,7 +1404,7 @@ void wxWidgetsFrame::OnLogSubstitute(wxCommandEvent& event)
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-						_T(""),
+						(char *)"",
 						(BoxedDropDown *)serverType,
 						(BoxedDropDown *)NULL,
 						(GroupedConfigItemsPanel *)NULL,
@@ -1378,20 +1427,19 @@ void wxWidgetsFrame::OnLogSubstitute(wxCommandEvent& event)
 void wxWidgetsFrame::OnDropListConfig(wxCommandEvent& event)
 {
 	wxString			title="Drop List Editor";
-	wxSize				guiSize(768,600);
 
 	DropListDialog	gui(
-							this,
-							-1,
-							title,
-							wxDefaultPosition,
-							guiSize,
+						this,
+						wxID_ANY,
+						title,
+						wxDefaultPosition,
+						wxDefaultSize,
 						wxCAPTION |
 						wxCLOSE_BOX |
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-							_T(""));
+						(char *)"");
 
 	gui.DisplayDialog();
 }
@@ -1400,12 +1448,12 @@ void wxWidgetsFrame::OnDebugConfig(wxCommandEvent& event)
 {
 	wxString			title="Developer Debug Settings";
 	wxString			configKey;
-	GroupedConfigItemsPanel	*commonConfigs;
+	GroupedConfigItemsPanel	*stepsEnabled;
 	GroupedConfigItemsPanel	*debugLevels;
-	GenericConfigPanel	*configPanel;
+	GenericConfigPanel	*debugConfigPanel;
 
 	GenericConfigGUI	gui(this,
-							-1,
+							wxID_ANY,
 							title,
 							wxDefaultPosition,
 							wxDefaultSize,
@@ -1414,78 +1462,72 @@ void wxWidgetsFrame::OnDebugConfig(wxCommandEvent& event)
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-							_T(""));
+							(char *)"");
 
 
-	configPanel=new GenericConfigPanel(&gui,
-									-1,
+	debugConfigPanel=new GenericConfigPanel(&gui,
+									wxID_ANY,
 									wxDefaultPosition,
 									wxDefaultSize,
 									0,
-									_T("PANEL"));
+									(char *)"PANEL");
 
 	// Panel holds the various boxed configs
-	commonConfigs=new GroupedConfigItemsPanel("Steps Enabled");
-	commonConfigs->Create(configPanel,
-						-1,
-						wxDefaultPosition,
-						wxDefaultSize);
+	stepsEnabled=new GroupedConfigItemsPanel((char *)"Steps Enabled");
+	stepsEnabled->CreateDisplay(debugConfigPanel,wxID_ANY);
 
 	configKey.Printf("/Debug/Step%s",STEP_CREATE_DATABASE);
-	commonConfigs->AddBoolean("Create Database",configKey,true);
+	stepsEnabled->AddBoolean((char *)"Create Database",configKey,true);
 
 	configKey.Printf("/Debug/Step%s",STEP_APPLY_ALIASES);
-	commonConfigs->AddBoolean("Apply Aliases",configKey,true);
+	stepsEnabled->AddBoolean((char *)"Apply Aliases",configKey,true);
 
 	configKey.Printf("/Debug/Step%s",STEP_DOWNLOAD_LOGS);
-	commonConfigs->AddBoolean("Download Logs",configKey,true);
+	stepsEnabled->AddBoolean((char *)"Download Logs",configKey,true);
 
 	configKey.Printf("/Debug/Step%s",STEP_DATABASE_READ_STATIC);
-	commonConfigs->AddBoolean("Read Static",configKey,true);
+	stepsEnabled->AddBoolean((char *)"Read Static",configKey,true);
 
 	configKey.Printf("/Debug/Step%s",STEP_EMPTY_DATABASE);
-	commonConfigs->AddBoolean("Empty Database",configKey,true);
+	stepsEnabled->AddBoolean((char *)"Empty Database",configKey,true);
 
 	configKey.Printf("/Debug/Step%s",STEP_CREATE_LOG_FILES);
-	commonConfigs->AddBoolean("Create Logs",configKey,true);
+	stepsEnabled->AddBoolean((char *)"Create Logs",configKey,true);
 
 	configKey.Printf("/Debug/Step%s",STEP_PROCESS_LOG_FILES);
-	commonConfigs->AddBoolean("Process Logs",configKey,true);
+	stepsEnabled->AddBoolean((char *)"Process Logs",configKey,true);
 
 	configKey.Printf("/Debug/Step%s",STEP_DROP_PLAYERS);
-	commonConfigs->AddBoolean("Drop Players",configKey,true);
+	stepsEnabled->AddBoolean((char *)"Drop Players",configKey,true);
 
 	configKey.Printf("/Debug/Step%s",STEP_CALCULATE_SCORES);
-	commonConfigs->AddBoolean("Calculate Scores",configKey,true);
+	stepsEnabled->AddBoolean((char *)"Calculate Scores",configKey,true);
 
 	configKey.Printf("/Debug/Step%s",STEP_WRITE_DATABASE);
-	commonConfigs->AddBoolean("Write Database",configKey,true);
+	stepsEnabled->AddBoolean((char *)"Write Database",configKey,true);
 
 	configKey.Printf("/Debug/Step%s",STEP_READ_TEMPLATE);
-	commonConfigs->AddBoolean("Read Template",configKey,true);
+	stepsEnabled->AddBoolean((char *)"Read Template",configKey,true);
 
 	configKey.Printf("/Debug/Step%s",STEP_PROCESS_TEMPLATE);
-	commonConfigs->AddBoolean("Process Template",configKey,true);
+	stepsEnabled->AddBoolean((char *)"Process Template",configKey,true);
 
 	configKey.Printf("/Debug/Step%s",STEP_POST_PROCESS_TEMPLATE);
-	commonConfigs->AddBoolean("Post Process Template",configKey,true);
+	stepsEnabled->AddBoolean((char *)"Post Process Template",configKey,true);
 
 	configKey.Printf("/Debug/Step%s",STEP_TRANSFER_DATABASE);
-	commonConfigs->AddBoolean("Transfer Database",configKey,true);
+	stepsEnabled->AddBoolean((char *)"Transfer Database",configKey,true);
 
 	configKey.Printf("/Debug/Step%s",STEP_WEBSITE);
-	commonConfigs->AddBoolean("Website Transfer",configKey,true);
+	stepsEnabled->AddBoolean((char *)"Website Transfer",configKey,true);
 
-	debugLevels=new GroupedConfigItemsPanel("Debug Levels 0 (off) - 3 (max)");
-	debugLevels->Create(configPanel,
-						-1,
-						wxDefaultPosition,
-						wxDefaultSize);
+	debugLevels=new GroupedConfigItemsPanel((char *)"Debug Levels 0 (off) - 3 (max)");
+	debugLevels->CreateDisplay(debugConfigPanel,wxID_ANY);
 	int			panelIndex;
 	wxString	debugTitle;
 
 	configKey="/Debug/DebugFile";
-	debugLevels->AddFile("Debug File (blank for no debug)",configKey,"",-1,NULL);
+	debugLevels->AddFile((char *)"Debug File (blank for no debug)",configKey,(char *)"",-1,NULL);
 	for (panelIndex=WINDOW_ID_PROGRESS_PANEL_GENERAL;
 		panelIndex<WINDOW_ID_PROGRESS_PANEL_MAX;
 		panelIndex++)
@@ -1493,13 +1535,13 @@ void wxWidgetsFrame::OnDebugConfig(wxCommandEvent& event)
 		configKey.Printf("/Debug/DebugLevel%d",
 						(panelIndex-WINDOW_ID_PROGRESS_PANEL_GENERAL));
 		debugTitle=StatusPanel::PanelName(panelIndex);
-		debugLevels->Add((char *)debugTitle.GetData(),configKey,"0",1);
+		debugLevels->Add(debugTitle,configKey,(char *)"0",1);
 	}
 
-	configPanel->AddConfigGroup(commonConfigs);
-	configPanel->AddConfigGroup(debugLevels);
+	debugConfigPanel->AddConfigGroup(stepsEnabled);
+	debugConfigPanel->AddConfigGroup(debugLevels);
 
-	gui.SetConfigPanel(configPanel);
+	gui.SetConfigPanel(debugConfigPanel);
 	gui.DisplayDialog();
 
 	STATSGEN_DEBUG_INITIATE
@@ -1507,6 +1549,7 @@ void wxWidgetsFrame::OnDebugConfig(wxCommandEvent& event)
 
 void wxWidgetsFrame::OnOutputConfig(wxCommandEvent& event)
 {
+	STATSGEN_DEBUG_FUNCTION_START("wxWidgetsFrame","OnOutputConfig")
 	wxString				title="Output Config";
 	wxString				defaultValue;
 	GroupedConfigItemsPanel	*databaseConfig;
@@ -1515,8 +1558,9 @@ void wxWidgetsFrame::OnOutputConfig(wxCommandEvent& event)
 	wxString				configKey;
 	wxString				configGroup="website";
 
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"gui");
 	GenericConfigGUI	gui(this,
-							-1,
+							wxID_ANY,
 							title,
 							wxDefaultPosition,
 							wxDefaultSize,
@@ -1525,60 +1569,74 @@ void wxWidgetsFrame::OnOutputConfig(wxCommandEvent& event)
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-							_T(""));
+							(char *)"");
 
 	GenericConfigPanel	*configPanel;
 
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"configPanel");
 	configPanel=new GenericConfigPanel(&gui,
-									-1,
+									wxID_ANY,
 									wxDefaultPosition,
 									wxDefaultSize,
 									0,
-									_T("PANEL"));
+									(char *)"PANEL");
 
-	// Panel holds the various boxed configs
-	databaseConfig=new GroupedConfigItemsPanel("Database Config");
-	databaseConfig->Create(configPanel,
-						-1,
-						wxDefaultPosition,
-						wxDefaultSize);
+	// Database Configuration
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"databaseConfig");
+	databaseConfig=new GroupedConfigItemsPanel((char *)"Database Config");
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"databaseConfig create");
+	databaseConfig->CreateDisplay(configPanel,wxID_ANY);
 
-	wxString	dbFilename=BaseDirectoryFileName("statsgen2.db").GetFullPath();
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"dbFilename");
+	wxString	dbFilename=BaseDirectoryFileName((char *)"statsgen2.db").GetFullPath();
 	configKey="/Database/filename";
-	databaseConfig->AddFile("Database File",configKey,(char *)dbFilename.GetData(),-1,NULL);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"AddFile dbFilename");
+	databaseConfig->AddFile((char *)"Database File",configKey,dbFilename,-1,NULL);
 	configKey="/Database/CreateIndexes";
-	databaseConfig->AddBoolean("Create Indexes",configKey,true);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"AddBoolean indexes");
+	databaseConfig->AddBoolean((char *)"Create Indexes",configKey,true);
 
-	fullTemplateConfig=new GroupedConfigItemsPanel("Template Config");
-	fullTemplateConfig->Create(configPanel,
-						-1,
-						wxDefaultPosition,
-						wxDefaultSize);
+	// Full Template Configuration
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"fullTemplateConfig");
+	fullTemplateConfig=new GroupedConfigItemsPanel((char *)"Template Config");
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"fullTemplateConfig create");
+	fullTemplateConfig->CreateDisplay(configPanel,wxID_ANY);
 
 	configKey="/Template/FullRun";
-	fullTemplateConfig->AddFile("Template",configKey,"",-1,NULL);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"AddFile FullRun");
+	fullTemplateConfig->AddFile((char *)"Template",configKey,(char *)"",-1,NULL);
 	configKey="/Schedule/ProductionRun";
 	defaultValue="00:00:00,86400";
-	fullTemplateConfig->AddSchedule("Schedule",configKey,defaultValue,true);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"AddSchedule FullRun");
+	fullTemplateConfig->AddSchedule((char *)"Schedule",configKey,defaultValue,true);
 
-	outputConfig=new GroupedConfigItemsPanel("Local Output Config");
-	outputConfig->Create(configPanel,
-						-1,
-						wxDefaultPosition,
-						wxDefaultSize);
+	// Output Configuration
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"local output config");
+	outputConfig=new GroupedConfigItemsPanel((char *)"Local Output Config");
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"local output config create");
+	outputConfig->CreateDisplay(configPanel,wxID_ANY);
 	configKey="/General/LocalOutput";
-	outputConfig->AddDirectory("Local Output Location",configKey,"",-1);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"AddDirectory localOutput");
+	outputConfig->AddDirectory((char *)"Local Output Location",configKey,(char *)"",-1);
 
 	configKey=CONFIG_KEY_SPEECHFILE;
-	outputConfig->AddFile("Speech File (blank for none)",configKey,"",-1);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"AddFile speech");
+	outputConfig->AddFile((char *)"Speech File (blank for none)",configKey,(char *)"",-1);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"AddConfigGroup databaseConfig");
 	configPanel->AddConfigGroup(databaseConfig);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"AddConfigGroup fullTemplateConfig");
 	configPanel->AddConfigGroup(fullTemplateConfig);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"AddConfigGroup outputConfig");
 	configPanel->AddConfigGroup(outputConfig);
 
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"SetConfigPanel");
 	gui.SetConfigPanel(configPanel);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"DisplayDialog");
 	gui.DisplayDialog();
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Read Timer Configs");
 	globalStatistics.ReadProductionRunTimerConfig();
 	globalStatistics.ReadQuickRunTimerConfig();
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void wxWidgetsFrame::OnTemplateConfig(wxCommandEvent& event)
@@ -1592,8 +1650,8 @@ void wxWidgetsFrame::OnTemplateConfig(wxCommandEvent& event)
 	ServerTypePanel	*serverType=NULL;
 	ImageTypePanel	*imageType=NULL;
 	ConfigEditorGUI	gui(this,
-						-1,
-						_T("Edit Template Config Items"),
+						wxID_ANY,
+						(char *)"Edit Template Config Items",
 						wxDefaultPosition,
 						wxDefaultSize,
 						wxCAPTION |
@@ -1601,7 +1659,7 @@ void wxWidgetsFrame::OnTemplateConfig(wxCommandEvent& event)
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-						_T(""),
+						(char *)"",
 						(BoxedDropDown *)imageType,
 						(BoxedDropDown *)serverType,
 						(GroupedConfigItemsPanel *)NULL,
@@ -1655,8 +1713,8 @@ void wxWidgetsFrame::OnEditMessageFormats(wxCommandEvent& event)
 	ServerTypePanel	*serverType=NULL;
 	ImageTypePanel	*imageType=NULL;
 	ConfigEditorGUI	gui(this,
-						-1,
-						_T("Edit Message Centre Formats"),
+						wxID_ANY,
+						(char *)"Edit Message Centre Formats",
 						wxDefaultPosition,
 						wxDefaultSize,
 						wxCAPTION |
@@ -1664,7 +1722,7 @@ void wxWidgetsFrame::OnEditMessageFormats(wxCommandEvent& event)
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-						_T(""),
+						(char *)"",
 						(BoxedDropDown *)imageType,
 						(BoxedDropDown *)serverType,
 						(GroupedConfigItemsPanel *)NULL,
@@ -1687,6 +1745,7 @@ void wxWidgetsFrame::OnEditMessageFormats(wxCommandEvent& event)
 
 void wxWidgetsFrame::OnWizard(wxCommandEvent& event)
 {
+	STATSGEN_DEBUG_FUNCTION_START("wxWidgetsFrame","OnWizard")
 	if (FirstTimeRun())
 	{
 		GUIWizardPagesFirstConfig	wizardPages;
@@ -1694,6 +1753,7 @@ void wxWidgetsFrame::OnWizard(wxCommandEvent& event)
 	}
 	Upgrade();
 	SetMenuItems();
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void wxWidgetsFrame::OnAbout(wxCommandEvent& event)
@@ -1701,25 +1761,25 @@ void wxWidgetsFrame::OnAbout(wxCommandEvent& event)
 	wxString	msg;
 
 	msg.Printf(
-		_T("Statsgen 2\n")
-		_T("http://www.statsgen.co.uk - Version %s\n")
-		_T("\n")
-		_T("http://www.sqlite.org     - Version %s\n")
-		_T("http://www.wxwidgets.org  - Version %s\n")
-		_T("\n")
-		_T("Default Templates created by Nazarine and\n")
-		_T("Omega of www.ssrangers.ca\n")
-		_T("\n")
-		_T("Big thanks to Omega for all the work on the templates\n")
-		_T("\n")
-		_T("Another big thanks to Elric666 (www.snl-clan.com) for all\n")
-		_T("the help testing Quake Wars processing with me\n")
+		"Statsgen 2\n"
+		"http://www.statsgen.co.uk - Version %s\n"
+		"\n"
+		"http://www.sqlite.org     - Version %s\n"
+		"http://www.wxwidgets.org  - Version %s\n"
+		"\n"
+		"Default Templates created by Nazarine and\n"
+		"Omega of www.ssrangers.ca\n"
+		"\n"
+		"Big thanks to Omega for all the work on the templates\n"
+		"\n"
+		"Another big thanks to Elric666 (www.snl-clan.com) for all\n"
+		"the help testing Quake Wars processing with me\n"
 		,
 		PROGRAM_VERSION,
 		SQLITE_VERSION,
 		wxVERSION_STRING
 		);
-	wxMessageBox(msg, _T("About"),wxOK | wxICON_INFORMATION,this);
+	wxMessageBox(msg, (char *)"About",wxOK | wxICON_INFORMATION,this);
 
 }
 
@@ -1730,12 +1790,15 @@ void wxWidgetsFrame::RunWizard(GUIWizardPages *wizardPages)
 									wxMAXIMIZE_BOX |
 									wxMINIMIZE_BOX;
 
+	wxSizer	*pageSizer;
 	runningWizard=true;
-	StatsgenWizard		wizard(NULL,-1,title,wxNullBitmap,wxDefaultPosition, wizardStyle);
+	StatsgenWizard		wizard(NULL,wxID_ANY,title,wxNullBitmap,wxDefaultPosition, wizardStyle);
 
 	wizardPages->CreateWizardPages(&wizard);
 	wizard.SetInitialPageLinks();
-	wizard.FitToPage(wizard.GetFirstPage());
+	//wizard.FitToPage(wizard.GetFirstPage());
+	//pageSizer = wizard.GetPageAreaSizer();
+	//pageSizer->Add(wizard.GetFirstPage());
 	wizard.RunWizard(wizard.GetFirstPage());
 	runningWizard=false;
 }
@@ -1743,22 +1806,21 @@ void wxWidgetsFrame::RunWizard(GUIWizardPages *wizardPages)
 void wxWidgetsFrame::OnPlayerDataAvatarConfig(wxCommandEvent& event)
 {
 	wxString			title="Avatar Editor";
-	wxSize				guiSize(768,600);
 	wxString			playerDefaultValue="Insert Avatar Image Reference Here";
 	wxString			playerTitle="Avatar Reference";
 
 	PlayerDataDialog	gui(
 							this,
-							-1,
+							wxID_ANY,
 							title,
 							wxDefaultPosition,
-							guiSize,
+							wxDefaultSize,
 						wxCAPTION |
 						wxCLOSE_BOX |
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-							_T(""),
+							(char *)"",
 						globalStatistics.playerDataAvatars,
 						playerDefaultValue,
 						playerTitle);
@@ -1769,22 +1831,21 @@ void wxWidgetsFrame::OnPlayerDataAvatarConfig(wxCommandEvent& event)
 void wxWidgetsFrame::OnPlayerDataPictureConfig(wxCommandEvent& event)
 {
 	wxString			title="Personal Picture Editor";
-	wxSize				guiSize(768,600);
 	wxString			playerDefaultValue="Insert Personal Picture Reference Here";
 	wxString			playerTitle="Personal Picture Reference";
 
 	PlayerDataDialog	gui(
 							this,
-							-1,
+							wxID_ANY,
 							title,
 							wxDefaultPosition,
-							guiSize,
+							wxDefaultSize,
 						wxCAPTION |
 						wxCLOSE_BOX |
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-							_T(""),
+							(char *)"",
 						globalStatistics.playerDataPicture,
 						playerDefaultValue,
 						playerTitle);
@@ -1795,22 +1856,21 @@ void wxWidgetsFrame::OnPlayerDataPictureConfig(wxCommandEvent& event)
 void wxWidgetsFrame::OnPlayerDataWebsiteConfig(wxCommandEvent& event)
 {
 	wxString			title="Personal Website Editor";
-	wxSize				guiSize(768,600);
 	wxString			playerDefaultValue="Insert Personal Website Reference Here";
 	wxString			playerTitle="Personal Website Reference";
 
 	PlayerDataDialog	gui(
 							this,
-							-1,
+							wxID_ANY,
 							title,
 							wxDefaultPosition,
-							guiSize,
+							wxDefaultSize,
 						wxCAPTION |
 						wxCLOSE_BOX |
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-							_T(""),
+							(char *)"",
 						globalStatistics.playerDataWebsite,
 						playerDefaultValue,
 						playerTitle);
@@ -1821,22 +1881,21 @@ void wxWidgetsFrame::OnPlayerDataWebsiteConfig(wxCommandEvent& event)
 void wxWidgetsFrame::OnPlayerDataXfireConfig(wxCommandEvent& event)
 {
 	wxString			title="Personal Xfire Editor";
-	wxSize				guiSize(768,600);
 	wxString			playerDefaultValue="Insert Xfire ID Here";
 	wxString			playerTitle="Xfire ID";
 
 	PlayerDataDialog	gui(
 							this,
-							-1,
+							wxID_ANY,
 							title,
 							wxDefaultPosition,
-							guiSize,
+							wxDefaultSize,
 						wxCAPTION |
 						wxCLOSE_BOX |
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-							_T(""),
+							(char *)"",
 						globalStatistics.playerDataXfire,
 						playerDefaultValue,
 						playerTitle);
@@ -1847,22 +1906,21 @@ void wxWidgetsFrame::OnPlayerDataXfireConfig(wxCommandEvent& event)
 void wxWidgetsFrame::OnPlayerDataClanRoleConfig(wxCommandEvent& event)
 {
 	wxString			title="Clan Role Editor";
-	wxSize				guiSize(768,600);
 	wxString			playerDefaultValue="Insert Clan Role Here";
 	wxString			playerTitle="Clan Role";
 
 	PlayerDataDialog	gui(
 							this,
-							-1,
+							wxID_ANY,
 							title,
 							wxDefaultPosition,
-							guiSize,
+							wxDefaultSize,
 						wxCAPTION |
 						wxCLOSE_BOX |
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-							_T(""),
+							(char *)"",
 						globalStatistics.playerDataClanRole,
 						playerDefaultValue,
 						playerTitle);
@@ -1873,22 +1931,21 @@ void wxWidgetsFrame::OnPlayerDataClanRoleConfig(wxCommandEvent& event)
 void wxWidgetsFrame::OnPlayerDataRealNameConfig(wxCommandEvent& event)
 {
 	wxString			title="Real Name Editor";
-	wxSize				guiSize(768,600);
 	wxString			playerDefaultValue="Insert Real Name Here";
 	wxString			playerTitle="Real Name";
 
 	PlayerDataDialog	gui(
 							this,
-							-1,
+							wxID_ANY,
 							title,
 							wxDefaultPosition,
-							guiSize,
+							wxDefaultSize,
 						wxCAPTION |
 						wxCLOSE_BOX |
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-							_T(""),
+							(char *)"",
 						globalStatistics.playerDataRealName,
 						playerDefaultValue,
 						playerTitle);
@@ -1899,22 +1956,21 @@ void wxWidgetsFrame::OnPlayerDataRealNameConfig(wxCommandEvent& event)
 void wxWidgetsFrame::OnPlayerDataMisc1Config(wxCommandEvent& event)
 {
 	wxString			title="Miscellaneous Data 1 Editor";
-	wxSize				guiSize(768,600);
 	wxString			playerDefaultValue="Insert Data Here";
 	wxString			playerTitle="Data";
 
 	PlayerDataDialog	gui(
 							this,
-							-1,
+							wxID_ANY,
 							title,
 							wxDefaultPosition,
-							guiSize,
+							wxDefaultSize,
 						wxCAPTION |
 						wxCLOSE_BOX |
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-							_T(""),
+							(char *)"",
 						globalStatistics.playerDataMisc1,
 						playerDefaultValue,
 						playerTitle);
@@ -1925,22 +1981,21 @@ void wxWidgetsFrame::OnPlayerDataMisc1Config(wxCommandEvent& event)
 void wxWidgetsFrame::OnPlayerDataMisc2Config(wxCommandEvent& event)
 {
 	wxString			title="Miscellaneous Data 2 Editor";
-	wxSize				guiSize(768,600);
 	wxString			playerDefaultValue="Insert Data Here";
 	wxString			playerTitle="Data";
 
 	PlayerDataDialog	gui(
 							this,
-							-1,
+							wxID_ANY,
 							title,
 							wxDefaultPosition,
-							guiSize,
+							wxDefaultSize,
 						wxCAPTION |
 						wxCLOSE_BOX |
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-							_T(""),
+							(char *)"",
 						globalStatistics.playerDataMisc2,
 						playerDefaultValue,
 						playerTitle);
@@ -1951,21 +2006,20 @@ void wxWidgetsFrame::OnPlayerDataMisc2Config(wxCommandEvent& event)
 void wxWidgetsFrame::OnBadWordsListConfig(wxCommandEvent& event)
 {
 	wxString			title="Bad Words List Editor";
-	wxSize				guiSize(300,400);
 
 	TextListDialog	gui(
 							this,
-							-1,
+							wxID_ANY,
 							title,
 							wxDefaultPosition,
-							guiSize,
+							wxDefaultSize,
 						wxCAPTION |
 						wxCLOSE_BOX |
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-							_T(""),
-						"BannedSpeech");
+							(char *)"",
+						(char *)"BannedSpeech");
 
 	gui.DisplayDialog();
 }
@@ -1978,21 +2032,20 @@ void wxWidgetsFrame::OnHelp(wxCommandEvent& event)
 void wxWidgetsFrame::OnCustomMessagesConfig(wxCommandEvent& event)
 {
 	wxString			title="Custom Message List";
-	wxSize				guiSize(300,400);
 
 	TextListDialog	gui(
 							this,
-							-1,
+							wxID_ANY,
 							title,
 							wxDefaultPosition,
-							guiSize,
+							wxDefaultSize,
 						wxCAPTION |
 						wxCLOSE_BOX |
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-							_T(""),
-						"CustomMessages");
+							(char *)"",
+						(char *)"CustomMessages");
 	gui.SortOn(false);
 	gui.SingleWords(false);
 
@@ -2017,7 +2070,7 @@ void wxWidgetsFrame::CopyGroupToFile(const char *groupID,FILE *fp)
 	{
 		key=keys.Item(keyIndex);
 		value=values.Item(keyIndex);
-		fprintf(fp,"%s=%s\n",key.GetData(),value.GetData());
+		fprintf(fp,"%s=%s\n",STRING_TO_CHAR(key),STRING_TO_CHAR(value));
 	}
 }
 void wxWidgetsFrame::OnExportBuildINI(wxCommandEvent& event)
@@ -2036,9 +2089,9 @@ void wxWidgetsFrame::OnExportBuildINI(wxCommandEvent& event)
 	int		weaponGroupCount;
 	int		weaponGroupIndex;
 
-	buildINIFileName=BaseDirectoryFileName("build.ini");
+	buildINIFileName=BaseDirectoryFileName((char *)"build.ini");
 	buildINIFileNameStr=buildINIFileName.GetFullPath();
-	fp=fopen(buildINIFileNameStr.GetData(),"w");
+	fp=fopen(STRING_TO_CHAR(buildINIFileNameStr),"w");
 	if (fp==NULL)
 	{
 		return;
@@ -2052,41 +2105,41 @@ void wxWidgetsFrame::OnExportBuildINI(wxCommandEvent& event)
 	fprintf(fp,"AllowNegativeSkill=n\n");
 	fprintf(fp,"FirstTimeRun=y\n");
 
-	CopyGroupToFile("Colours",fp);
-	CopyGroupToFile("DEATHMATCH",fp);
-	CopyGroupToFile("TEAMSWAP",fp);
-	CopyGroupToFile("LINEIDMOHAA",fp);
-	CopyGroupToFile("LINEIDWOLFENSTEIN",fp);
-	CopyGroupToFile("AutoAliasBlockedGUIDS",fp);
+	CopyGroupToFile((char *)"Colours",fp);
+	CopyGroupToFile((char *)"DEATHMATCH",fp);
+	CopyGroupToFile((char *)"TEAMSWAP",fp);
+	CopyGroupToFile((char *)"LINEIDMOHAA",fp);
+	CopyGroupToFile((char *)"LINEIDWOLFENSTEIN",fp);
+	CopyGroupToFile((char *)"AutoAliasBlockedGUIDS",fp);
 
-	CopyGroupToFile("ScoreWeights",fp);
-	CopyGroupToFile("RealNames",fp);
-	CopyGroupToFile("Images",fp);
+	CopyGroupToFile((char *)"ScoreWeights",fp);
+	CopyGroupToFile((char *)"RealNames",fp);
+	CopyGroupToFile((char *)"Images",fp);
 
-	CopyGroupToFile("LogEntriesACTION",fp);
-	CopyGroupToFile("LogEntriesWEAPON",fp);
-	CopyGroupToFile("LogEntriesLOCATION",fp);
+	CopyGroupToFile((char *)"LogEntriesACTION",fp);
+	CopyGroupToFile((char *)"LogEntriesWEAPON",fp);
+	CopyGroupToFile((char *)"LogEntriesLOCATION",fp);
 
-	CopyGroupToFile("MessageCentreFormats",fp);
+	CopyGroupToFile((char *)"MessageCentreFormats",fp);
 
-	CopyGroupToFile("LogSubstituteACTION",fp);
-	CopyGroupToFile("LogSubstituteAMMO",fp);
-	CopyGroupToFile("LogSubstituteGAMETYPE",fp);
-	CopyGroupToFile("LogSubstituteMAP",fp);
-	CopyGroupToFile("LogSubstituteCLASS",fp);
-	CopyGroupToFile("LogSubstituteTEAM",fp);
-	CopyGroupToFile("LogSubstituteWEAPON",fp);
-	CopyGroupToFile("LogSubstituteWEAPONAMMO",fp);
-	CopyGroupToFile("LogSubstituteLOCATION",fp);
+	CopyGroupToFile((char *)"LogSubstituteACTION",fp);
+	CopyGroupToFile((char *)"LogSubstituteAMMO",fp);
+	CopyGroupToFile((char *)"LogSubstituteGAMETYPE",fp);
+	CopyGroupToFile((char *)"LogSubstituteMAP",fp);
+	CopyGroupToFile((char *)"LogSubstituteCLASS",fp);
+	CopyGroupToFile((char *)"LogSubstituteTEAM",fp);
+	CopyGroupToFile((char *)"LogSubstituteWEAPON",fp);
+	CopyGroupToFile((char *)"LogSubstituteWEAPONAMMO",fp);
+	CopyGroupToFile((char *)"LogSubstituteLOCATION",fp);
 
 
-	CopyGroupToFile("AWARDLIST",fp);
-	globalStatistics.configData.ReadList("AWARDLIST",awardIDs);
+	CopyGroupToFile((char *)"AWARDLIST",fp);
+	globalStatistics.configData.ReadList((char *)"AWARDLIST",awardIDs);
 	awardCount=awardIDs.GetCount();
 	for (awardIndex=0;awardIndex<awardCount;awardIndex++)
 	{
-		awardID.Printf("AWARDDEFINITION%s",awardIDs.Item(awardIndex).GetData());
-		CopyGroupToFile(awardID.GetData(),fp);
+		awardID.Printf("AWARDDEFINITION%s",STRING_TO_CHAR(awardIDs.Item(awardIndex)));
+		CopyGroupToFile(STRING_TO_CHAR(awardID),fp);
 	}
 
 
@@ -2097,17 +2150,17 @@ void wxWidgetsFrame::OnExportBuildINI(wxCommandEvent& event)
 	for (weaponGroupIndex=0;weaponGroupIndex<weaponGroupCount;weaponGroupIndex++)
 	{
 		weaponGroup=weaponGroups.Item(weaponGroupIndex);
-		CopyGroupToFile(weaponGroup.GetData(),fp);
+		CopyGroupToFile(STRING_TO_CHAR(weaponGroup),fp);
 	}
 	fclose(fp);
 
-	CopyImagesToUpgradeFile("cod1images.ini","cod1");
-	CopyImagesToUpgradeFile("cod2images.ini","cod2");
-	CopyImagesToUpgradeFile("cod4images.ini","cod4");
-	CopyImagesToUpgradeFile("cod5images.ini","cod5");
-	CopyImagesToUpgradeFile("mohaaimages.ini","mohaa");
-	CopyImagesToUpgradeFile("wolfensteinimages.ini","wolfenstein");
-	CopyImagesToUpgradeFile("quakewarsimages.ini","quakewars");
+	CopyImagesToUpgradeFile((char *)"cod1images.ini",(char *)"cod1");
+	CopyImagesToUpgradeFile((char *)"cod2images.ini",(char *)"cod2");
+	CopyImagesToUpgradeFile((char *)"cod4images.ini",(char *)"cod4");
+	CopyImagesToUpgradeFile((char *)"cod5images.ini",(char *)"cod5");
+	CopyImagesToUpgradeFile((char *)"mohaaimages.ini",(char *)"mohaa");
+	CopyImagesToUpgradeFile((char *)"wolfensteinimages.ini",(char *)"wolfenstein");
+	CopyImagesToUpgradeFile((char *)"quakewarsimages.ini",(char *)"quakewars");
 
 }
 void wxWidgetsFrame::CopyImagesToUpgradeFile(const char *upgradefilename,const char *filter)
@@ -2125,7 +2178,7 @@ void wxWidgetsFrame::CopyImagesToUpgradeFile(const char *upgradefilename,const c
 
 	upgradeFileName=BaseDirectoryFileName(upgradefilename);
 	upgradeFileNameStr=upgradeFileName.GetFullPath();
-	fp=fopen(upgradeFileNameStr.GetData(),"w");
+	fp=fopen(STRING_TO_CHAR(upgradeFileNameStr),"w");
 
 
 	if (fp==NULL)
@@ -2133,18 +2186,18 @@ void wxWidgetsFrame::CopyImagesToUpgradeFile(const char *upgradefilename,const c
 		return;
 	}
 
-	fprintf(fp,"[UPGRADELIST]\n");
-	fprintf(fp,"Description=Image Pack for %s images\n",filter);
-	fprintf(fp,"UpgradeType=Configuration File\n");
-	fprintf(fp,"LISTCOUNT=2\n");
-	fprintf(fp,"LISTITEM001=Images\n");
-	fprintf(fp,"LISTITEM002=RealNames\n");
-	fprintf(fp,"[Images]\n");
-	fprintf(fp,"UPGRADEDESCRIPTION=Image References\n");
-	fprintf(fp,"UPGRADERECOMMENDATION=Update\n");
-	fprintf(fp,"UPGRADEANSWERTYPE=0\n");
+	fprintf(fp,(char *)"[UPGRADELIST]\n");
+	fprintf(fp,(char *)"Description=Image Pack for %s images\n",filter);
+	fprintf(fp,(char *)"UpgradeType=Configuration File\n");
+	fprintf(fp,(char *)"LISTCOUNT=2\n");
+	fprintf(fp,(char *)"LISTITEM001=Images\n");
+	fprintf(fp,(char *)"LISTITEM002=RealNames\n");
+	fprintf(fp,(char *)"[Images]\n");
+	fprintf(fp,(char *)"UPGRADEDESCRIPTION=Image References\n");
+	fprintf(fp,(char *)"UPGRADERECOMMENDATION=Update\n");
+	fprintf(fp,(char *)"UPGRADEANSWERTYPE=0\n");
 
-	globalStatistics.configData.ReadGroup("Images",keys,values);
+	globalStatistics.configData.ReadGroup((char *)"Images",keys,values);
 	keyCount=keys.GetCount();
 	for (keyIndex=0;keyIndex<keyCount;keyIndex++)
 	{
@@ -2154,14 +2207,14 @@ void wxWidgetsFrame::CopyImagesToUpgradeFile(const char *upgradefilename,const c
 		serverType=serverType.BeforeFirst('_');
 		if (serverType.CmpNoCase(filter)==0)
 		{
-			fprintf(fp,"%s=%s\n",key.GetData(),value.GetData());
+			fprintf(fp,"%s=%s\n",STRING_TO_CHAR(key),STRING_TO_CHAR(value));
 		}
 	}
-	fprintf(fp,"[RealNames]\n");
-	fprintf(fp,"UPGRADEDESCRIPTION=Real Names References\n");
-	fprintf(fp,"UPGRADERECOMMENDATION=Update\n");
-	fprintf(fp,"UPGRADEANSWERTYPE=0\n");
-	globalStatistics.configData.ReadGroup("RealNames",keys,values);
+	fprintf(fp,(char *)"[RealNames]\n");
+	fprintf(fp,(char *)"UPGRADEDESCRIPTION=Real Names References\n");
+	fprintf(fp,(char *)"UPGRADERECOMMENDATION=Update\n");
+	fprintf(fp,(char *)"UPGRADEANSWERTYPE=0\n");
+	globalStatistics.configData.ReadGroup((char *)"RealNames",keys,values);
 	keyCount=keys.GetCount();
 	for (keyIndex=0;keyIndex<keyCount;keyIndex++)
 	{
@@ -2171,7 +2224,7 @@ void wxWidgetsFrame::CopyImagesToUpgradeFile(const char *upgradefilename,const c
 		serverType=serverType.BeforeFirst('_');
 		if (serverType.CmpNoCase(filter)==0)
 		{
-			fprintf(fp,"%s=%s\n",key.GetData(),value.GetData());
+			fprintf(fp,"%s=%s\n",STRING_TO_CHAR(key),STRING_TO_CHAR(value));
 		}
 	}
 	fclose(fp);
@@ -2195,7 +2248,6 @@ void wxWidgetsFrame::OnExportUpgrade(wxCommandEvent& event)
 void wxWidgetsFrame::ManualUpgrade()
 {
 	wxString	title="Select The Upgrade File And Then Press Perform Upgrade Button";
-	wxSize		dialogSize(600,250);
 	wxString	name="performupgrade";
 	long		style= wxCAPTION |
 						wxCLOSE_BOX |
@@ -2204,10 +2256,10 @@ void wxWidgetsFrame::ManualUpgrade()
 						wxMAXIMIZE_BOX;
 
 	PerformUpgradeDialog	dialog(this,
-									-1,
+									wxID_ANY,
 									title,
 									wxDefaultPosition,
-									dialogSize,
+									wxDefaultSize,
 									style,
 									name);
 	globalStatistics.statsgenDatabase.OpenDB();
@@ -2231,7 +2283,7 @@ void wxWidgetsFrame::UpgradeDatabase()
 
 	configKey="/General/DatabaseVersion";
 	globalStatistics.configData.ReadTextValue(configKey,&configValue);
-	buildVersion=atoi(configValue.GetData());
+	buildVersion=atoi(STRING_TO_CHAR(configValue));
 	configValue.Printf("%d",DATABASE_VERSION);
 	globalStatistics.configData.WriteTextValue(configKey,configValue);
 	if (buildVersion<DATABASE_VERSION)
@@ -2286,7 +2338,7 @@ void wxWidgetsFrame::UpgradeTemplate()
 
 	configKey="/General/TemplateVersion";
 	globalStatistics.configData.ReadTextValue(configKey,&configValue);
-	buildVersion=atoi(configValue.GetData());
+	buildVersion=atoi(STRING_TO_CHAR(configValue));
 	configValue.Printf("%d",TEMPLATE_VERSION);
 	globalStatistics.configData.WriteTextValue(configKey,configValue);
 	globalStatistics.configData.CommitChanges();
@@ -2317,7 +2369,7 @@ void wxWidgetsFrame::UpgradeConfig()
 
 	configKey="/General/BuildVersion";
 	globalStatistics.configData.ReadTextValue(configKey,&configValue);
-	buildVersion=atoi(configValue.GetData());
+	buildVersion=atoi(STRING_TO_CHAR(configValue));
 	configValue.Printf("%d",CONFIG_VERSION);
 	globalStatistics.configData.WriteTextValue(configKey,configValue);
 	globalStatistics.configData.CommitChanges();
@@ -2347,7 +2399,7 @@ void wxWidgetsFrame::OnExternalDatabaseConfig(wxCommandEvent& event)
 	GUITriggerItem			triggerItem;
 
 	GenericConfigGUI	gui(this,
-							-1,
+							wxID_ANY,
 							title,
 							wxDefaultPosition,
 							wxDefaultSize,
@@ -2361,42 +2413,39 @@ void wxWidgetsFrame::OnExternalDatabaseConfig(wxCommandEvent& event)
 	GenericConfigPanel	*configPanel;
 
 	configPanel=new GenericConfigPanel(&gui,
-									-1,
+									wxID_ANY,
 									wxDefaultPosition,
 									wxDefaultSize,
 									0,
 									_T("PANEL"));
 
 	// Panel holds the various boxed configs
-	databaseConfig=new GroupedConfigItemsPanel("External Database Config");
-	databaseConfig->Create(configPanel,
-						-1,
-						wxDefaultPosition,
-						wxDefaultSize);
+	databaseConfig=new GroupedConfigItemsPanel((char *)"External Database Config");
+	databaseConfig->CreateDisplay(configPanel,wxID_ANY);
 
 	configKey="/ExternalDatabase/Enabled";
-	databaseConfig->AddBoolean("Enabled",configKey,false);
+	databaseConfig->AddBoolean((char *)"Enabled",configKey,false);
 
-	triggerItem.SetPositiveDisableTrigger(configKey,"N");
+	triggerItem.SetPositiveDisableTrigger(configKey,(char *)"N");
 	triggerList.Add(triggerItem);
 
 	configKey="/ExternalDatabase/CreateIndexes";
-	databaseConfig->AddBoolean("Create Table Indexes",configKey,true,&triggerList);
+	databaseConfig->AddBoolean((char *)"Create Table Indexes",configKey,true,&triggerList);
 
 	configKey="/ExternalDatabase/Hostname";
-	databaseConfig->Add("Hostname",configKey,"",-1,&triggerList);
+	databaseConfig->Add((char *)"Hostname",configKey,(char *)"",-1,&triggerList);
 
 	configKey="/ExternalDatabase/Username";
-	databaseConfig->Add("Username",configKey,"",-1,&triggerList);
+	databaseConfig->Add((char *)"Username",configKey,(char *)"",-1,&triggerList);
 
 	configKey="/ExternalDatabase/Password";
-	databaseConfig->Add("Password",configKey,"",-1,&triggerList);
+	databaseConfig->Add((char *)"Password",configKey,(char *)"",-1,&triggerList);
 
 	configKey="/ExternalDatabase/DatabaseName";
-	databaseConfig->Add("Database Name",configKey,"statsgen",-1,&triggerList);
+	databaseConfig->Add((char *)"Database Name",configKey,(char *)"statsgen",-1,&triggerList);
 
 	configKey="/ExternalDatabase/Port";
-	databaseConfig->Add("Port",configKey,"3306",5,&triggerList);
+	databaseConfig->Add((char *)"Port",configKey,(char *)"3306",5,&triggerList);
 
 	configPanel->AddConfigGroup(databaseConfig);
 
@@ -2415,7 +2464,7 @@ void wxWidgetsFrame::OnConfigThread(wxCommandEvent& event)
 									wxRESIZE_BORDER |
 									wxMAXIMIZE_BOX;
 	GenericOKCancelDialog	dialog(this,
-									-1,
+									wxID_ANY,
 									title,
 									wxDefaultPosition,
 									dialogSize,
@@ -2423,11 +2472,11 @@ void wxWidgetsFrame::OnConfigThread(wxCommandEvent& event)
 									name);
 	PriorityPanel			*priorityPanel=new PriorityPanel();
 	priorityPanel->Create(&dialog,
-							-1,
+							wxID_ANY,
 							wxDefaultPosition,
 							wxDefaultSize,
 							wxTAB_TRAVERSAL,
-							_T("PANEL"));
+							(char *)"PANEL");
 
 	dialog.DisplayDialog(priorityPanel);
 	globalStatistics.configData.CommitChanges();
@@ -2461,37 +2510,38 @@ void wxWidgetsFrame::OnProgressUpdate(wxCommandEvent& event)
 	STATSGEN_DEBUG_FUNCTION_START("wxWidgetsFrame","OnProgressUpdate")
 	wxString	eventString=event.GetString();
 
-
 	wxSafeYield();
 	if (progress->GetEventUpdating())
 	{
-	switch (event.GetId())
-	{
-		case EVENT_ID_PROGRESS_STATUS_TEXT:
-			wxStaticText	*label;
-			label=(wxStaticText *)event.GetClientData();
-			if (label!=NULL)
-			{
-				label->SetLabel(eventString);
-				progress->UpdateColouredBar();
-			}
-			break;
-		case EVENT_ID_PROGRESS_BUTTON:
-			wxBitmapButton	*button;
-			wxBitmap		bitmap=ProgressPanel::SeverityImage(event.GetInt());
-			button=(wxBitmapButton *)event.GetClientData();
-			if (button!=NULL)
-			{
-				button->SetBitmapLabel(bitmap);
-			}
-			break;
-	}
+		switch (event.GetId())
+		{
+			case EVENT_ID_PROGRESS_STATUS_TEXT:
+				wxStaticText	*label;
+				label=(wxStaticText *)event.GetClientData();
+				if (label!=NULL)
+				{
+					label->SetLabel(eventString);
+					progress->UpdateColouredBar();
+				}
+				break;
+			case EVENT_ID_PROGRESS_BUTTON:
+				wxBitmapButton	*button;
+				wxBitmap		bitmap=ProgressPanel::SeverityImage(event.GetInt());
+				button=(wxBitmapButton *)event.GetClientData();
+				if (button!=NULL)
+				{
+					button->SetBitmapLabel(bitmap);
+				}
+				break;
+		}
 	}
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void wxWidgetsFrame::OnWebServerConfig(wxCommandEvent& event)
 {
+	// This was meant to be so you could remote control statsgen
+	// but it was never implemented
 	wxString				title="Internal Web Server Config";
 	wxString				defaultValue;
 	GroupedConfigItemsPanel	*webserverConfig;
@@ -2500,7 +2550,7 @@ void wxWidgetsFrame::OnWebServerConfig(wxCommandEvent& event)
 	GUITriggerItem			triggerItem;
 
 	GenericConfigGUI	gui(this,
-							-1,
+							wxID_ANY,
 							title,
 							wxDefaultPosition,
 							wxDefaultSize,
@@ -2509,38 +2559,35 @@ void wxWidgetsFrame::OnWebServerConfig(wxCommandEvent& event)
 						wxSYSTEM_MENU |
 						wxRESIZE_BORDER |
 						wxMAXIMIZE_BOX,
-							_T(""));
+							(char *)"");
 
 	GenericConfigPanel	*configPanel;
 
 	configPanel=new GenericConfigPanel(&gui,
-									-1,
+									wxID_ANY,
 									wxDefaultPosition,
 									wxDefaultSize,
 									0,
-									_T("PANEL"));
+									(char *)"PANEL");
 
 	// Panel holds the various boxed configs
-	webserverConfig=new GroupedConfigItemsPanel("Internal Web Server Config");
-	webserverConfig->Create(configPanel,
-						-1,
-						wxDefaultPosition,
-						wxDefaultSize);
+	webserverConfig=new GroupedConfigItemsPanel((char *)"Internal Web Server Config");
+	webserverConfig->CreateDisplay(configPanel,wxID_ANY);
 
 	configKey=globalStatistics.webServer.ConfigKeyEnabled();
-	webserverConfig->AddBoolean("Enabled",configKey,false);
+	webserverConfig->AddBoolean((char *)"Enabled",configKey,false);
 
-	triggerItem.SetPositiveDisableTrigger(configKey,"N");
+	triggerItem.SetPositiveDisableTrigger(configKey,(char *)"N");
 	triggerList.Add(triggerItem);
 
 	configKey=globalStatistics.webServer.ConfigKeyPort();
-	webserverConfig->Add("Listen Port",configKey,"9000",-1,&triggerList);
+	webserverConfig->Add((char *)"Listen Port",configKey,(char *)"9000",-1,&triggerList);
 
 	configKey=globalStatistics.webServer.ConfigKeyAdminUser();
-	webserverConfig->Add("Admin Username",configKey,"",-1,&triggerList);
+	webserverConfig->Add((char *)"Admin Username",configKey,(char *)"",-1,&triggerList);
 
 	configKey=globalStatistics.webServer.ConfigKeyAdminPassword();
-	webserverConfig->Add("Admin Password",configKey,"",-1,&triggerList);
+	webserverConfig->Add((char *)"Admin Password",configKey,(char *)"",-1,&triggerList);
 
 	configPanel->AddConfigGroup(webserverConfig);
 
@@ -2761,10 +2808,10 @@ void wxWidgetsFrame::OnEditWeaponGroups(wxCommandEvent& event)
 	wxString	name="";
 	wxString	title="Edit Weapon Groups";
 	WeaponGroupDialog	gui(this,
-						-1,
+						wxID_ANY,
 						title,
 						wxDefaultPosition,
-						wxSize(640,480),
+						wxDefaultSize,
 						wxCAPTION |
 						wxCLOSE_BOX |
 						wxSYSTEM_MENU |

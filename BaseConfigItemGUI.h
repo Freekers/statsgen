@@ -12,14 +12,19 @@
 class BaseConfigItemGUI : public wxPanel
 {
 	public:
-		virtual void SetLabelWidth(int width)=0;
-		virtual int GetLabelWidth()=0;
+		BaseConfigItemGUI();
 		void SetTriggerCondition(GUITriggerList &listIn);
 		bool UpdateFromTrigger();
-		int PreferredHeight();
+		void SetConfigKey(wxString configKey,char *defaultValue);
+		void SetConfigKey(wxString configKey,wxString defaultValue);
+		void SetConfigKey(wxString configKey);
+		virtual void ApplyConfigKeyChange()=0;
 	protected:
-		wxString	configKey;
-		GUITriggerList	triggerList;
+		void ConfigureSizer();
+		wxString		mConfigKey;
+		wxString		mDefaultValue;
+		GUITriggerList	mTriggerList;
+		wxSizer			*mMainSizer;
 };
 
 #endif

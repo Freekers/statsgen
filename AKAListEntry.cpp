@@ -31,8 +31,8 @@ wxString AKAListEntry::SQLCreateTable()
 				"playerindex integer,"
 				"%s"
 			")",
-			SQLTableName().GetData(),
-		StatsgenDatabase::StringFieldDefinition("name","akaname",FIELD_WIDTH_PLAYER_NAME).GetData()
+			STRING_TO_CHAR(SQLTableName()),
+		STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("name","akaname",FIELD_WIDTH_PLAYER_NAME))
 	);
 
 	return SQL;
@@ -54,18 +54,18 @@ bool AKAListEntry::WriteToDatabase()
 					"where "
 					"playerindex='%d' and "
 					"name='%s'",
-					SQLTableName().GetData(),
+					STRING_TO_CHAR(SQLTableName()),
 					actualPlayerIndex,
-					StatsgenDatabase::SafeForInsert(name).GetData());
+					STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(name)));
 		globalStatistics.statsgenDatabase.SimpleExecute(SQL);
 					
 	}
 	SQL.Printf("Insert into %s"
 				"(playerindex,name)"
 				"values('%d','%s')",
-				SQLTableName().GetData(),
+				STRING_TO_CHAR(SQLTableName()),
 				actualPlayerIndex,
-				StatsgenDatabase::SafeForInsert(name).GetData());
+				STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(name)));
 
 	globalStatistics.statsgenDatabase.SimpleExecute(SQL);
 	return retVal;

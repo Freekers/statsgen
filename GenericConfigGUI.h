@@ -24,19 +24,20 @@ class GenericConfigGUI : public wxDialog
 
 		void OnQuit(wxCommandEvent& event);
 		void OnSave(wxCommandEvent& event);
-		void OnResize(wxSizeEvent& event);
 
 		void DisplayDialog();
 		void SetConfigPanel(GenericConfigPanel *configPanel);
 
 	protected:
+		void ConfigureSizer();
 		void CreateDialog();
 
 	private:
 		GenericConfigPanel	*configPanel;
 		wxButton	saveButton;
 		wxButton	quitButton;
-		bool		firstTimeResize;
+		wxBoxSizer	*mMainSizer;
+		wxBoxSizer	*mControlsSizer;
 		DECLARE_EVENT_TABLE()
 };
 

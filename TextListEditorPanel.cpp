@@ -11,7 +11,6 @@
 #include "ErrorData.h"
 
 BEGIN_EVENT_TABLE(TextListEditorPanel, wxPanel)
-		EVT_SIZE(TextListEditorPanel::OnResize)
 		EVT_LIST_ITEM_RIGHT_CLICK(WINDOW_ID_TEXTLIST,
 								TextListEditorPanel::OnTextListRightClick)
 		EVT_MENU(TEXTLIST_POPUP_DELETE,TextListEditorPanel::OnPopupMenu)
@@ -20,18 +19,18 @@ END_EVENT_TABLE()
 
 void TextListEditorPanel::SetList(wxArrayString &textListIn)
 {
-	textList=textListIn;
+	mTextList = textListIn;
 }
 
 TextListEditorPanel::TextListEditorPanel()
 {
-	textListList=NULL;
-	sortList=true;
+	mTextListList	= NULL;
+	mSortList		= true;
 }
 
 void TextListEditorPanel::SortOn(bool value)
 {
-	sortList=value;
+	mSortList	= value;
 }
 
 bool TextListEditorPanel::Create(wxWindow *parent,
@@ -48,7 +47,7 @@ bool TextListEditorPanel::Create(wxWindow *parent,
 		style,
 		name);
 
-	textListList=new wxListCtrl(this,
+	mTextListList=new wxListCtrl(this,
 							WINDOW_ID_TEXTLIST,
 							wxDefaultPosition,
 							wxDefaultSize,
@@ -56,32 +55,12 @@ bool TextListEditorPanel::Create(wxWindow *parent,
 							wxLC_EDIT_LABELS);
 	RefreshTextListTree();
 
-	wxSizeEvent	dummyEvent;
-	OnResize(dummyEvent);
+	mMainSizer = new wxBoxSizer(wxVERTICAL);
+	mMainSizer->Add(mTextListList,1,wxEXPAND);
+
+	mMainSizer->SetSizeHints(this);
+	SetSizer(mMainSizer);
 	return (true);
-}
-
-void TextListEditorPanel::OnResize(wxSizeEvent &event)
-{
-	wxSize		itemSize;
-	int			panelWidth;
-	int			panelHeight;
-	int			textListWidth;
-	int			textListHeight;
-	wxString	msg;
-
-
-	if (textListList!=NULL)
-	{
-		itemSize=GetSize();
-		panelWidth=itemSize.GetWidth();
-		panelHeight=itemSize.GetHeight();
-
-		textListWidth=panelWidth;
-		textListHeight=panelHeight;
-
-		textListList->SetSize(0,0,textListWidth,textListHeight);
-	}
 }
 
 void TextListEditorPanel::AddTextListEntry(int index,wxString &entry)
@@ -93,39 +72,38 @@ void TextListEditorPanel::AddTextListEntry(int index,wxString &entry)
 	rowNumber=index;
 	itemIndex=index;
 
-	listIndex=textListList->InsertItem(rowNumber,entry);
-	textListList->SetItemData(listIndex,itemIndex);
+	listIndex=mTextListList->InsertItem(rowNumber,entry);
+	mTextListList->SetItemData(listIndex,itemIndex);
 }
+
 
 void TextListEditorPanel::RefreshTextListTree()
 {
 	wxString			textListEntry;
-	wxListItem			listColumn;
 	int					textListCount;
 	int					textListIndex;
 
 	STATSGEN_DEBUG_FUNCTION_START("TextListEditorPanel","RefreshTextListTree")
-	if (sortList)
+	if (mSortList)
 	{
-		textList.Sort();
+		mTextList.Sort();
 	}
-	textListList->Hide();
+	mTextListList->Hide();
 	
-	textListList->DeleteAllColumns();
-	textListList->DeleteAllItems();
-	listColumn.SetText("Word");
-	textListList->InsertColumn(0,listColumn);
+	mTextListList->DeleteAllColumns();
+	mTextListList->DeleteAllItems();
+	mTextListList->InsertColumn(0,_T("Word"),wxLIST_FORMAT_LEFT,wxLIST_AUTOSIZE);
 
-	textListCount=textList.GetCount();
+	textListCount=mTextList.GetCount();
 	for (textListIndex=0;textListIndex<textListCount;textListIndex++)
 	{
-		textListEntry=textList.Item(textListIndex);
+		textListEntry=mTextList.Item(textListIndex);
 		STATSGEN_DEBUG(DEBUG_ALWAYS,textListEntry);
 		AddTextListEntry(textListIndex,textListEntry);
 	}
 
-	textListList->SetColumnWidth(0,wxLIST_AUTOSIZE);
-	textListList->Show();
+	mTextListList->SetColumnWidth(0,wxLIST_AUTOSIZE);
+	mTextListList->Show();
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
@@ -156,17 +134,17 @@ void TextListEditorPanel::OnPopupMenu(wxCommandEvent &event)
 	switch (id)
 	{
 		case TEXTLIST_POPUP_DELETE:
-			selectedItem=textListList->GetNextItem(selectedItem,
+			selectedItem=mTextListList->GetNextItem(selectedItem,
 													wxLIST_NEXT_ALL,
 													wxLIST_STATE_SELECTED);
 			STATSGEN_DEBUG_CODE(msg.Printf("Deleting selected index %d",selectedItem);)
 			STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 			while (selectedItem!=-1)
 			{
-				listIndex=(int)textListList->GetItemData(selectedItem);
+				listIndex=(int)mTextListList->GetItemData(selectedItem);
 				STATSGEN_DEBUG_CODE(msg.Printf("Deleting list index %d",listIndex);)
 				STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
-				textList.RemoveAt(listIndex);
+				mTextList.RemoveAt(listIndex);
 				selectedItem=-1;
 			}
 			RefreshTextListTree();
@@ -190,11 +168,11 @@ void TextListEditorPanel::OnLabelEdit(wxListEvent &event)
 	STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 	if (index>=0)
 	{
-		textListEntry=textList.Item(index);
+		textListEntry=mTextList.Item(index);
 		STATSGEN_DEBUG(DEBUG_ALWAYS,textListEntry);
-		textList.RemoveAt(index);
+		mTextList.RemoveAt(index);
 		STATSGEN_DEBUG(DEBUG_ALWAYS,event.GetText());
-		textList.Add(event.GetText());
+		mTextList.Add(event.GetText());
 	}
 
 	event.Veto();
@@ -204,12 +182,12 @@ void TextListEditorPanel::OnLabelEdit(wxListEvent &event)
 
 void TextListEditorPanel::GetList(wxArrayString &textListOut)
 {
-	textListOut=textList;
+	textListOut=mTextList;
 }
 
 void TextListEditorPanel::Add(wxString &entry)
 {
-	textList.Add(entry);
+	mTextList.Add(entry);
 
 	RefreshTextListTree();
 }

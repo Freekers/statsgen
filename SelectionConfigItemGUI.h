@@ -15,28 +15,22 @@ class SelectionConfigItemGUI : public BaseConfigItemGUI
 	public:
 		SelectionConfigItemGUI();
 		virtual ~SelectionConfigItemGUI();
+		void CreateDisplay(wxWindow *parent,int id,wxString labelText);
 		void OnTextChange(wxCommandEvent& event);
-
-		void SetConfigKey(wxString &configKeyIn);
-		void SetLabelWidth(int width);
-		int GetLabelWidth();
-		void Set(wxString &configKeyIn,
-			wxString &labelText,
-			wxString &defaultValueIn,
-			wxArrayString &codes,
-			wxArrayString &names);
-			void OnResize(wxSizeEvent &event);
+		void SetSelection(wxArrayString &codes, wxArrayString &names);
+		virtual void ApplyConfigKeyChange();
 
 		wxString GetValue();
+		wxString GetNameFromCode(wxString code);
 	protected:
 
 	private:
-		wxComboBox		textEdit;
-		wxStaticText	label;
-		wxString		labelText;
-		wxString		defaultValue;
-		wxArrayString		codes;
-		wxArrayString		names;
+		wxComboBox		*mTextEdit;
+		wxStaticText	*mLabel;
+		wxString		mLabelText;
+		wxString		mDefaultValue;
+		wxArrayString		mCodes;
+		wxArrayString		mNames;
 
 		DECLARE_EVENT_TABLE()
 };

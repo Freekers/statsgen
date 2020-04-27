@@ -8,116 +8,72 @@
 #include "PlayerDataEditorPanel.h"
 #include "GlobalStatistics.h"
 #include "StaticFunctions.h"
+#include "ResizingListCtrl.h"
 
 BEGIN_EVENT_TABLE(PlayerDataEditorPanel, wxPanel)
-		EVT_SIZE(PlayerDataEditorPanel::OnResize)
-		EVT_LIST_ITEM_RIGHT_CLICK(WINDOW_ID_DROPLIST,
+	EVT_LIST_ITEM_RIGHT_CLICK(WINDOW_ID_DROPLIST,
 								PlayerDataEditorPanel::OnPlayerDataListRightClick)
-		EVT_LIST_ITEM_RIGHT_CLICK(WINDOW_ID_PLAYERCACHE,
+	EVT_LIST_ITEM_RIGHT_CLICK(WINDOW_ID_PLAYERCACHE,
 								PlayerDataEditorPanel::OnPlayerRightClick)
-		EVT_MENU(PLAYER_DATA_ADD,PlayerDataEditorPanel::OnPopupMenu)
-		EVT_MENU(PLAYER_DATA_DELETE,PlayerDataEditorPanel::OnPopupMenu)
-		EVT_LIST_END_LABEL_EDIT(WINDOW_ID_DROPLIST,PlayerDataEditorPanel::OnLabelEdit)
+	EVT_MENU(PLAYER_DATA_ADD,PlayerDataEditorPanel::OnPopupMenu)
+	EVT_MENU(PLAYER_DATA_DELETE,PlayerDataEditorPanel::OnPopupMenu)
+	EVT_LIST_END_LABEL_EDIT(WINDOW_ID_DROPLIST,PlayerDataEditorPanel::OnLabelEdit)
 END_EVENT_TABLE()
 
 PlayerDataEditorPanel::PlayerDataEditorPanel(PlayerDataList *playerDataListIn,
 											wxString &defaultPlayerDataIn,
 											wxString &playerDataTitleIn)
 {
-	playerCache=NULL;
-	playerDataListCtrl=NULL;
-	playerDataList=playerDataListIn;
-	defaultPlayerData=defaultPlayerDataIn;
-	playerDataTitle=playerDataTitleIn;
+	mPlayerCache=NULL;
+	mPlayerDataListCtrl=NULL;
+	mPlayerDataList=playerDataListIn;
+	mDefaultPlayerData=defaultPlayerDataIn;
+	mPlayerDataTitle=playerDataTitleIn;
 
 	// Lets load up the current DropList List into
 	// the global statistics - we can transfer
 	// it across into the tree during creation
 	globalStatistics.ReadAliasList();
-	playerDataList->ReadFromFile();
+	mPlayerDataList->ReadFromFile();
 }
 
-bool PlayerDataEditorPanel::Create(wxWindow *parent,
-				wxWindowID id,
-				const wxPoint &pos,
-				const wxSize &size,
-				long style,
-				const wxString &name)
+bool PlayerDataEditorPanel::CreateDisplay(wxWindow *parent, wxWindowID id)
 {
 	wxString	dummyConfigKey="/tmp/tmp";
 	wxString	labelText="Player Filter";
-	wxString	configKey;
+
 
 	wxPanel::Create( parent, id,
-		pos,
-		size,
-		style,
-		name);
+		wxDefaultPosition,
+		wxDefaultSize,
+		wxTAB_TRAVERSAL|wxFULL_REPAINT_ON_RESIZE);
 
-	playerCache=new PlayerCachePanel(dummyConfigKey,labelText);
-	playerCache->SetFilterType(PlayerCachePanel::FILTER_TYPE_NO_CASE);
-	playerCache->Create(this,
-						WINDOW_ID_PLAYERCACHE,
-						wxDefaultPosition,
-						wxDefaultSize);
-	playerDataListCtrl=new wxListCtrl(this,
+	mPlayerCache=new PlayerCachePanel(dummyConfigKey,labelText);
+	mPlayerCache->SetFilterType(PlayerCachePanel::FILTER_TYPE_NO_CASE);
+	mPlayerCache->CreateScreen(this, WINDOW_ID_PLAYERCACHE);
+	mPlayerDataListCtrl=new wxListCtrl(this,
 							WINDOW_ID_DROPLIST,
 							wxDefaultPosition,
 							wxDefaultSize,
 							wxLC_REPORT|
-							wxLC_EDIT_LABELS);
-	RefreshPlayerDataListTree();
+							wxLC_EDIT_LABELS|wxFULL_REPAINT_ON_RESIZE);
 
-	configItems=new GroupedConfigItemsPanel("Configuration File");
-	configItems->Create(this,-1,wxDefaultPosition,wxDefaultSize);
-	configItems->AddFile("Configuration File",
-						playerDataList->filenameConfigKey,
-						(char *)playerDataList->defaultFilename.GetData(),
-						-1,
+	mConfigItems=new GroupedConfigItemsPanel((char *)"Configuration File");
+	mConfigItems->CreateDisplay(this,wxID_ANY);
+	mConfigItems->AddFile((char *)"Configuration File",
+						mPlayerDataList->filenameConfigKey,
+						mPlayerDataList->defaultFilename,
+						wxID_ANY,
 						NULL);
 
-	wxSizeEvent	dummyEvent;
-	OnResize(dummyEvent);
+	mMainSizer = new wxBoxSizer(wxVERTICAL);
+	mMainSizer->Add(mConfigItems,0,wxEXPAND);
+	mMainSizer->Add(mPlayerDataListCtrl,1,wxEXPAND|wxALL);
+	mMainSizer->Add(mPlayerCache,1,wxEXPAND|wxALL);
+	SetSizer(mMainSizer);
+	mMainSizer->SetSizeHints(this);
+	RefreshPlayerDataListTree();
 	return (true);
-}
-
-void PlayerDataEditorPanel::OnResize(wxSizeEvent &event)
-{
-	wxSize		itemSize;
-	int			playerCacheWidth;
-	int			playerCacheHeight;
-	int			panelWidth;
-	int			panelHeight;
-	int			playerListWidth;
-	int			playerListHeight;
-	wxString	msg;
-	int			configHeight;
-	int			configWidth;
-
-
-	if (playerDataListCtrl!=NULL)
-	{
-		itemSize=GetSize();
-		panelWidth=itemSize.GetWidth();
-		panelHeight=itemSize.GetHeight();
-
-		configItems->SetSize(0,0,1,1);
-		itemSize=configItems->GetSize();
-		configWidth=panelWidth;
-		configHeight=itemSize.GetHeight();
-
-		panelHeight-=configHeight;
-
-		playerCacheWidth=panelWidth;
-		playerCacheHeight=panelHeight/2;
-		playerListWidth=panelWidth;
-		playerListHeight=panelHeight/2;
-
-		configItems->SetSize(0,0,configWidth,configHeight);
-		playerDataListCtrl->SetSize(0,configHeight,playerListWidth,playerListHeight);
-		playerCache->SetSize(0,playerListHeight+configHeight,playerCacheWidth,playerCacheHeight);
-	}
-
 }
 
 void PlayerDataEditorPanel::AddPlayerDataEntry(int index,
@@ -133,19 +89,19 @@ void PlayerDataEditorPanel::AddPlayerDataEntry(int index,
 	itemIndex=index;
 //	itemIndex++;
 
-	listIndex=playerDataListCtrl->InsertItem(rowNumber,listEntry.playerData);
+	listIndex=mPlayerDataListCtrl->InsertItem(rowNumber,listEntry.playerData);
 	STATSGEN_DEBUG_CODE(msg.Printf("row [%ld] listIndex=[%ld] itemIndex [%ld]"
 				"[%s] [%s] [%s]",
 				rowNumber,listIndex,itemIndex,
-				listEntry.playerGUID.GetData(),
-				listEntry.playerName.GetData(),
-				listEntry.playerData.GetData());)
+				STRING_TO_CHAR(listEntry.playerGUID),
+				STRING_TO_CHAR(listEntry.playerName),
+				STRING_TO_CHAR(listEntry.playerData));)
 	STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 
-	playerDataListCtrl->SetItemData(listIndex,itemIndex);
-	playerDataListCtrl->SetItem(rowNumber,1,listEntry.playerGUID);
-	playerDataListCtrl->SetItem(rowNumber,2,DecolouriseName(listEntry.playerName));
-	playerDataListCtrl->SetItem(rowNumber,3,listEntry.playerName);
+	mPlayerDataListCtrl->SetItemData(listIndex,itemIndex);
+	mPlayerDataListCtrl->SetItem(rowNumber,1,listEntry.playerGUID);
+	mPlayerDataListCtrl->SetItem(rowNumber,2,DecolouriseName(listEntry.playerName));
+	mPlayerDataListCtrl->SetItem(rowNumber,3,listEntry.playerName);
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
@@ -156,31 +112,29 @@ void PlayerDataEditorPanel::RefreshPlayerDataListTree()
 	int					listCount;
 	int					listIndex;
 
-	playerDataListCtrl->Hide();
+	mPlayerDataListCtrl->Hide();
 	
-	playerDataListCtrl->DeleteAllColumns();
-	playerDataListCtrl->DeleteAllItems();
-	listColumn.SetText(playerDataTitle);
-	playerDataListCtrl->InsertColumn(0,listColumn);
-	listColumn.SetText("GUID");
-	playerDataListCtrl->InsertColumn(1,listColumn);
-	listColumn.SetText("Name (Uncoloured)");
-	playerDataListCtrl->InsertColumn(2,listColumn);
-	listColumn.SetText("Name (Coloured)");
-	playerDataListCtrl->InsertColumn(3,listColumn);
+	mPlayerDataListCtrl->DeleteAllColumns();
+	mPlayerDataListCtrl->DeleteAllItems();
+	mPlayerDataListCtrl->InsertColumn(0,mPlayerDataTitle,wxLIST_FORMAT_LEFT,wxLIST_AUTOSIZE_USEHEADER);
+	mPlayerDataListCtrl->InsertColumn(1,_T("GUID"),wxLIST_FORMAT_LEFT,wxLIST_AUTOSIZE_USEHEADER);
+	mPlayerDataListCtrl->InsertColumn(2,_T("Name (Uncoloured)"),wxLIST_FORMAT_LEFT,wxLIST_AUTOSIZE_USEHEADER);
+	mPlayerDataListCtrl->InsertColumn(3,_T("Name (Coloured)"),wxLIST_FORMAT_LEFT,wxLIST_AUTOSIZE_USEHEADER);
 
-	listCount=playerDataList->playerDataList.GetCount();
+	listCount=mPlayerDataList->playerDataList.GetCount();
 	for (listIndex=0;listIndex<listCount;listIndex++)
 	{
-		listEntry=playerDataList->playerDataList.Item(listIndex);
+		listEntry=mPlayerDataList->playerDataList.Item(listIndex);
 		AddPlayerDataEntry(listIndex,listEntry);
 	}
 
-	playerDataListCtrl->SetColumnWidth(0,wxLIST_AUTOSIZE);
-	playerDataListCtrl->SetColumnWidth(1,wxLIST_AUTOSIZE);
-	playerDataListCtrl->SetColumnWidth(2,wxLIST_AUTOSIZE);
-	playerDataListCtrl->SetColumnWidth(3,wxLIST_AUTOSIZE);
-	playerDataListCtrl->Show();
+	mPlayerDataListCtrl->SetColumnWidth(0,wxLIST_AUTOSIZE_USEHEADER);
+	mPlayerDataListCtrl->SetColumnWidth(1,wxLIST_AUTOSIZE_USEHEADER);
+	mPlayerDataListCtrl->SetColumnWidth(2,wxLIST_AUTOSIZE_USEHEADER);
+	mPlayerDataListCtrl->SetColumnWidth(3,wxLIST_AUTOSIZE_USEHEADER);
+	mPlayerDataListCtrl->Show();
+	PostSizeEventToParent();
+	Fit();
 }
 
 void PlayerDataEditorPanel::OnPlayerDataListRightClick(wxListEvent &event)
@@ -204,7 +158,7 @@ void PlayerDataEditorPanel::OnPlayerRightClick(wxListEvent &event)
 	wxMenu			popupMenu(_T(""));
 
 	// Right clicked on an item in the Player Cache
-	menuItem="New Avatar Entry";
+	menuItem="New " + mPlayerDataTitle + " Entry";
 	popupMenu.Append(PLAYER_DATA_ADD,menuItem);
 	popupMenu.AppendSeparator();
 	popupMenu.Append(PLAYER_DATA_CANCEL,_T("Cancel"));
@@ -227,18 +181,18 @@ void PlayerDataEditorPanel::OnPopupMenu(wxCommandEvent &event)
 	PlayerDataEntry		listEntry;
 
 	STATSGEN_DEBUG_FUNCTION_START("PlayerDataEditorPanel","OnPopupMenu")
-	wxString			data=defaultPlayerData;
+	wxString			data=mDefaultPlayerData;
 
 	selectedPlayerData.Clear();
 	selectedItem=-1;
-	selectedItem=playerDataListCtrl->GetNextItem(selectedItem,
+	selectedItem=mPlayerDataListCtrl->GetNextItem(selectedItem,
 												wxLIST_NEXT_ALL,
 												wxLIST_STATE_SELECTED);
 	while (selectedItem!=-1)
 	{
-		listIndex=playerDataListCtrl->GetItemData(selectedItem);
+		listIndex=mPlayerDataListCtrl->GetItemData(selectedItem);
 		selectedPlayerData.Add(listIndex);
-		selectedItem=playerDataListCtrl->GetNextItem(selectedItem,
+		selectedItem=mPlayerDataListCtrl->GetNextItem(selectedItem,
 													wxLIST_NEXT_ALL,
 													wxLIST_STATE_SELECTED);
 	}
@@ -246,13 +200,13 @@ void PlayerDataEditorPanel::OnPopupMenu(wxCommandEvent &event)
 	switch (id)
 	{
 		case PLAYER_DATA_ADD:
-			playerCache->GetSelectedPlayers(selectedPlayers);
+			mPlayerCache->GetSelectedPlayers(selectedPlayers);
 			selectedCount=selectedPlayers.GetCount();
 			for (cacheIndex=0;cacheIndex<selectedCount;cacheIndex++)
 			{
 				playerIndex=selectedPlayers.Item(cacheIndex);
 				cacheEntry=globalStatistics.playerCache.Item(playerIndex);
-				playerDataList->AddPlayer(cacheEntry.guid,cacheEntry.name,data);
+				mPlayerDataList->AddPlayer(cacheEntry.guid,cacheEntry.name,data);
 			}
 			RefreshPlayerDataListTree();
 			break;
@@ -261,8 +215,8 @@ void PlayerDataEditorPanel::OnPopupMenu(wxCommandEvent &event)
 			if (selectedCount>0)
 			{
 				listIndex=selectedPlayerData.Item(0);
-				listEntry=playerDataList->playerDataList.Item(listIndex);
-				playerDataList->DeletePlayer(listEntry.playerGUID,
+				listEntry=mPlayerDataList->playerDataList.Item(listIndex);
+				mPlayerDataList->DeletePlayer(listEntry.playerGUID,
 											listEntry.playerName);
 			}
 			RefreshPlayerDataListTree();
@@ -283,22 +237,22 @@ void PlayerDataEditorPanel::OnLabelEdit(wxListEvent &event)
 	STATSGEN_DEBUG_FUNCTION_START("PlayerDataEditorPanel","OnLabelEdit")
 	index=event.GetIndex();
 
-	listIndex=playerDataListCtrl->GetItemData(index);
-	listCount=playerDataList->playerDataList.GetCount();
+	listIndex=mPlayerDataListCtrl->GetItemData(index);
+	listCount=mPlayerDataList->playerDataList.GetCount();
 
 	STATSGEN_DEBUG_CODE(msg.Printf("Index=[%d] of [%d]",listIndex,listCount);)
 	STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
 	if (listIndex<listCount)
 	{
 		// Should always be less
-		listEntry=playerDataList->playerDataList.Item(listIndex);
+		listEntry=mPlayerDataList->playerDataList.Item(listIndex);
 		listEntry.playerData=event.GetText();
 		STATSGEN_DEBUG_CODE(msg.Printf("Adding [%s] [%s] with data [%s]",
-					listEntry.playerGUID.GetData(),
-					listEntry.playerName.GetData(),
-					listEntry.playerData.GetData());)
+					STRING_TO_CHAR(listEntry.playerGUID),
+					STRING_TO_CHAR(listEntry.playerName),
+					STRING_TO_CHAR(listEntry.playerData));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
-		playerDataList->AddPlayer(listEntry.playerGUID,
+		mPlayerDataList->AddPlayer(listEntry.playerGUID,
 									listEntry.playerName,
 									listEntry.playerData);
 	}

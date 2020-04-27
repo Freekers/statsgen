@@ -1,6 +1,7 @@
 #ifndef __EXTERNALDATABASE
 #define __EXTERNALDATABASE
-
+//#define	EXTERNAL_DB_ENABLED	false
+#ifdef EXTERNAL_DB_ENABLED
 // wxWindows includes
 #include <wx/wx.h>
 #include <wx/string.h>
@@ -33,5 +34,13 @@ class ExternalDatabase
 		long RowCount(wxString &tableName);
 		MYSQL	*mySQLHandle;
 };
-
+#else
+class ExternalDatabase
+{
+	public:
+		ExternalDatabase();
+		virtual ~ExternalDatabase();
+		void TransferFromInternal();
+};
+#endif
 #endif

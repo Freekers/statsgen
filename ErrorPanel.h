@@ -14,17 +14,16 @@ class ErrorPanel : public wxPanel
 		ErrorPanel(wxArrayString &errorsIn,
 			wxArrayInt &severitiesIn);
 		void CreateScreen();
-		void OnResize(wxSizeEvent &event);
 
 	protected:
-		wxListCtrl		*errorDisplay;
+		wxListCtrl		*mErrorDisplay;
 
 	private:
 		void Update();
-		wxArrayString	errors;
-		wxArrayInt	severities;
-		wxImageList	imageList;
-		DECLARE_EVENT_TABLE()
+		wxArrayString	mErrors;
+		wxArrayInt	mSeverities;
+		wxImageList	mImageList;
+		wxBoxSizer	*mMainSizer;
 };
 
 #endif

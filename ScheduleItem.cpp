@@ -3,6 +3,7 @@
 
 // Statsgen includes
 #include "ScheduleItem.h"
+#include "ErrorData.h"
 
 ScheduleItem::ScheduleItem()
 {
@@ -45,7 +46,7 @@ void ScheduleItem::IntervalStart(wxString &interval)
 	time_t		timeNow;
 	int			value;
 
-	value=atoi(interval.GetData());
+	value=atoi(STRING_TO_CHAR(interval));
 	if (value==0)
 	{
 		disabled=true;
@@ -71,7 +72,7 @@ void ScheduleItem::ScheduledStart(wxString &base,wxString &interval)
 	wxDateTime	baseTime;
 	wxTimeSpan	intervalTimeSpan;
 
-	intervalSeconds=atol(interval.GetData());
+	intervalSeconds=atol(STRING_TO_CHAR(interval));
 	if (intervalSeconds==0)
 	{
 		disabled=true;
@@ -83,7 +84,7 @@ void ScheduleItem::ScheduledStart(wxString &base,wxString &interval)
 		timeNow=time(&timeNow);
 
 		baseTime=currentTime;
-		baseTime.ParseTime(base.GetData());
+		baseTime.ParseTime(STRING_TO_CHAR(base));
 		while (baseTime.IsEarlierThan(currentTime))
 		{
 			baseTime.Add(intervalTimeSpan);

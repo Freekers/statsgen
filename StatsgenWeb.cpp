@@ -21,19 +21,27 @@ wxString StatsgenWeb::Hostname()
 {
 	wxString	retVal;
 
-	retVal="www.statsgen.co.uk";
+	//retVal="www.statsgen.co.uk";
 	//retVal="localhost";
+	retVal=STATSGEN_WEBSITE_ADDRESS;
 
 	return (retVal);
 }
 
+int StatsgenWeb::Port()
+{
+	return STATSGEN_WEBSITE_PORT;
+}
+
 WebFile *StatsgenWeb::GetWebFile(wxString &filepath)
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatsgenWeb","GetWebFile")
 	WebFile	*retVal;
 	wxString	hostname=Hostname();
 
-	retVal=new WebFile(hostname,filepath);
+	retVal=new WebFile(hostname,filepath,Port());
 
+	STATSGEN_DEBUG_FUNCTION_END
 	return (retVal);
 }
 
@@ -46,10 +54,12 @@ bool StatsgenWeb::GetFileList(wxArrayString &fileDescriptions,
 								wxArrayString &upgradeFiles,
 								wxArrayString &thumbnails)
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatsgenWeb","GetFileList")
 	wxString	localFilename;
 	wxString	remoteFilename;
 	bool		retVal;
 	wxString	hostname=Hostname();
+	int			port=Port();
 	wxString	nodeName;
 	wxString	nodeType;
 	wxString	nodeAddress;
@@ -65,7 +75,7 @@ bool StatsgenWeb::GetFileList(wxArrayString &fileDescriptions,
 	localFilename="contents.xml";
 	remoteFilename="/contents.xml";
 
-	WebFile	remoteFile(hostname,remoteFilename);
+	WebFile	remoteFile(hostname,remoteFilename,port);
 	filePaths.Clear();
 	secondFilePaths.Clear();
 	fileTypes.Clear();
@@ -78,19 +88,23 @@ bool StatsgenWeb::GetFileList(wxArrayString &fileDescriptions,
 	retVal = remoteFile.Get(localFilename);
 	if (retVal)
 	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"downloaded contents.xml");
 		wxXmlDocument	contentsXML;
 
 		contentsXML.Load(localFilename);
 		if (contentsXML.IsOk())
 		{
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"contents.xml is formatted ok");
 			wxXmlNode	*node;
 
 			node=contentsXML.GetRoot();
 			if (node!=NULL)
 			{
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"got root ok");
 				node=node->GetChildren();
 				while (node!=NULL)
 				{
+					STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"processing child node");
 					wxString	msg;
 
 					nodeName				="";
@@ -104,7 +118,12 @@ bool StatsgenWeb::GetFileList(wxArrayString &fileDescriptions,
 					nodeTemplateFilename	="";
 
 					nodeName=node->GetName();
+					STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"nodeName");
+					STATSGEN_DEBUG(DEBUG_ALWAYS,nodeName);
 					nodeContent=node->GetNodeContent();
+					STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"nodeContent");
+					STATSGEN_DEBUG(DEBUG_ALWAYS,nodeContent);
+					/*
 					property="type";node->GetPropVal(property,&nodeType);
 					property="address";node->GetPropVal(property,&nodeAddress);
 					property="servertype";node->GetPropVal(property,&nodeServerType);
@@ -112,20 +131,59 @@ bool StatsgenWeb::GetFileList(wxArrayString &fileDescriptions,
 					property="secondaddress";node->GetPropVal(property,&nodeSecondAddress);
 					property="upgradefile";node->GetPropVal(property,&nodeUpgradeFile);
 					property="templatefilename";node->GetPropVal(property,&nodeTemplateFilename);
+					*/
+					/*
+					property="type";node->AddAttribute(property,nodeType);
+					property="address";node->AddAttribute(property,nodeAddress);
+					property="servertype";node->AddAttribute(property,nodeServerType);
+					property="thumbnail";node->AddAttribute(property,nodeThumbnail);
+					property="secondaddress";node->AddAttribute(property,nodeSecondAddress);
+					property="upgradefile";node->AddAttribute(property,nodeUpgradeFile);
+					property="templatefilename";node->AddAttribute(property,nodeTemplateFilename);
+					*/
+					property="type";nodeType = node->GetAttribute(property);
+					STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"nodeType");
+					STATSGEN_DEBUG(DEBUG_ALWAYS,nodeType);
+					property="address";nodeAddress = node->GetAttribute(property);
+					STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"nodeAddress");
+					STATSGEN_DEBUG(DEBUG_ALWAYS,nodeAddress);
+					property="servertype";nodeServerType = node->GetAttribute(property);
+					STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"nodeServerType");
+					STATSGEN_DEBUG(DEBUG_ALWAYS,nodeServerType);
+					property="thumbnail";nodeThumbnail = node->GetAttribute(property);
+					STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"nodeThumbnail");
+					STATSGEN_DEBUG(DEBUG_ALWAYS,nodeThumbnail);
+					property="secondaddress";nodeSecondAddress = node->GetAttribute(property);
+					STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"nodeSecondAddress");
+					STATSGEN_DEBUG(DEBUG_ALWAYS,nodeSecondAddress);
+					property="upgradefile";nodeUpgradeFile = node->GetAttribute(property);
+					STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"nodeUpgradeFile");
+					STATSGEN_DEBUG(DEBUG_ALWAYS,nodeUpgradeFile);
+					property="templatefilename";nodeTemplateFilename = node->GetAttribute(property);
+					STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"nodeTemplateFilename");
+					STATSGEN_DEBUG(DEBUG_ALWAYS,nodeTemplateFilename);
 					nodeTypeInt=WEBFILE_TYPE_UNKNOWN;
 					if (nodeName.CmpNoCase("file")==0)
 					{
+						STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"file node found");
 						if (nodeType.CmpNoCase(WEBFILE_TYPE_STR_IMAGEPACK)==0)
 						{
+							STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Image Pack");
 							nodeTypeInt=WEBFILE_TYPE_IMAGEPACK;
 						}
 						if (nodeType.CmpNoCase(WEBFILE_TYPE_STR_TEMPLATE)==0)
 						{
+							STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Template Pack");
 							nodeTypeInt=WEBFILE_TYPE_TEMPLATE;
 						}
 					}
+					else
+					{
+						STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"not file node");
+					}
 					if (nodeTypeInt!=WEBFILE_TYPE_UNKNOWN)
 					{
+						STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"valid node found");
 						filePaths.Add(nodeAddress);
 						fileTypes.Add(nodeTypeInt);
 						fileDescriptions.Add(nodeContent);
@@ -138,16 +196,26 @@ bool StatsgenWeb::GetFileList(wxArrayString &fileDescriptions,
 					node=node->GetNext();
 				}
 			}
+			else
+			{
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"failed to get root");
+			}
 		}
 		else
 		{
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"contents.xml is not formatted properly");
 			retVal=false;
 			wxString msg;
-			msg.Printf("Failed to open contents.xml from the %s site, please try again at a later time",Hostname().GetData());
+			msg.Printf("Failed to open contents.xml from the %s site, please try again at a later time",STRING_TO_CHAR(Hostname()));
 			wxMessageBox(msg);
 		}
 	}
+	else
+	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"failed to download contents.xml");
+	}
 
+	STATSGEN_DEBUG_FUNCTION_END
 	return (retVal);
 }
 bool StatsgenWeb::GetImagePackList(
@@ -208,20 +276,23 @@ bool StatsgenWeb::GetImagePackList(
 
 bool StatsgenWeb::UploadImagePack(wxString &description,wxString &path,bool storeLocally,wxString &localOutputPath,wxString &upgradeFile)
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatsgenWeb","UploadImagePack")
 	wxString		localFile="imagepack.zip";
 	wxString		hostname=Hostname();
-	WebFile			webfile(hostname,path);
+	WebFile			webfile(hostname,path,Port());
 	bool			retVal;
 	wxString		localConfigFile;
 
 	retVal=webfile.Get(localFile);
 	if (retVal)
 	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Got Local File");
 		Website	website;
 		retVal=website.UploadZipContents(localFile);
 
 		if (storeLocally)
 		{
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Storing Locally");
 			wxFileInputStream	inputStream(localFile);
 			wxZipInputStream	zipStream(inputStream);
 			wxZipEntry			*zipEntry;
@@ -260,7 +331,7 @@ bool StatsgenWeb::UploadImagePack(wxString &description,wxString &path,bool stor
 	localConfigFile=upgradeFile.AfterLast('/');
 	if ((retVal)&& (upgradeFile.Length()>0))
 	{
-		WebFile			webfile(hostname,upgradeFile);
+		WebFile			webfile(hostname,upgradeFile,Port());
 		retVal=webfile.Get(localConfigFile);
 		if (retVal)
 		{
@@ -273,6 +344,7 @@ bool StatsgenWeb::UploadImagePack(wxString &description,wxString &path,bool stor
 			UpgradeConfigFile(localConfigFileStr);
 		}
 	}
+	STATSGEN_DEBUG_FUNCTION_END
 	return (retVal);
 }
 
@@ -353,7 +425,7 @@ bool StatsgenWeb::UploadTemplatePack(wxString &description,wxString &path,wxStri
 
 	if (path.Length()>0)
 	{
-		WebFile			webfile(hostname,path);
+		WebFile			webfile(hostname,path,Port());
 
 		retVal=webfile.Get(localImageFile);
 		if (retVal)
@@ -364,7 +436,7 @@ bool StatsgenWeb::UploadTemplatePack(wxString &description,wxString &path,wxStri
 	}
 	if (remoteTemplatePath.Length()>0)
 	{
-		WebFile			webfile(hostname,remoteTemplatePath);
+		WebFile			webfile(hostname,remoteTemplatePath,Port());
 		retVal=webfile.Get(localTemplateFile);
 		if (retVal)
 		{
@@ -375,7 +447,7 @@ bool StatsgenWeb::UploadTemplatePack(wxString &description,wxString &path,wxStri
 	localConfigFile=remoteUpgradePath.AfterLast('/');
 	if (remoteUpgradePath.Length()>0)
 	{
-		WebFile			webfile(hostname,remoteUpgradePath);
+		WebFile			webfile(hostname,remoteUpgradePath,Port());
 		retVal=webfile.Get(localConfigFile);
 		if (retVal)
 		{

@@ -5,7 +5,7 @@
 #include <wx/panel.h>
 #include <wx/stattext.h>
 
-#define MAX_TIME_STEPS		3
+#define MAX_TIME_STEPS		10
 
 // Statsgen Includes
 #include "WindowIDs.h"
@@ -26,8 +26,6 @@ class ProgressPanel : public wxPanel
 		
 		void WakeUp();
 		void SetLabel(const char *label);
-		int LabelWidth();
-		void SetLabelWidth(int width);
 		void Initiate(
 				long top,
 				const char *units,
@@ -37,7 +35,6 @@ class ProgressPanel : public wxPanel
 				);
 		void Update(long value);
 
-		void OnResize(wxSizeEvent &event);
 		void OnButtonPressed(wxCommandEvent &event);
 		void SetOffset(long offsetIn);
 		void Finalise();
@@ -45,6 +42,7 @@ class ProgressPanel : public wxPanel
 		void EnableTimeToGo();
 		void DisableTimeToGo();
 		void DisableCounter();
+		void EnableCounter();
 		void SetStatus(wxString &statusText);
 		void Reset();
 		void SetSeverityIcon();
@@ -52,7 +50,6 @@ class ProgressPanel : public wxPanel
 		void LogError(wxString &errorText,int severity);
 		static wxBitmap SeverityImage(int severity);
 		static wxString SeverityString(int severity);
-		void DynamicSizing();
 		static wxString TableName();
 		static wxString CreateTableSQL();
 		void LogToDatabase(int severity,wxString &errorText,wxString &statusText);
@@ -75,48 +72,51 @@ class ProgressPanel : public wxPanel
 		bool GetEventUpdating();
 		void UpdateColouredBar();
 		int OverallSeverity();
+		wxSize GetDescriptionSize();
+		void SetDescriptionMinimumSize(wxSize size);
+		void		CreateScreen();
 
 	protected:
 
 	public:
-		time_t		previousTime;
-		time_t		startTime;
-		bool		counterEnabled;
+		time_t		mPreviousTime;
+		time_t		mStartTime;
+		bool		mCounterEnabled;
 	private:
-		void		CreateScreen();
 		void		SetResultSeverity(int severity);
-		bool		dynamicSizing;
 
-		wxStaticText	*timeRemaining;
-		wxStaticText	*timeSpent;
-		wxStaticText	*counter;
-		wxStaticText	*description;
-		wxStaticText	*rate;
-		wxStaticText	*status;
-		wxBitmapButton	*resultButton;
+		wxStaticText	*mTimeRemaining;
+		wxStaticText	*mTimeSpent;
+		wxStaticText	*mCounter;
+		wxStaticText	*mDescription;
+		wxStaticText	*mRate;
+		wxStaticText	*mStatus;
+		wxBitmapButton	*mResultButton;
 
-		wxString	unitText;
-		int		desiredLabelWidth;
+		wxString		mUnitText;
 
-		long		maxValue;
-		long		currentValue;
-		long		scale;
-		long		offset;
-		long		rateScale;
-		wxString	rateUnits;
+		long			mMaxValue;
+		long			mCurrentValue;
+		long			mScale;
+		long			mOffset;
+		long			mRateScale;
+		wxString		mRateUnits;
 
-		bool		timeToGoEnabled;
+		bool			mTimeToGoEnabled;
 
-		wxArrayInt		errorSeverities;
-		wxArrayString	errors;
-		time_t		historyTimes[MAX_TIME_STEPS];
-		long		historyValues[MAX_TIME_STEPS];
-		int		timeStepsCreated;
-		bool		storingError;
-		int		statusIndex;
+		wxArrayInt		mErrorSeverities;
+		wxArrayString	mErrors;
+		time_t			mHistoryTimes[MAX_TIME_STEPS];
+		long			mHistoryValues[MAX_TIME_STEPS];
+		bool			mTimeStepsCreated;
+		bool			mStoringError;
+		int				mStatusIndex;
+		wxPanel			*mProgressBarPanel;
+		wxBoxSizer		*mProgressSizer;
 
-		bool	eventUpdating;
+		bool			mEventUpdating;
 
+		wxBoxSizer		*mMainSizer;
 		DECLARE_EVENT_TABLE()
 };
 

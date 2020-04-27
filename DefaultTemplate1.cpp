@@ -88,7 +88,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="	$$include round.include$$";fileLines.Add(fileLine);
     fileLine="$$endloop round$$";fileLines.Add(fileLine);
     fileLine="";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"full.template");
+    ExportTemplateFile(directory,fileLines,(char *)"full.template");
     fileLines.Clear();
     fileLine="$$ReadTemplateConfig(\"description_gametype_COD5_sd\",\"One side defends two sites while the other side tries to plant a bomb at either. Which do you defend? Which do you Attack?\")$$";fileLines.Add(fileLine);
     fileLine="$$ReadTemplateConfig(\"description_gametype_COD5_tdm\",\"Two Teams, lots of bullets, whichever team gets the most kills wins.\")$$";fileLines.Add(fileLine);
@@ -146,7 +146,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="$$ReadTemplateConfig(\"description_gametype_COD2_esd\",\"One side defends two sites while the other side tries to plant a bomb at either. Which do you defend? Which do you Attack? As dead players respawn teamwork is essential.\")$$";fileLines.Add(fileLine);
     fileLine="$$ReadTemplateConfig(\"description_gametype_COD2_ctf\",\"Each team tries to capture the enemies flag while also defending their own.\")$$";fileLines.Add(fileLine);
     fileLine="$$ReadTemplateConfig(\"description_gametype_COD2_sd\",\"One side defends two sites while the other side tries to plant a bomb at either. Which do you defend? Which do you Attack?\")$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"templatevariables.include");
+    ExportTemplateFile(directory,fileLines,(char *)"templatevariables.include");
     fileLines.Clear();
     fileLine="$$%%sortkey%%allowed=\"N\"$$";fileLines.Add(fileLine);
     fileLine="$$loop row as player index as index select max(%%sortkey%%) - min(%%sortkey%%) as difference from view_player$$";fileLines.Add(fileLine);
@@ -157,7 +157,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="		$$%%sortkey%%allowed=ReadTemplateConfig(\"Display_%%sortkey%%\",%%sortkey%%allowed,\"Turn on or off the %%sortkey%% column on the leaderboard\")$$";fileLines.Add(fileLine);
     fileLine="	$$endif$$";fileLines.Add(fileLine);
     fileLine="$$endloop player$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"playerlistallowed.include");
+    ExportTemplateFile(directory,fileLines,(char *)"playerlistallowed.include");
     fileLines.Clear();
     fileLine="$$tablename=\"action\"$$$$include keytable.include$$";fileLines.Add(fileLine);
     fileLine="$$tablename=\"class\"$$$$include keytable.include$$";fileLines.Add(fileLine);
@@ -166,18 +166,18 @@ void ExportTemplateFull(wxString &directory)
     fileLine="$$tablename=\"map\"$$$$include keytable.include$$";fileLines.Add(fileLine);
     fileLine="$$tablename=\"team\"$$$$include keytable.include$$";fileLines.Add(fileLine);
     fileLine="$$tablename=\"weapon\"$$$$include keytable.include$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"keytables.include");
+    ExportTemplateFile(directory,fileLines,(char *)"keytables.include");
     fileLines.Clear();
     fileLine="$$loop row as key index as index select * from %%tablename%%$$";fileLines.Add(fileLine);
     fileLine="	$$%%tablename%%_%%key.idx%%_id=key.id$$";fileLines.Add(fileLine);
     fileLine="	$$%%tablename%%_%%key.idx%%_realname=key.realname$$";fileLines.Add(fileLine);
     fileLine="	$$%%tablename%%_%%key.idx%%_image=key.image$$";fileLines.Add(fileLine);
     fileLine="$$endloop row$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"keytable.include");
+    ExportTemplateFile(directory,fileLines,(char *)"keytable.include");
     fileLines.Clear();
     fileLine="$$killstablename=\"gametype\"$$$$totalstable=\"killtotalgametypes\"$$$$include keytablekills.include$$";fileLines.Add(fileLine);
     fileLine="$$killstablename=\"map\"$$$$totalstable=\"killtotalmaps\"$$$$include keytablekills.include$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"keytableskills.include");
+    ExportTemplateFile(directory,fileLines,(char *)"keytableskills.include");
     fileLines.Clear();
     fileLine="$$loop row as totalskey index as keyindex select * from %%killstablename%%$$";fileLines.Add(fileLine);
     fileLine="	$$description=ReadTemplateConfig(\"description_%%killstablename%%_%%totalskey.id%%\",\"No description available\")$$";fileLines.Add(fileLine);
@@ -237,7 +237,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="	</table>";fileLines.Add(fileLine);
     fileLine="	$$closefile$$";fileLines.Add(fileLine);
     fileLine="$$endloop$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"keytablekills.include");
+    ExportTemplateFile(directory,fileLines,(char *)"keytablekills.include");
     fileLines.Clear();
     fileLine="<head>";fileLines.Add(fileLine);
     fileLine="	<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\">";fileLines.Add(fileLine);
@@ -286,7 +286,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="		</tr>";fileLines.Add(fileLine);
     fileLine="	</table>";fileLines.Add(fileLine);
     fileLine="</head>";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"menu.include");
+    ExportTemplateFile(directory,fileLines,(char *)"menu.include");
     fileLines.Clear();
     fileLine="$$tablename=\"playerdataavatars\"$$$$include playerprofilecomponent.include$$";fileLines.Add(fileLine);
     fileLine="$$if (playerdisplaydropped EQUALS \"Y\")$$";fileLines.Add(fileLine);
@@ -304,13 +304,13 @@ void ExportTemplateFull(wxString &directory)
     fileLine="	$$endif$$";fileLines.Add(fileLine);
     fileLine="	</a>";fileLines.Add(fileLine);
     fileLine="$$endif$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"playerdisplay.include");
+    ExportTemplateFile(directory,fileLines,(char *)"playerdisplay.include");
     fileLines.Clear();
     fileLine="$$%%tablename%%=\"\"$$";fileLines.Add(fileLine);
     fileLine="$$loop row as playerprofilecomponent index as playerprofilecomponentindex select * from %%tablename%% where playerindex='%%playerdataplayerindex%%'$$";fileLines.Add(fileLine);
     fileLine="	$$%%tablename%%=playerprofilecomponent.playerdata$$";fileLines.Add(fileLine);
     fileLine="$$endloop$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"playerprofilecomponent.include");
+    ExportTemplateFile(directory,fileLines,(char *)"playerprofilecomponent.include");
     fileLines.Clear();
     fileLine="$$openfile index.html$$";fileLines.Add(fileLine);
     fileLine="$$pagetitle=\"%%gameservertypes%% Server Stats\"$$$$include menu.include$$";fileLines.Add(fileLine);
@@ -372,7 +372,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="	</td>";fileLines.Add(fileLine);
     fileLine="</tr>";fileLines.Add(fileLine);
     fileLine="$$closefile$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"mainpage.include");
+    ExportTemplateFile(directory,fileLines,(char *)"mainpage.include");
     fileLines.Clear();
     fileLine="$$IF (server.servertype EQUALS \"COD1\")$$";fileLines.Add(fileLine);
     fileLine="	<tr align=left>	";fileLines.Add(fileLine);
@@ -452,7 +452,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="		$$ENDIF$$";fileLines.Add(fileLine);
     fileLine="	$$ENDIF$$";fileLines.Add(fileLine);
     fileLine="$$ENDIF$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"servervariables.include");
+    ExportTemplateFile(directory,fileLines,(char *)"servervariables.include");
     fileLines.Clear();
     fileLine="<table cellspacing=1 border=0 class=style4>";fileLines.Add(fileLine);
     fileLine="	<tr>";fileLines.Add(fileLine);
@@ -480,7 +480,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="<br>";fileLines.Add(fileLine);
     fileLine="<br>";fileLines.Add(fileLine);
     fileLine="";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"mainpageweapons.include");
+    ExportTemplateFile(directory,fileLines,(char *)"mainpageweapons.include");
     fileLines.Clear();
     fileLine="<table cellspacing=1 border=0 class=style4>";fileLines.Add(fileLine);
     fileLine="<tr>";fileLines.Add(fileLine);
@@ -504,7 +504,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="</table>";fileLines.Add(fileLine);
     fileLine="";fileLines.Add(fileLine);
     fileLine="";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"mainpageclasses.include");
+    ExportTemplateFile(directory,fileLines,(char *)"mainpageclasses.include");
     fileLines.Clear();
     fileLine="<table cellspacing=1 border=0 class=style4>";fileLines.Add(fileLine);
     fileLine="<tr>";fileLines.Add(fileLine);
@@ -557,7 +557,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="<br>";fileLines.Add(fileLine);
     fileLine="<br>";fileLines.Add(fileLine);
     fileLine="";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"mainpagemaps.include");
+    ExportTemplateFile(directory,fileLines,(char *)"mainpagemaps.include");
     fileLines.Clear();
     fileLine="<table cellspacing=1 border=0 class=style4>";fileLines.Add(fileLine);
     fileLine="<tr>";fileLines.Add(fileLine);
@@ -615,7 +615,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="<br>";fileLines.Add(fileLine);
     fileLine="<br>";fileLines.Add(fileLine);
     fileLine="";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"mainpagegametypes.include");
+    ExportTemplateFile(directory,fileLines,(char *)"mainpagegametypes.include");
     fileLines.Clear();
     fileLine="";fileLines.Add(fileLine);
     fileLine="<body>";fileLines.Add(fileLine);
@@ -642,7 +642,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="</table>";fileLines.Add(fileLine);
     fileLine="</body>";fileLines.Add(fileLine);
     fileLine="";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"mainpagelocations.include");
+    ExportTemplateFile(directory,fileLines,(char *)"mainpagelocations.include");
     fileLines.Clear();
     fileLine="$$openfile awardlist.html$$";fileLines.Add(fileLine);
     fileLine="$$include menu.include$$";fileLines.Add(fileLine);
@@ -709,7 +709,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="";fileLines.Add(fileLine);
     fileLine="</body>";fileLines.Add(fileLine);
     fileLine="$$closefile$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"awards.include");
+    ExportTemplateFile(directory,fileLines,(char *)"awards.include");
     fileLines.Clear();
     fileLine="$$if (%%sortkey%%allowed !EQUALS \"N\")$$";fileLines.Add(fileLine);
     fileLine="$$openfile playerlist_%%sortkey%%.html$$";fileLines.Add(fileLine);
@@ -799,7 +799,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="</table>";fileLines.Add(fileLine);
     fileLine="$$closefile$$";fileLines.Add(fileLine);
     fileLine="$$endif$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"playerlists.include");
+    ExportTemplateFile(directory,fileLines,(char *)"playerlists.include");
     fileLines.Clear();
     fileLine="$$if (%%sortkey%%allowed !EQUALS \"N\")$$";fileLines.Add(fileLine);
     fileLine="$$openfile clanlist_%%sortkey%%.html$$";fileLines.Add(fileLine);
@@ -924,7 +924,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="$$endloop clanrow$$";fileLines.Add(fileLine);
     fileLine="$$closefile$$";fileLines.Add(fileLine);
     fileLine="$$endif$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"clanlist.include");
+    ExportTemplateFile(directory,fileLines,(char *)"clanlist.include");
     fileLines.Clear();
     fileLine="$$openfile info.html$$";fileLines.Add(fileLine);
     fileLine="$$include menu.include$$";fileLines.Add(fileLine);
@@ -1195,7 +1195,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="</tr>";fileLines.Add(fileLine);
     fileLine="</table>";fileLines.Add(fileLine);
     fileLine="$$closefile$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"info.include");
+    ExportTemplateFile(directory,fileLines,(char *)"info.include");
     fileLines.Clear();
     fileLine="$$openfile player_%%hash(player.name)%%.html$$";fileLines.Add(fileLine);
     fileLine="$$include menu.include$$";fileLines.Add(fileLine);
@@ -1417,7 +1417,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="$$endloop gametypelist$$";fileLines.Add(fileLine);
     fileLine="</table>";fileLines.Add(fileLine);
     fileLine="$$closefile$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"player.include");
+    ExportTemplateFile(directory,fileLines,(char *)"player.include");
     fileLines.Clear();
     fileLine="$$playerdataplayerindex=player.playerindex$$$$tablename=\"playerdataavatars\"$$$$include playerprofilecomponent.include$$";fileLines.Add(fileLine);
     fileLine="$$tablename=\"playerdatapicture\"$$$$include playerprofilecomponent.include$$";fileLines.Add(fileLine);
@@ -1449,7 +1449,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="</table>";fileLines.Add(fileLine);
     fileLine="$$endif$$";fileLines.Add(fileLine);
     fileLine="";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"playerprofile.include");
+    ExportTemplateFile(directory,fileLines,(char *)"playerprofile.include");
     fileLines.Clear();
     fileLine="$$AKALIST=\"\"$$";fileLines.Add(fileLine);
     fileLine="$$loop row as aka index as akaindex select name from akadata where playerindex='%%player.playerindex%%'$$";fileLines.Add(fileLine);
@@ -1464,7 +1464,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="</table>";fileLines.Add(fileLine);
     fileLine="$$endif$$";fileLines.Add(fileLine);
     fileLine="<br>";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"playeraka.include");
+    ExportTemplateFile(directory,fileLines,(char *)"playeraka.include");
     fileLines.Clear();
     fileLine="";fileLines.Add(fileLine);
     fileLine="<td valign=top>";fileLines.Add(fileLine);
@@ -1515,7 +1515,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="";fileLines.Add(fileLine);
     fileLine="";fileLines.Add(fileLine);
     fileLine="";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"playerenemies.include");
+    ExportTemplateFile(directory,fileLines,(char *)"playerenemies.include");
     fileLines.Clear();
     fileLine="<td valign=top>";fileLines.Add(fileLine);
     fileLine="<table align=center cellspacing=0 border=0 class=style3 width=300px>";fileLines.Add(fileLine);
@@ -1537,7 +1537,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="</table>";fileLines.Add(fileLine);
     fileLine="</td>";fileLines.Add(fileLine);
     fileLine="";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"playerweapons.include");
+    ExportTemplateFile(directory,fileLines,(char *)"playerweapons.include");
     fileLines.Clear();
     fileLine="";fileLines.Add(fileLine);
     fileLine="<td valign=top>";fileLines.Add(fileLine);
@@ -1572,7 +1572,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="";fileLines.Add(fileLine);
     fileLine="";fileLines.Add(fileLine);
     fileLine="";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"playerlocations.include");
+    ExportTemplateFile(directory,fileLines,(char *)"playerlocations.include");
     fileLines.Clear();
     fileLine="$$loop row as speechdata index as speechindex select count(*) from speechdata where playerindex='%%player.playerindex%%'$$";fileLines.Add(fileLine);
     fileLine="$$speechcount=speechdata.0$$";fileLines.Add(fileLine);
@@ -1589,7 +1589,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="</table>";fileLines.Add(fileLine);
     fileLine="$$endif$$";fileLines.Add(fileLine);
     fileLine="<br>";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"playerspeech.include");
+    ExportTemplateFile(directory,fileLines,(char *)"playerspeech.include");
     fileLines.Clear();
     fileLine="$$if (XPAVAILABLE EQUALS \"Y\")$$";fileLines.Add(fileLine);
     fileLine="<table align=center class=style2>";fileLines.Add(fileLine);
@@ -1600,7 +1600,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="</table>";fileLines.Add(fileLine);
     fileLine="</td>";fileLines.Add(fileLine);
     fileLine="$$ENDIF$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"playerxp.include");
+    ExportTemplateFile(directory,fileLines,(char *)"playerxp.include");
     fileLines.Clear();
     fileLine="$$openfile roundlist.html$$";fileLines.Add(fileLine);
     fileLine="$$include menu.include$$";fileLines.Add(fileLine);
@@ -1644,7 +1644,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="	</table>";fileLines.Add(fileLine);
     fileLine="$$endloop server$$";fileLines.Add(fileLine);
     fileLine="$$closefile$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"roundlist.include");
+    ExportTemplateFile(directory,fileLines,(char *)"roundlist.include");
     fileLines.Clear();
     fileLine="$$openfile round_%%round.roundidx%%.html$$";fileLines.Add(fileLine);
     fileLine="$$include menu.include$$";fileLines.Add(fileLine);
@@ -1787,7 +1787,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="$$include roundspeech.include$$";fileLines.Add(fileLine);
     fileLine="$$closefile$$";fileLines.Add(fileLine);
     fileLine="";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"round.include");
+    ExportTemplateFile(directory,fileLines,(char *)"round.include");
     fileLines.Clear();
     fileLine="$$IF (round.servertype EQUALS \"COD1\")$$";fileLines.Add(fileLine);
     fileLine="	$$if (round_shortversion !EQUALS \"\")$$<tr align=left><td colspan=2 height=27px width=60px>Version</td><td>$$round_shortversion$$</td></tr>$$endif$$";fileLines.Add(fileLine);
@@ -1824,14 +1824,14 @@ void ExportTemplateFull(wxString &directory)
     fileLine="		$$ENDIF$$";fileLines.Add(fileLine);
     fileLine="	$$ENDIF$$";fileLines.Add(fileLine);
     fileLine="$$ENDIF$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"roundvariables.include");
+    ExportTemplateFile(directory,fileLines,(char *)"roundvariables.include");
     fileLines.Clear();
     fileLine="<table cellspacing=1 border=0 align=center width=100% class=style2>";fileLines.Add(fileLine);
     fileLine="<tr><td align=center><font face=arial size=-1>$$teamtitle$$</font></td></tr>";fileLines.Add(fileLine);
     fileLine="<tr><th>$$include roundplayer.include$$</th></tr>";fileLines.Add(fileLine);
     fileLine="</table>";fileLines.Add(fileLine);
     fileLine="";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"roundteam.include");
+    ExportTemplateFile(directory,fileLines,(char *)"roundteam.include");
     fileLines.Clear();
     fileLine="<table align=left border=0 cellspacing=1 width=100% class=style1>";fileLines.Add(fileLine);
     fileLine="<tr align=left>";fileLines.Add(fileLine);
@@ -1875,7 +1875,7 @@ void ExportTemplateFull(wxString &directory)
     fileLine="$$endloop playerinround$$";fileLines.Add(fileLine);
     fileLine="</table>";fileLines.Add(fileLine);
     fileLine="";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"roundplayer.include");
+    ExportTemplateFile(directory,fileLines,(char *)"roundplayer.include");
     fileLines.Clear();
     fileLine="<table cellspacing=1 border=0 align=center width=100% class=style2>";fileLines.Add(fileLine);
     fileLine="$$playerdataplayerindex=-1$$";fileLines.Add(fileLine);
@@ -1886,5 +1886,5 @@ void ExportTemplateFull(wxString &directory)
     fileLine="</tr>";fileLines.Add(fileLine);
     fileLine="$$endloop$$";fileLines.Add(fileLine);
     fileLine="</table>";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"roundspeech.include");
+    ExportTemplateFile(directory,fileLines,(char *)"roundspeech.include");
 }

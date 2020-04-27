@@ -10,7 +10,6 @@
 #include "StaticFunctions.h"
 
 BEGIN_EVENT_TABLE(AliasEditorPanel, wxPanel)
-		EVT_SIZE(AliasEditorPanel::OnResize)
 		EVT_TREE_ITEM_RIGHT_CLICK(WINDOW_ID_ALIASTREE,
 								AliasEditorPanel::OnAliasRightClick)
 		EVT_LIST_ITEM_RIGHT_CLICK(WINDOW_ID_PLAYERCACHE,
@@ -53,70 +52,38 @@ wxPanel::Create( parent, id,
 		name);
 	playerCache=new PlayerCachePanel(dummyConfigKey,labelText);
 	playerCache->SetFilterType(PlayerCachePanel::FILTER_TYPE_NO_CASE);
-	playerCache->Create(this,
-						WINDOW_ID_PLAYERCACHE,
-						wxDefaultPosition,
-						wxDefaultSize);
+	playerCache->CreateScreen(this, WINDOW_ID_PLAYERCACHE);
 	aliasList=new wxTreeCtrl(this,
 							WINDOW_ID_ALIASTREE,
 							wxDefaultPosition,
 							wxDefaultSize,
 							treeCtrlStyle,
 							wxDefaultValidator);
-	aliasConfigs=new GroupedConfigItemsPanel("Alias");
-	aliasConfigs->Create(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE,wxDefaultPosition,wxDefaultSize);
+	aliasConfigs=new GroupedConfigItemsPanel((char *)"Alias");
+	aliasConfigs->CreateDisplay(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE);
 	configKey=globalStatistics.AutomaticAliasConfigKey();
-	aliasConfigs->AddBoolean("Use Automatic Aliasing During Log Processing",
+	aliasConfigs->AddBoolean((char *)"Use Automatic Aliasing During Log Processing",
 							configKey,
 							false);
 	configKey="/tmp/aliasfilter";
-	aliasConfigs->Add("Alias List Player Filter",
+	aliasConfigs->Add((char *)"Alias List Player Filter",
 							configKey,
-							"",
+							(char *)"",
 							-1);
 	playerCache->SetFilterCallBack(FilterNameCallBack);
 	RefreshAliasTree();
 
+	mAliasListSizer = new wxBoxSizer(wxHORIZONTAL);
+	mAliasListSizer->Add(aliasList,1,wxEXPAND);
+	mAliasListSizer->Add(playerCache,2,wxEXPAND);
+
+	mMainSizer = new wxBoxSizer(wxVERTICAL);
+	mMainSizer->Add(aliasConfigs,0,wxEXPAND);
+	mMainSizer->Add(mAliasListSizer,1,wxEXPAND);
+
+	SetSizer(mMainSizer);
+	mMainSizer->SetSizeHints(this);
 	return (true);
-}
-
-void AliasEditorPanel::OnResize(wxSizeEvent &event)
-{
-	wxSize		itemSize;
-	int			playerCacheWidth;
-	int			playerCacheHeight;
-	int			panelWidth;
-	int			panelHeight;
-	int			aliasWidth;
-	int			aliasHeight;
-	int			aliasConfigsHeight;
-	int			aliasConfigsWidth;
-	wxString	msg;
-
-
-	itemSize=GetSize();
-	panelWidth=itemSize.GetWidth();
-	panelHeight=itemSize.GetHeight();
-	playerCacheWidth=(panelWidth*3)/5;
-	playerCacheHeight=panelHeight;
-	aliasWidth=panelWidth-playerCacheWidth;
-	aliasHeight=panelHeight;
-
-	if (aliasList!=NULL)
-	{
-		aliasConfigsHeight=20;
-		aliasConfigsWidth=panelWidth;
-		aliasConfigs->SetSize(0,0,aliasConfigsWidth,aliasConfigsHeight);
-		itemSize=aliasConfigs->GetSize();
-		aliasConfigsHeight=itemSize.GetHeight()+20;
-		aliasConfigsHeight=aliasConfigs->PreferredHeight();
-		aliasHeight-=aliasConfigsHeight;
-		playerCacheHeight-=aliasConfigsHeight;
-		aliasConfigs->SetSize(0,0,aliasConfigsWidth,aliasConfigsHeight);
-		aliasList->SetSize(0,aliasConfigsHeight,aliasWidth,aliasHeight);
-		playerCache->SetSize(aliasWidth,aliasConfigsHeight,playerCacheWidth,playerCacheHeight);
-	}
-
 }
 
 wxTreeItemId AliasEditorPanel::AddPlayerToTree(
@@ -131,8 +98,8 @@ wxTreeItemId AliasEditorPanel::AddPlayerToTree(
 	bool				found=false;
 
 	playerString.Printf("(%s) %s",
-						guid.GetData(),
-						name.GetData());
+						STRING_TO_CHAR(guid),
+						STRING_TO_CHAR(name));
 
 	found=false;
 
@@ -349,7 +316,7 @@ void AliasEditorPanel::AddAliasTree(wxTreeItemId &parentItem)
 	childItem=aliasList->GetFirstChild(parentItem,cookie);
 	while (childItem.IsOk())
 	{
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"Adding alias to global area")
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Adding alias to global area")
 		AliasItemSplit(childItem,aliasEntry);
 		globalStatistics.AddAlias(aliasEntry);
 		childItem=aliasList->GetNextChild(parentItem,cookie);
@@ -387,7 +354,7 @@ void AliasEditorPanel::OnPopupMenu(wxCommandEvent &event)
 	switch (event.GetId())
 	{
 		case ALIAS_POPUP_DELETE_PARENT:
-			STATSGEN_DEBUG(DEBUG_ALWAYS,"Delete Parent")
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Delete Parent")
 			parentItem=selectedAlias;
 			childItem=aliasList->GetFirstChild(parentItem,cookie);
 			while (childItem.IsOk())
@@ -401,14 +368,14 @@ void AliasEditorPanel::OnPopupMenu(wxCommandEvent &event)
 			playerCache->ApplyFilter();
 			break;
 		case ALIAS_POPUP_DELETE_CHILD:
-			STATSGEN_DEBUG(DEBUG_ALWAYS,"Delete Child")
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Delete Child")
 			childItem=selectedAlias;
 			parentItem=aliasList->GetItemParent(childItem);
 			DeleteAlias(parentItem,childItem);
 			playerCache->ApplyFilter();
 			break;
 		case ALIAS_POPUP_REPARENT:
-			STATSGEN_DEBUG(DEBUG_ALWAYS,"Reparent")
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Reparent")
 			childItem=selectedAlias;
 			parentItem=aliasList->GetItemParent(childItem);
 
@@ -432,7 +399,7 @@ void AliasEditorPanel::OnPopupMenu(wxCommandEvent &event)
 			playerCache->ApplyFilter();
 			break;
 		case PLAYER_POPUP_NEW_ALIAS:
-			STATSGEN_DEBUG(DEBUG_ALWAYS,"New Alias")
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"New Alias")
 			if (cacheCount>1)
 			{
 				// Need at least 2 entries selected to create a new alias
@@ -454,7 +421,7 @@ void AliasEditorPanel::OnPopupMenu(wxCommandEvent &event)
 			}
 			break;
 		case PLAYER_POPUP_ADD_ALIAS:
-			STATSGEN_DEBUG(DEBUG_ALWAYS,"Add Alias")
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Add Alias")
 			childItem=selectedAlias;
 			if (childItem.IsOk())
 			{

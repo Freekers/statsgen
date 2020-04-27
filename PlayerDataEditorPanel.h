@@ -18,13 +18,7 @@ class PlayerDataEditorPanel : public wxPanel
 		PlayerDataEditorPanel(PlayerDataList *playerDataListIn,
 							wxString &defaultPlayerDataIn,
 							wxString &playerDataTitleIn);
-		virtual bool Create(wxWindow *parent,
-				wxWindowID id=-1,
-				const wxPoint &pos=wxDefaultPosition,
-				const wxSize &size=wxDefaultSize,
-				long style=wxTAB_TRAVERSAL,
-				const wxString &name="panel");
-		void OnResize(wxSizeEvent &event);
+		virtual bool CreateDisplay(wxWindow *parent, wxWindowID id=wxID_ANY);
 		void OnPlayerDataListRightClick(wxListEvent &event);
 		void OnLabelEdit(wxListEvent &event);
 		void OnPlayerRightClick(wxListEvent &event);
@@ -43,12 +37,14 @@ class PlayerDataEditorPanel : public wxPanel
 			PLAYER_DATA_DELETE
 		};
 
-		PlayerCachePanel		*playerCache;
-		wxListCtrl				*playerDataListCtrl;
-		PlayerDataList			*playerDataList;
-		wxString				defaultPlayerData;
-		wxString				playerDataTitle;
-		GroupedConfigItemsPanel	*configItems;
+		PlayerCachePanel		*mPlayerCache;
+		wxListCtrl				*mPlayerDataListCtrl;
+		PlayerDataList			*mPlayerDataList;
+		wxString				mDefaultPlayerData;
+		wxString				mPlayerDataTitle;
+		GroupedConfigItemsPanel	*mConfigItems;
+
+		wxBoxSizer				*mMainSizer;
 		DECLARE_EVENT_TABLE()
 };
 

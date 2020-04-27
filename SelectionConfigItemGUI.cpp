@@ -3,16 +3,98 @@
 #include "GlobalStatistics.h"
 
 BEGIN_EVENT_TABLE(SelectionConfigItemGUI, wxPanel)
-		EVT_SIZE(SelectionConfigItemGUI::OnResize)
 		EVT_COMBOBOX(WINDOW_ID_TEXTCTRL_CONFIGVALUE,SelectionConfigItemGUI::OnTextChange)
 END_EVENT_TABLE()
 
 SelectionConfigItemGUI::SelectionConfigItemGUI()
 {
+	STATSGEN_DEBUG_FUNCTION_START("SelectionConfigItemGUI","SelectionConfigItemGUI")
+	mLabel		= NULL;
+	mTextEdit	= NULL;
+	STATSGEN_DEBUG_FUNCTION_END
+}
+
+SelectionConfigItemGUI::~SelectionConfigItemGUI()
+{
+	STATSGEN_DEBUG_FUNCTION_START("SelectionConfigItemGUI","~SelectionConfigItemGUI")
+	STATSGEN_DEBUG_FUNCTION_END
+}
+
+void SelectionConfigItemGUI::SetSelection(wxArrayString &codes,wxArrayString &names)
+{
+	int index;
+	mCodes.Empty();
+	mNames.Empty();
+	wxString	value;
+
+	for (index=0;index<codes.GetCount();index++)
+	{
+		mCodes.Add(codes[index]);
+		mNames.Add(names[index]);
+		if (codes[index].Cmp(mDefaultValue)==0)
+		{
+			value = names[index];
+		}
+	}
+	if (mTextEdit != NULL)
+	{
+		mTextEdit->Set(mNames);
+		mTextEdit->SetValue(value);
+	}
+}
+
+wxString SelectionConfigItemGUI::GetNameFromCode(wxString code)
+{
+	int			codeIndex;
+	wxString	name;
+
+	name = "";
+	for (codeIndex=0;codeIndex<mCodes.GetCount();codeIndex++)
+	{
+		if (mCodes[codeIndex].Cmp(code) == 0)
+		{
+			return (mNames[codeIndex]);
+		}
+	}
+
+	return name;
+}
+
+void SelectionConfigItemGUI::CreateDisplay(wxWindow *parent,
+				int id,
+			wxString labelTextIn)
+{
+	STATSGEN_DEBUG_FUNCTION_START("SelectionConfigItemGUI","CreateDisplay")
+	wxString	msg;
+
+	mLabelText	= labelTextIn;
+
+	Create(parent,id);
+
+	mLabel = new wxStaticText();
+	mLabel->Create(this, wxID_ANY, mLabelText);
+
+	mTextEdit = new wxComboBox();
+	mTextEdit->Create(this,
+				WINDOW_ID_TEXTCTRL_CONFIGVALUE,
+				GetNameFromCode(mDefaultValue),
+				wxDefaultPosition,
+				wxDefaultSize,
+				mNames,
+				wxCB_DROPDOWN|
+				wxCB_READONLY);
+
+	mMainSizer = new wxBoxSizer(wxHORIZONTAL);
+	mMainSizer->Add(mLabel,2,wxEXPAND);
+	mMainSizer->Add(mTextEdit,8,wxEXPAND);
+
+	ConfigureSizer();
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void SelectionConfigItemGUI::OnTextChange(wxCommandEvent& event)
 {
+	STATSGEN_DEBUG_FUNCTION_START("SelectionConfigItemGUI","OnTextChange")
 	wxString	msg;
 	wxString	key;
 	wxString	value;
@@ -21,184 +103,69 @@ void SelectionConfigItemGUI::OnTextChange(wxCommandEvent& event)
 	wxString	name;
 	wxString	code;
 
-	value=textEdit.GetValue();
-	codeCount=codes.GetCount();
+	if (mConfigKey.Length() == 0)
+	{
+		return;
+	}
+	value=mTextEdit->GetValue();
+	codeCount=mCodes.GetCount();
 	for (codeIndex=0;codeIndex<codeCount;codeIndex++)
 	{
-		code=codes.Item(codeIndex);
-		name=names.Item(codeIndex);
+		code=mCodes.Item(codeIndex);
+		name=mNames.Item(codeIndex);
 		if (name.Cmp(value)==0)
 		{
 			value=code;
 			break;
 		}
 	}
-	if (configKey.Length()>0)
-	{
-		globalStatistics.configData.WriteTextValue(configKey,
-										value);
-	}
+	globalStatistics.configData.WriteTextValue(mConfigKey, value);
 	if (GetParent()!=NULL)
 	{
 		wxCommandEvent	newEvent;
 		newEvent.SetId(WINDOW_ID_TEXTCTRL_CONFIGVALUE);
 		newEvent.SetEventType(wxEVT_COMMAND_TEXT_UPDATED);
-		GetParent()->AddPendingEvent(newEvent);
+		//GetParent()->AddPendingEvent(newEvent);
+		GetParent()->GetEventHandler()->AddPendingEvent(newEvent);
 	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
-SelectionConfigItemGUI::~SelectionConfigItemGUI()
+void SelectionConfigItemGUI::ApplyConfigKeyChange()
 {
-}
-
-void SelectionConfigItemGUI::SetConfigKey(wxString &configKeyIn)
-{
+	STATSGEN_DEBUG_FUNCTION_START("SelectionConfigItemGUI","ApplyConfigKeyChange")
 	wxString	value;
 	int			codeCount;
 	int			codeIndex;
 	wxString	code;
 	wxString	name;
 
-	STATSGEN_DEBUG_FUNCTION_START("SelectionConfigItemGUI","SetConfigKey")
-
-	configKey=configKeyIn;
-	STATSGEN_DEBUG(DEBUG_ALWAYS,configKey)
-	if (configKey.Length()>0)
+	if (mConfigKey.Length() == 0)
 	{
-		globalStatistics.configData.ReadTextValue(configKey,
-										&value,
-										(char *)defaultValue.GetData());
-		STATSGEN_DEBUG(DEBUG_ALWAYS,value)
-		codeCount=codes.GetCount();
-		for (codeIndex=0;codeIndex<codeCount;codeIndex++)
-		{
-			code=codes.Item(codeIndex);
-			STATSGEN_DEBUG(DEBUG_ALWAYS,code)
-			name=names.Item(codeIndex);
-			STATSGEN_DEBUG(DEBUG_ALWAYS,name)
-			if (code.Cmp(value)==0)
-			{
-				STATSGEN_DEBUG(DEBUG_ALWAYS,"Found it - setting value")
-				value=name;
-				break;
-			}
-		}
-		textEdit.SetValue(value);
+		return;
 	}
-	STATSGEN_DEBUG_FUNCTION_END
-}
-
-void SelectionConfigItemGUI::Set(
-			wxString &configKeyIn,
-			wxString &labelTextIn,
-			wxString &defaultValueIn,
-			wxArrayString &codesIn,
-			wxArrayString &namesIn)
-{
-	wxSizeEvent	event;
-	int			codeCount;
-	int			codeIndex;
-	wxString	code;
-	wxString	msg;
-	wxString	name;
-	wxString	defaultName="";
-
-	configKey=configKeyIn;
-	labelText=labelTextIn;
-	codes=codesIn;
-	names=namesIn;
-	defaultValue=defaultValueIn;
-	codeCount=codes.GetCount();
+	STATSGEN_DEBUG(DEBUG_ALWAYS,mConfigKey)
+	globalStatistics.configData.ReadTextValue(mConfigKey, &value, mDefaultValue);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,value)
+	codeCount=mCodes.GetCount();
 	for (codeIndex=0;codeIndex<codeCount;codeIndex++)
 	{
-		code=codes.Item(codeIndex);
-		name=names.Item(codeIndex);
-		if (code.Cmp(defaultValue)==0)
+		code=mCodes.Item(codeIndex);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,code)
+		name=mNames.Item(codeIndex);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,name)
+		if (code.Cmp(value)==0)
 		{
-			defaultName=name;
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Found it - setting value")
+			value=name;
 			break;
 		}
 	}
-
-	SetConfigKey(configKey);
-	// Create the config items
-	label.Create(this,
-				-1,
-				labelText,
-				wxPoint(0,0));
-
-	textEdit.Create(this,
-				WINDOW_ID_TEXTCTRL_CONFIGVALUE,
-				defaultName,
-				wxDefaultPosition,
-				wxDefaultSize,
-				names,
-				wxCB_DROPDOWN|
-				wxCB_READONLY);
-	SetConfigKey(configKey);
-				
-	OnResize(event);
+	mTextEdit->SetValue(value);
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 wxString SelectionConfigItemGUI::GetValue()
 {
-	return (textEdit.GetValue());
-}
-
-int SelectionConfigItemGUI::GetLabelWidth()
-{
-	wxSize		itemSize;
-
-	itemSize=label.GetSize();
-	return (itemSize.GetWidth());
-}
-
-void SelectionConfigItemGUI::SetLabelWidth(int width)
-{
-	wxSize		itemSize;
-	wxPoint		itemPosition;
-
-	itemSize=label.GetSize();
-	itemPosition=label.GetPosition();
-
-	label.SetSize(itemPosition.x,
-						itemPosition.y,
-						width,
-						itemSize.GetHeight());
-}
-
-void SelectionConfigItemGUI::OnResize(wxSizeEvent &event)
-{
-	wxString	msg;
-
-	wxSize		itemSize;
-	int			textWidth;
-	int			textHeight;
-	int			labelWidth;
-	int			labelHeight;
-	int			panelWidth;
-	int			panelHeight;
-	int			widthForTextEdit;
-	int			fixedWidth;
-	
-
-	itemSize=GetSize();
-	panelWidth=itemSize.GetWidth();
-	panelHeight=itemSize.GetHeight();
-
-	itemSize=label.GetSize();
-	labelWidth=itemSize.GetWidth();
-	labelHeight=itemSize.GetHeight();
-
-	label.SetSize(0,0,labelWidth,labelHeight);
-	labelWidth+=5;
-
-	itemSize=textEdit.GetSize();
-	textWidth=itemSize.GetWidth();
-	textHeight=itemSize.GetHeight();
-
-	widthForTextEdit=panelWidth-labelWidth;
-	widthForTextEdit=textWidth;
-
-	textEdit.SetSize(labelWidth,0,widthForTextEdit,textHeight);
+	return (mTextEdit->GetValue());
 }

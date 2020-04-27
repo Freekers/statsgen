@@ -94,16 +94,16 @@ void MOHAALogFileReader::UpdateRegularExpression(char *id,
 			if (replacementString.Length()>0)
 			{
 				originalString.Printf("$$%s=%s$$",
-										idFound.GetData(),
-										replacementString.GetData());
-				regularExpressionString.Replace(originalString.GetData(),"");
+										STRING_TO_CHAR(idFound),
+										STRING_TO_CHAR(replacementString));
+				regularExpressionString.Replace(STRING_TO_CHAR(originalString),"");
 				originalString=""; // to make it move on 1 character
 			}
 			else
 			{
 				originalString.Printf("$$%s$$",
-										idFound.GetData());
-				regularExpressionString.Replace(originalString.GetData(),"(.+)");
+										STRING_TO_CHAR(idFound));
+				regularExpressionString.Replace(STRING_TO_CHAR(originalString),"(.+)");
 				originalString="(.+)";
 			}
 			if (replacements!=NULL)
@@ -135,13 +135,13 @@ void MOHAALogFileReader::UpdateRegularExpression(char *id,
 				if (replacementString.Length()>0)
 				{
 					originalString.Printf("$$%s=%s$$",
-											idFound.GetData(),
-											replacementString.GetData());
+											STRING_TO_CHAR(idFound),
+											STRING_TO_CHAR(replacementString));
 				}
 				else
 				{
 					originalString.Printf("$$%s$$",
-											idFound.GetData());
+											STRING_TO_CHAR(idFound));
 				}
 			}
 			// move onto next expression
@@ -184,54 +184,54 @@ MOHAALogFileReader::MOHAALogFileReader(wxArrayString &filenameIn,wxString &serve
 	{
 		regularExpressionString=regularExpressionLines.Item(expressionIndex).AfterFirst(',');
 		STATSGEN_DEBUG(DEBUG_ALWAYS,regularExpressionString);
-		UpdateRegularExpression("PLAYERNAME",regularExpressionString,NULL,&subexpressionIndexPlayerName);
-		UpdateRegularExpression("PLAYERGUID",regularExpressionString,NULL,&subexpressionIndexPlayerGUID);
-		UpdateRegularExpression("PLAYERROUNDID",regularExpressionString,NULL,&subexpressionIndexPlayerInRoundID);
-		UpdateRegularExpression("TARGETNAME",regularExpressionString,NULL,&subexpressionIndexTargetName);
-		UpdateRegularExpression("TARGETGUID",regularExpressionString,NULL,&subexpressionIndexTargetGUID);
-		UpdateRegularExpression("PLAYERWEAPON",regularExpressionString,&replacementPlayerWeapon,&subexpressionIndexPlayerWeapon);
-		UpdateRegularExpression("PLAYERAMMO",regularExpressionString,&replacementPlayerAmmo,&subexpressionIndexPlayerAmmo);
-		UpdateRegularExpression("TARGETLOCATION",regularExpressionString,&replacementTargetLocation,&subexpressionIndexTargetLocation);
-		UpdateRegularExpression("ACTION",regularExpressionString,&replacementAction,&subexpressionIndexAction);
-		UpdateRegularExpression("SPEECH",regularExpressionString,NULL,&subexpressionIndexSpeech);
-		UpdateRegularExpression("PLAYERTEAM",regularExpressionString,&replacementPlayerTeam,&subexpressionIndexPlayerTeam);
-		UpdateRegularExpression("PLAYERCLASS",regularExpressionString,&replacementPlayerClass,&subexpressionIndexPlayerClass);
-		UpdateRegularExpression("TARGETTEAM",regularExpressionString,&replacementTargetTeam,&subexpressionIndexTargetTeam);
-		UpdateRegularExpression("TARGETCLASS",regularExpressionString,&replacementTargetClass,&subexpressionIndexTargetClass);
-		UpdateRegularExpression("MAP",regularExpressionString,&replacementMap,&subexpressionIndexMap);
-		UpdateRegularExpression("GAMETYPE",regularExpressionString,&replacementGameType,&subexpressionIndexGameType);
+		UpdateRegularExpression((char *)"PLAYERNAME",regularExpressionString,NULL,&subexpressionIndexPlayerName);
+		UpdateRegularExpression((char *)"PLAYERGUID",regularExpressionString,NULL,&subexpressionIndexPlayerGUID);
+		UpdateRegularExpression((char *)"PLAYERROUNDID",regularExpressionString,NULL,&subexpressionIndexPlayerInRoundID);
+		UpdateRegularExpression((char *)"TARGETNAME",regularExpressionString,NULL,&subexpressionIndexTargetName);
+		UpdateRegularExpression((char *)"TARGETGUID",regularExpressionString,NULL,&subexpressionIndexTargetGUID);
+		UpdateRegularExpression((char *)"PLAYERWEAPON",regularExpressionString,&replacementPlayerWeapon,&subexpressionIndexPlayerWeapon);
+		UpdateRegularExpression((char *)"PLAYERAMMO",regularExpressionString,&replacementPlayerAmmo,&subexpressionIndexPlayerAmmo);
+		UpdateRegularExpression((char *)"TARGETLOCATION",regularExpressionString,&replacementTargetLocation,&subexpressionIndexTargetLocation);
+		UpdateRegularExpression((char *)"ACTION",regularExpressionString,&replacementAction,&subexpressionIndexAction);
+		UpdateRegularExpression((char *)"SPEECH",regularExpressionString,NULL,&subexpressionIndexSpeech);
+		UpdateRegularExpression((char *)"PLAYERTEAM",regularExpressionString,&replacementPlayerTeam,&subexpressionIndexPlayerTeam);
+		UpdateRegularExpression((char *)"PLAYERCLASS",regularExpressionString,&replacementPlayerClass,&subexpressionIndexPlayerClass);
+		UpdateRegularExpression((char *)"TARGETTEAM",regularExpressionString,&replacementTargetTeam,&subexpressionIndexTargetTeam);
+		UpdateRegularExpression((char *)"TARGETCLASS",regularExpressionString,&replacementTargetClass,&subexpressionIndexTargetClass);
+		UpdateRegularExpression((char *)"MAP",regularExpressionString,&replacementMap,&subexpressionIndexMap);
+		UpdateRegularExpression((char *)"GAMETYPE",regularExpressionString,&replacementGameType,&subexpressionIndexGameType);
 
 		// by now we should have restructured the regular expression
 		// need to compile it and add it to the list of compiled regular expressions
 		STATSGEN_DEBUG(DEBUG_ALWAYS,regularExpressionString);
 		dummyInt=subexpressionIndexPlayerName.Item(expressionIndex); dummy="";
-		STATSGEN_DEBUG_CODE(msg.Printf("PLAYERNAME [%d]=[%s]",dummyInt,dummy.GetData());)
+		STATSGEN_DEBUG_CODE(msg.Printf("PLAYERNAME [%d]=[%s]",dummyInt,STRING_TO_CHAR(dummy));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 		dummyInt=subexpressionIndexPlayerGUID.Item(expressionIndex); dummy="";
-		STATSGEN_DEBUG_CODE(msg.Printf("PLAYERGUID [%d]=[%s]",dummyInt,dummy.GetData());)
+		STATSGEN_DEBUG_CODE(msg.Printf("PLAYERGUID [%d]=[%s]",dummyInt,STRING_TO_CHAR(dummy));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 		dummyInt=subexpressionIndexTargetName.Item(expressionIndex); dummy="";
-		STATSGEN_DEBUG_CODE(msg.Printf("TARGETNAME [%d]=[%s]",dummyInt,dummy.GetData());)
+		STATSGEN_DEBUG_CODE(msg.Printf("TARGETNAME [%d]=[%s]",dummyInt,STRING_TO_CHAR(dummy));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 		dummyInt=subexpressionIndexTargetGUID.Item(expressionIndex); dummy="";
-		STATSGEN_DEBUG_CODE(msg.Printf("TARGETGUID [%d]=[%s]",dummyInt,dummy.GetData());)
+		STATSGEN_DEBUG_CODE(msg.Printf("TARGETGUID [%d]=[%s]",dummyInt,STRING_TO_CHAR(dummy));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 		dummyInt=subexpressionIndexPlayerWeapon.Item(expressionIndex); dummy=replacementPlayerWeapon.Item(expressionIndex); 
-		STATSGEN_DEBUG_CODE(msg.Printf("PLAYERWEAPON [%d]=[%s]",dummyInt,dummy.GetData());)
+		STATSGEN_DEBUG_CODE(msg.Printf("PLAYERWEAPON [%d]=[%s]",dummyInt,STRING_TO_CHAR(dummy));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 		dummyInt=subexpressionIndexPlayerAmmo.Item(expressionIndex); dummy=replacementPlayerAmmo.Item(expressionIndex);
-		STATSGEN_DEBUG_CODE(msg.Printf("PLAYERAMMO [%d]=[%s]",dummyInt,dummy.GetData());)
+		STATSGEN_DEBUG_CODE(msg.Printf("PLAYERAMMO [%d]=[%s]",dummyInt,STRING_TO_CHAR(dummy));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 		dummyInt=subexpressionIndexTargetLocation.Item(expressionIndex);
 		dummy=replacementTargetLocation.Item(expressionIndex);
-		STATSGEN_DEBUG_CODE(msg.Printf("TARGETLOCATION [%d]=[%s]",dummyInt,dummy.GetData());)
+		STATSGEN_DEBUG_CODE(msg.Printf("TARGETLOCATION [%d]=[%s]",dummyInt,STRING_TO_CHAR(dummy));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 		dummyInt=subexpressionIndexAction.Item(expressionIndex);
 		dummy=replacementAction.Item(expressionIndex);
-		STATSGEN_DEBUG_CODE(msg.Printf("ACTION [%d]=[%s]",dummyInt,dummy.GetData());)
+		STATSGEN_DEBUG_CODE(msg.Printf("ACTION [%d]=[%s]",dummyInt,STRING_TO_CHAR(dummy));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 		dummyInt=subexpressionIndexSpeech.Item(expressionIndex); dummy="";
-		STATSGEN_DEBUG_CODE(msg.Printf("SPEECH [%d]=[%s]",dummyInt,dummy.GetData());)
+		STATSGEN_DEBUG_CODE(msg.Printf("SPEECH [%d]=[%s]",dummyInt,STRING_TO_CHAR(dummy));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 		regExp=new wxRegEx(regularExpressionString);
 		compiledRegularExpressions.Add(regExp,wxRE_ADVANCED);
@@ -271,13 +271,13 @@ bool MOHAALogFileReader::DecodeClientUserinfoChanged(
 		inRoundID=remainder.BeforeFirst(' ');
 		remainder=remainder.AfterFirst(' ');
 		STATSGEN_DEBUG(DEBUG_RARELY,remainder)
-		key=GetLineToken(remainder,"\\",1,&tokenCount);
+		key=GetLineToken(remainder,(char *)"\\",1,&tokenCount);
 		for (tokenIndex=1;tokenIndex<=tokenCount;tokenIndex++)
 		{
 			if ((tokenIndex % 2)==0)
 			{
 				// odd numbers are the keys
-				value=GetLineToken(remainder,"\\",tokenIndex,&tokenCount);
+				value=GetLineToken(remainder,(char *)"\\",tokenIndex,&tokenCount);
 				// We have decoded a value - the key should represent what
 				// it means
 				if (key.CmpNoCase("n")==0)
@@ -304,7 +304,7 @@ bool MOHAALogFileReader::DecodeClientUserinfoChanged(
 			else
 			{
 				// even numbers are the keys
-				key=GetLineToken(remainder,"\\",tokenIndex,&tokenCount);
+				key=GetLineToken(remainder,(char *)"\\",tokenIndex,&tokenCount);
 			}
 		}
 
@@ -364,10 +364,10 @@ bool MOHAALogFileReader::MatchingExpression(wxString &line,
 			(*expressionIndex)++)
 	{
 		regExp=(wxRegEx *)compiledRegularExpressions.Item((*expressionIndex));
-		retVal=regExp->Matches(line.GetData());
+		retVal=regExp->Matches(STRING_TO_CHAR(line));
 		if (retVal)
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"Found matching expression");
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Found matching expression");
 			regExpString=regularExpressionLines.Item(*expressionIndex);
 			idCodeString=regExpString.BeforeFirst(',');
 			if (idCodeString.Length()>0)
@@ -415,7 +415,7 @@ wxString MOHAALogFileReader::RetrieveRegularExpMatch(
 	}
 	else
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Using subexpression")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Using subexpression")
 		// need to retrieve the match
 		regExp=(wxRegEx *)compiledRegularExpressions.Item(expressionIndex);
 		retVal=regExp->GetMatch(line,subexpressionIndex);
@@ -464,7 +464,7 @@ bool MOHAALogFileReader::DecodeKill(wxString &line,DecodedKill &decode)
 	STATSGEN_DEBUG_FUNCTION_START("MOHAALogFileReader","DecodeKill");
 	if (MatchingExpression(line,&idCode,&expressionIndex))
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"MATCHED")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"MATCHED")
 		STATSGEN_DEBUG(DEBUG_RARELY,line)
 		if (idCode == 'K')
 		{
@@ -472,7 +472,7 @@ bool MOHAALogFileReader::DecodeKill(wxString &line,DecodedKill &decode)
 			decode.playerClass="";
 			decode.targetTeam="";
 			decode.targetClass="";
-			STATSGEN_DEBUG_CODE(msg.Printf("Kill found [%s]",line.GetData());)
+			STATSGEN_DEBUG_CODE(msg.Printf("Kill found [%s]",STRING_TO_CHAR(line));)
 			STATSGEN_DEBUG(DEBUG_RARELY,msg);
 			retVal=true;
 			// This is a kill - wahoo
@@ -491,21 +491,21 @@ bool MOHAALogFileReader::DecodeKill(wxString &line,DecodedKill &decode)
 				decode.playerClass=FindPlayerRoundInfo(decode.playerName,
 														playerClassListNames,
 														playerClassList,
-														"Soldier");
+														(char *)"Soldier");
 			}
 			if (decode.playerTeam.Length()==0)
 			{
 				decode.playerTeam=FindPlayerRoundInfo(decode.playerName,
 														playerTeamListNames,
 														playerTeamList,
-														"PlayerTeam");
+														(char *)"PlayerTeam");
 			}
 			if (decode.targetTeam.Length()==0)
 			{
 				decode.targetTeam=FindPlayerRoundInfo(decode.targetName,
 														playerTeamListNames,
 														playerTeamList,
-														"TargetTeam");
+														(char *)"TargetTeam");
 			}
 			STATSGEN_DEBUG(DEBUG_RARELY,decode.playerClass);
 			STATSGEN_DEBUG(DEBUG_RARELY,decode.playerTeam);
@@ -527,11 +527,11 @@ bool MOHAALogFileReader::DecodeAction(wxString &line,DecodedAction &decode)
 	STATSGEN_DEBUG_FUNCTION_START("MOHAALogFileReader","DecodeAction");
 	if (MatchingExpression(line,&idCode,&expressionIndex))
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"MATCHED")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"MATCHED")
 		STATSGEN_DEBUG(DEBUG_RARELY,line)
 		if (idCode == 'A')
 		{
-			STATSGEN_DEBUG_CODE(msg.Printf("Action found [%s]",line.GetData());)
+			STATSGEN_DEBUG_CODE(msg.Printf("Action found [%s]",STRING_TO_CHAR(line));)
 			STATSGEN_DEBUG(DEBUG_RARELY,msg);
 			retVal=true;
 			// This is a action - wahoo
@@ -546,14 +546,14 @@ bool MOHAALogFileReader::DecodeAction(wxString &line,DecodedAction &decode)
 				decode.playerName=FindPlayerRoundInfo(decode.playerRoundID,
 														playerIDListNames,
 														playerIDList,
-														"");
+														(char *)"");
 			}
 			if (decode.playerTeam.Length()==0)
 			{
 				decode.playerTeam=FindPlayerRoundInfo(decode.playerName,
 														playerTeamListNames,
 														playerTeamList,
-														"PlayerTeam");
+														(char *)"PlayerTeam");
 			}
 		}
 	}
@@ -572,11 +572,11 @@ bool MOHAALogFileReader::DecodeSpeech(wxString &line,DecodedSpeech &decode)
 	STATSGEN_DEBUG_FUNCTION_START("MOHAALogFileReader","DecodeSpeech");
 	if (MatchingExpression(line,&idCode,&expressionIndex))
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"MATCHED")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"MATCHED")
 		STATSGEN_DEBUG(DEBUG_RARELY,line)
 		if (idCode == 'S')
 		{
-			STATSGEN_DEBUG_CODE(msg.Printf("Speech found [%s]",line.GetData());)
+			STATSGEN_DEBUG_CODE(msg.Printf("Speech found [%s]",STRING_TO_CHAR(line));)
 			STATSGEN_DEBUG(DEBUG_RARELY,msg);
 			retVal=true;
 			// This is a kill - wahoo
@@ -616,7 +616,7 @@ void MOHAALogFileReader::UpdatePlayerRoundInfo(wxString &name,
 			break;
 		}
 	}
-	STATSGEN_DEBUG_CODE(msg.Printf("[%s] = [%s]",name.GetData(),id.GetData());)
+	STATSGEN_DEBUG_CODE(msg.Printf("[%s] = [%s]",STRING_TO_CHAR(name),STRING_TO_CHAR(id));)
 	STATSGEN_DEBUG(DEBUG_RARELY,msg)
 	listnames.Add(name);
 	listIDs.Add(id);
@@ -635,11 +635,11 @@ bool MOHAALogFileReader::DecodePlayerJoin(wxString &line,DecodedPlayerJoin &deco
 	STATSGEN_DEBUG(DEBUG_RARELY,line);
 	if (MatchingExpression(line,&idCode,&expressionIndex))
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"MATCHED")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"MATCHED")
 		STATSGEN_DEBUG(DEBUG_RARELY,line)
 		if (idCode == 'J')
 		{
-			STATSGEN_DEBUG_CODE(msg.Printf("Join found [%s]",line.GetData());)
+			STATSGEN_DEBUG_CODE(msg.Printf("Join found [%s]",STRING_TO_CHAR(line));)
 			STATSGEN_DEBUG(DEBUG_RARELY,msg);
 			retVal=true;
 			// This is a join
@@ -699,7 +699,7 @@ bool MOHAALogFileReader::DecodeRoundStart(wxString &line,
 		STATSGEN_DEBUG(DEBUG_RARELY,line)
 		if (idCode == 'R')
 		{
-			STATSGEN_DEBUG_CODE(msg.Printf("Round Start found [%s]",line.GetData());)
+			STATSGEN_DEBUG_CODE(msg.Printf("Round Start found [%s]",STRING_TO_CHAR(line));)
 			STATSGEN_DEBUG(DEBUG_RARELY,msg);
 			playerTeamListNames.Clear();
 			playerTeamList.Clear();

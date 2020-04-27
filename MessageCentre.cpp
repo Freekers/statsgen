@@ -68,72 +68,72 @@ void MessageCentre::Initiate()
 		configBaseKey+="/";
 
 		configKey=configBaseKey+"serverType";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		serverType=configValue;
 
 		configKey=configBaseKey+"gameIP";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		gameIP=configValue;
 		STATSGEN_DEBUG(DEBUG_ALWAYS,configValue)
 
 		configKey=configBaseKey+"gamePort";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		STATSGEN_DEBUG(DEBUG_ALWAYS,configValue)
 		gamePort=-1;
 		if (configValue.Length()>0)
 		{
-			gamePort=atoi(configValue.GetData());
+			gamePort=atoi(STRING_TO_CHAR(configValue));
 		}
 
 		configKey="/RCONSettings/ClientPort";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"8000");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"8000");
 		STATSGEN_DEBUG(DEBUG_ALWAYS,configValue)
 		localPort=-1;
 		if (configValue.Length()>0)
 		{
-			localPort=atoi(configValue.GetData());
+			localPort=atoi(STRING_TO_CHAR(configValue));
 		}
 
 		configKey=configBaseKey+"IPAddress";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		hostname=configValue;
 		STATSGEN_DEBUG(DEBUG_ALWAYS,configValue)
 
 		configKey=configBaseKey+"RCONPassword";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		password=configValue;
 		STATSGEN_DEBUG(DEBUG_ALWAYS,configValue)
 
 		configKey=configBaseKey+"MessagingEnabled";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"n");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"n");
 		serverEnabled=(configValue.CmpNoCase("y")==0);
 
 		configKey=configBaseKey+"RCONUsePunkBuster";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"n");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"n");
 		usingPunkbuster=(configValue.CmpNoCase("y")==0);
 
 		remotePunkbusterDirectory="";
 		if (usingPunkbuster)
 		{
 			configKey=configBaseKey+"PunkBusterPostCommand";
-			globalStatistics.configData.ReadTextValue(configKey,&punkbusterPostCommand,"");
+			globalStatistics.configData.ReadTextValue(configKey,&punkbusterPostCommand,(char *)"");
 
 			configKey=configBaseKey+"banFile1Type";
-			globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+			globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 			if (configValue.CmpNoCase("PUNKBUSTER")==0)
 			{
 				configKey=configBaseKey+"FTPBanFile1Directory";
-				globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+				globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 				remotePunkbusterDirectory=configValue;
 			}
 			else
 			{
 				configKey=configBaseKey+"banFile2Type";
-				globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+				globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 				if (configValue.CmpNoCase("PUNKBUSTER")==0)
 				{
 					configKey=configBaseKey+"ban2Directory";
-					globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+					globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 					remotePunkbusterDirectory=configValue;
 				}
 			}
@@ -141,15 +141,15 @@ void MessageCentre::Initiate()
 	}
 
 	configKey="/RCONSettings/Enabled";
-	globalStatistics.configData.ReadTextValue(configKey,&configValue,"n");
+	globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"n");
 	overallEnabled=(configValue.CmpNoCase("y")==0);
 
 	configKey="/RCONSettings/MessagePrefix";
-	globalStatistics.configData.ReadTextValue(configKey,&messagePrefix,"^7");
+	globalStatistics.configData.ReadTextValue(configKey,&messagePrefix,(char *)"^7");
 	// Now read the message list
 
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"Reading Message Centre Formats")
-	globalStatistics.configData.ReadGroup("MessageCentreFormats",
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Reading Message Centre Formats")
+	globalStatistics.configData.ReadGroup((char *)"MessageCentreFormats",
 										configKeys,
 										configValues);
 	formatCount=configKeys.GetCount();
@@ -173,7 +173,7 @@ void MessageCentre::Initiate()
 			// we have a valid format string
 			// let's replace the tokens with the
 			// appropriate values
-			globalStatistics.configData.ReadList("MessageCentreValues",
+			globalStatistics.configData.ReadList((char *)"MessageCentreValues",
 												key,tokenValues);
 			tokenValueCount=tokenValues.GetCount();
 			for (tokenValueIndex=0;
@@ -196,9 +196,9 @@ void MessageCentre::Initiate()
 
 	// Need to insert the custom messages
 	globalStatistics.configData.ReadTextValue(
-									"/RCONSettings/CustomMessageInterval",
-									&configValue,"5");
-	customMessageInterval=atoi(configValue.GetData());
+									(char *)"/RCONSettings/CustomMessageInterval",
+									&configValue,(char *)"5");
+	customMessageInterval=atoi(STRING_TO_CHAR(configValue));
 	configGroup="CustomMessages";
 	globalStatistics.configData.ReadList(configGroup,customMessages);
 	customMessageCount=customMessages.GetCount();
@@ -230,50 +230,50 @@ void MessageCentre::Initiate()
 		}
 	}
 
-	STATSGEN_DEBUG_CODE(msg.Printf("Messages Calculated - Messages To Send [%d]", messagesToSend.GetCount());)
+	STATSGEN_DEBUG_CODE(msg.Printf("Messages Calculated - Messages To Send [%d]", (int)messagesToSend.GetCount());)
 	STATSGEN_DEBUG(DEBUG_SOMETIMES,msg)
 	// Self check the settings
 	if (overallEnabled && serverEnabled)
 	{
-		STATSGEN_DEBUG_CODE(msg.Printf("Messaging Enabled - Messages To Send [%d]", messagesToSend.GetCount());)
+		STATSGEN_DEBUG_CODE(msg.Printf("Messaging Enabled - Messages To Send [%d]", (int)messagesToSend.GetCount());)
 		STATSGEN_DEBUG(DEBUG_SOMETIMES,msg)
 		if (usingPunkbuster)
 		{
 			if (remotePunkbusterDirectory.Length()==0)
 			{
-				msg.Printf("Server [%s]:Punkbuster Messaging Enabled but no Punkbuster Ban Directory defined, switching to non-PunkBuster operation",ID.GetData());
+				msg.Printf("Server [%s]:Punkbuster Messaging Enabled but no Punkbuster Ban Directory defined, switching to non-PunkBuster operation",STRING_TO_CHAR(ID));
 				progress->LogError(msg,SeverityCaution);
 				usingPunkbuster=false;
 			}
 		}
 		if ((hostname.Length()==0)&&(gameIP.Length()==0))
 		{
-			msg.Printf("Server [%s]:RCON Messaging Enabled but hostname is blank for server, server messaging disabled",ID.GetData());
+			msg.Printf("Server [%s]:RCON Messaging Enabled but hostname is blank for server, server messaging disabled",STRING_TO_CHAR(ID));
 			progress->LogError(msg,SeverityCaution);
 			serverEnabled=false;
 		}
 		if (password.Length()==0)
 		{
-			msg.Printf("Server [%s]:RCON Messaging Enabled but RCON Password is blank for server, server messaging disabled",ID.GetData());
+			msg.Printf("Server [%s]:RCON Messaging Enabled but RCON Password is blank for server, server messaging disabled",STRING_TO_CHAR(ID));
 			progress->LogError(msg,SeverityCaution);
 			serverEnabled=false;
 		}
 		if (gamePort<1)
 		{
-			msg.Printf("Server [%s]:RCON Messaging Enabled but game port is invalid, server messaging disabled",ID.GetData());
+			msg.Printf("Server [%s]:RCON Messaging Enabled but game port is invalid, server messaging disabled",STRING_TO_CHAR(ID));
 			progress->LogError(msg,SeverityCaution);
 			serverEnabled=false;
 		}
 		if (localPort<1)
 		{
-			msg.Printf("Server [%s]:RCON Messaging Enabled but local port is invalid, server messaging disabled",ID.GetData());
+			msg.Printf("Server [%s]:RCON Messaging Enabled but local port is invalid, server messaging disabled",STRING_TO_CHAR(ID));
 			progress->LogError(msg,SeverityCaution);
 			serverEnabled=false;
 		}
 	}
 	if (overallEnabled && serverEnabled && usingPunkbuster)
 	{
-		STATSGEN_DEBUG_CODE(msg.Printf("Punkbuster Messaging Enabled - Messages To Send [%d]", messagesToSend.GetCount());)
+		STATSGEN_DEBUG_CODE(msg.Printf("Punkbuster Messaging Enabled - Messages To Send [%d]", (int)messagesToSend.GetCount());)
 		STATSGEN_DEBUG(DEBUG_SOMETIMES,msg)
 		// We need to construct the punkbuster message file
 		// and upload it to the game server
@@ -308,7 +308,7 @@ void MessageCentre::SendRCONCommand(wxString &command)
 	if (connection==NULL)
 	{
 		msg.Printf("Could not connect to %s:%d for message sending",
-				hostname.GetData(),gamePort);
+				STRING_TO_CHAR(hostname),gamePort);
 		progress->LogError(msg,SeverityError);
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
 	}
@@ -318,22 +318,22 @@ void MessageCentre::SendRCONCommand(wxString &command)
 		{
 			constructedCommand.Printf("%c%crcon%c%s%c%s%c",
 								255,255,255,
-								password.GetData(),
+								STRING_TO_CHAR(password),
 								255,
-								command.GetData(),
+								STRING_TO_CHAR(command),
 								255);
 		}
 		else
 		{
 			constructedCommand.Printf("%c%c%c%crcon %s %s",
 								255,255,255,255,
-								password.GetData(),
-								command.GetData());
+								STRING_TO_CHAR(password),
+								STRING_TO_CHAR(command));
 		}
 		STATSGEN_DEBUG(DEBUG_SOMETIMES,constructedCommand)
 		STATSGEN_DEBUG(DEBUG_SOMETIMES,hostname)
 		connection->SendTo(remoteAddress,
-							constructedCommand.GetData(),
+							STRING_TO_CHAR(constructedCommand),
 							constructedCommand.Length());
 								
 		if (connection->Error())
@@ -377,13 +377,13 @@ void MessageCentre::SendMessage()
 				char *mandatoryMessagePrefix;
 				if (globalStatistics.hiddenFeatures)
 				{
-					mandatoryMessagePrefix=MESSAGE_CENTRE_PREFIX_HIDDEN;
+					mandatoryMessagePrefix=(char *)MESSAGE_CENTRE_PREFIX_HIDDEN;
 				}
 				else
 				{
-					mandatoryMessagePrefix=MESSAGE_CENTRE_PREFIX;
+					mandatoryMessagePrefix=(char *)MESSAGE_CENTRE_PREFIX;
 				}
-				command.Printf("say \"%s%s%s\"",messagePrefix.GetData(),mandatoryMessagePrefix,messageToSend.GetData());
+				command.Printf("say \"%s%s%s\"",STRING_TO_CHAR(messagePrefix),mandatoryMessagePrefix,STRING_TO_CHAR(messageToSend));
 				SendRCONCommand(command);
 			}
 
@@ -411,7 +411,7 @@ void MessageCentre::UpdatePunkbusterMessages()
 	STATSGEN_DEBUG_FUNCTION_START("MessageCentre","UpdatePunkbusterMessages")
 	configKey="/RCONSettings/MessageIntervalTimer";
 	globalStatistics.configData.ReadTextValue(configKey,&configValue);
-	messageIntervalTimer=atoi(configValue.GetData());
+	messageIntervalTimer=atoi(STRING_TO_CHAR(configValue));
 
 	if ((overallEnabled && serverEnabled) && (messageIntervalTimer>0))
 	{
@@ -423,7 +423,7 @@ void MessageCentre::UpdatePunkbusterMessages()
 		if (messageCount>0)
 		{
 			totalMessageTime=messageIntervalTimer*messageCount;
-			fp=fopen(messageFileName.GetFullPath().GetData(),"w");
+			fp=fopen(STRING_TO_CHAR(messageFileName.GetFullPath()),"w");
 			if (fp!=NULL)
 			{
 				fprintf(fp,"pb_sv_taskempty\n");
@@ -439,19 +439,19 @@ void MessageCentre::UpdatePunkbusterMessages()
 					char *mandatoryMessagePrefix;
 					if (globalStatistics.hiddenFeatures)
 					{
-						mandatoryMessagePrefix=MESSAGE_CENTRE_PREFIX_HIDDEN;
+						mandatoryMessagePrefix=(char *)MESSAGE_CENTRE_PREFIX_HIDDEN;
 					}
 					else
 					{
-						mandatoryMessagePrefix=MESSAGE_CENTRE_PREFIX;
+						mandatoryMessagePrefix=(char *)MESSAGE_CENTRE_PREFIX;
 					}
 					command.Printf("pb_sv_task %d %d say \"%s%s%s\"",
 									currentMessageIndex*messageIntervalTimer,
 									totalMessageTime,
-									messagePrefix.GetData(),
+									STRING_TO_CHAR(messagePrefix),
 									mandatoryMessagePrefix,
-									messageToSend.GetData());
-					fprintf(fp,"%s\n",command.GetData());
+									STRING_TO_CHAR(messageToSend));
+					fprintf(fp,"%s\n",STRING_TO_CHAR(command));
 				}
 				for (currentMessageIndex=0;
 						currentMessageIndex<messageIndex;
@@ -460,24 +460,24 @@ void MessageCentre::UpdatePunkbusterMessages()
 					char *mandatoryMessagePrefix;
 					if (globalStatistics.hiddenFeatures)
 					{
-						mandatoryMessagePrefix=MESSAGE_CENTRE_PREFIX_HIDDEN;
+						mandatoryMessagePrefix=(char *)MESSAGE_CENTRE_PREFIX_HIDDEN;
 					}
 					else
 					{
-						mandatoryMessagePrefix=MESSAGE_CENTRE_PREFIX;
+						mandatoryMessagePrefix=(char *)MESSAGE_CENTRE_PREFIX;
 					}
 					messageToSend=messagesToSend.Item(currentMessageIndex);
 					command.Printf("pb_sv_task %d %d say \"%s%s%s\"",
 									currentMessageIndex*messageIntervalTimer,
 									totalMessageTime,
-									messagePrefix.GetData(),
+									STRING_TO_CHAR(messagePrefix),
 									mandatoryMessagePrefix,
-									messageToSend.GetData());
-					fprintf(fp,"%s\n",command.GetData());
+									STRING_TO_CHAR(messageToSend));
+					fprintf(fp,"%s\n",STRING_TO_CHAR(command));
 				}
 				if (punkbusterPostCommand.Length()>0)
 				{
-					fprintf(fp,"%s\n",punkbusterPostCommand.GetData());
+					fprintf(fp,"%s\n",STRING_TO_CHAR(punkbusterPostCommand));
 				}
 				fclose(fp);
 				configGroup="Server"+ID;

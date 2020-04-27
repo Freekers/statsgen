@@ -49,12 +49,12 @@ bool COD5LogFileReader::DecodeAction(wxString &line,DecodedAction &decode)
 	wxString	msg;
 
 	STATSGEN_DEBUG_FUNCTION_START("COD5LogFileReader","DecodeAction")
-	decode.action=GetLineToken(line,";",1,&tokenCount).Upper();
+	decode.action=GetLineToken(line,(char *)";",1,&tokenCount).Upper();
 	if (tokenCount == 4)
 	{
-		decode.playerID=GetLineToken(line,";",2,&tokenCount);
-		decode.playerRoundID=GetLineToken(line,";",3,&tokenCount);
-		decode.playerName=GetLineToken(line,";",4,&tokenCount);
+		decode.playerID=GetLineToken(line,(char *)";",2,&tokenCount);
+		decode.playerRoundID=GetLineToken(line,(char *)";",3,&tokenCount);
+		decode.playerName=GetLineToken(line,(char *)";",4,&tokenCount);
 		decode.playerTeam="";
 		UpdatePlayerRoundInfo2(decode.playerID,
 								playerIDs,
@@ -85,7 +85,7 @@ bool COD5LogFileReader::DecodeTeamWin(wxString &line,DecodedTeamWin &decode)
 	retVal=DecodeTeamWinLoss("W;",line,id,roundID,name,decode.teamName);
 	if (retVal)
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Normal Team Win Found")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Normal Team Win Found")
 		decode.Clear();
 		decode.playerIDs.Add(id);
 		decode.playerRoundIDs.Add(roundID);
@@ -106,12 +106,12 @@ bool COD5LogFileReader::DecodeTeamWinLoss(const char *key,wxString &line,wxStrin
 
 	if (line.StartsWith(key))
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Team Win or Loss Found")
-		id=GetLineToken(line,";",2,&tokenCount);
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Team Win or Loss Found")
+		id=GetLineToken(line,(char *)";",2,&tokenCount);
 		if (tokenCount == 4)
 		{
-			roundID=GetLineToken(line,";",3,&tokenCount);
-			name=GetLineToken(line,";",4,&tokenCount);
+			roundID=GetLineToken(line,(char *)";",3,&tokenCount);
+			name=GetLineToken(line,(char *)";",4,&tokenCount);
 			UpdatePlayerRoundInfo2(id,
 								playerIDs,
 								playerTeamList,
@@ -141,7 +141,7 @@ bool COD5LogFileReader::DecodeTeamLoss(wxString &line,DecodedTeamLoss &decode)
 	retVal=DecodeTeamWinLoss("L;",line,id,roundID,name,decode.teamName);
 	if (retVal)
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Normal Team Loss Found")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Normal Team Loss Found")
 		decode.Clear();
 		decode.playerIDs.Add(id);
 		decode.playerRoundIDs.Add(roundID);

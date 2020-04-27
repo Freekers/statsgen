@@ -38,32 +38,26 @@ ClanEditorPanel::ClanEditorPanel(wxString &configGroupIn,
 
 	GroupedConfigItemsPanel	*clanPanel;
 
-	clanPanel=new GroupedConfigItemsPanel("Clan Details");
-	clanPanel->Create(this,
-				-1,
-				wxDefaultPosition,
-				wxDefaultSize);
+	clanPanel=new GroupedConfigItemsPanel((char *)"Clan Details");
+	clanPanel->CreateDisplay(this,wxID_ANY);
 	
-	configKey.Printf("/%s/TagColoured",configGroup.GetData());
-	clanPanel->Add("Coloured Tag",configKey,"",-1);
-	configKey.Printf("/%s/FullName",configGroup.GetData());
-	clanPanel->Add("Coloured Name",configKey,"",-1);
-	configKey.Printf("/%s/WebAddress",configGroup.GetData());
-	clanPanel->Add("Web Address",configKey,"",-1);
-	configKey.Printf("/%s/BannerAddress",configGroup.GetData());
-	clanPanel->Add("Banner Image Address",configKey,"",-1);
+	configKey.Printf("/%s/TagColoured",STRING_TO_CHAR(configGroup));
+	clanPanel->Add((char *)"Coloured Tag",configKey,(char *)"",-1);
+	configKey.Printf("/%s/FullName",STRING_TO_CHAR(configGroup));
+	clanPanel->Add((char *)"Coloured Name",configKey,(char *)"",-1);
+	configKey.Printf("/%s/WebAddress",STRING_TO_CHAR(configGroup));
+	clanPanel->Add((char *)"Web Address",configKey,(char *)"",-1);
+	configKey.Printf("/%s/BannerAddress",STRING_TO_CHAR(configGroup));
+	clanPanel->Add((char *)"Banner Image Address",configKey,(char *)"",-1);
 
-	AddConfigGroup(clanPanel);
 
-	configKey.Printf("/%s/RegExp",configGroup.GetData());
+	configKey.Printf("/%s/RegExp",STRING_TO_CHAR(configGroup));
 	playerCache=new PlayerCachePanel(configKey,labelText);
 
 	playerCache->SetFilterType(PlayerCachePanel::FILTER_TYPE_REGEXP);
-	playerCache->Create(this,
-				WINDOW_ID_PLAYERCACHE,
-				wxDefaultPosition,
-				wxDefaultSize);
-	AddConfigGroup(playerCache);
+	playerCache->CreateScreen(this, WINDOW_ID_PLAYERCACHE);
+	AddConfigGroup(clanPanel);
+	AddConfigGroup(playerCache,1,wxEXPAND|wxALL);
 }
 
 void ClanEditorPanel::OnPlayerRightClick(wxListEvent &event)

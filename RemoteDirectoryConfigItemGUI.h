@@ -17,29 +17,22 @@ class RemoteDirectoryConfigItemGUI : public BaseConfigItemGUI
 		void OnTextChange(wxCommandEvent& event);
 		void OnButtonPressed(wxCommandEvent& event);
 
-		void SetConfigKey(wxString &configKeyIn);
-		void SetLabelWidth(int width);
-		int GetLabelWidth();
-		void Set(wxString &configKeyIn,
-			wxString &labelText,
-			wxString &defaultValueIn,
-			int	maxCharactersIn,
-			wxString &FTPIDIn);
-			void OnResize(wxSizeEvent &event);
+		void CreateDisplay(wxWindow *parent,
+						int id,
+						wxString &labelText);
+		virtual void ApplyConfigKeyChange();
 
 		wxString GetValue();
+		void SetConfigKey(wxString configKey,wxString defaultValue,wxString id);
 		void SetValue(wxString &value);
 	protected:
 
 	private:
-		wxTextCtrl		textEdit;
-		wxBitmapButton	button;
-		wxStaticText	label;
-		bool			maxCharactersSet;
-		int				maxCharacters;
-		wxString		labelText;
-		wxString		defaultValue;
-		wxString		FTPID;
+		wxTextCtrl		*mTextEdit;
+		wxBitmapButton	*mButton;
+		wxStaticText	*mLabel;
+		wxString		mLabelText;
+		wxString		mFTPID;
 
 		DECLARE_EVENT_TABLE()
 };

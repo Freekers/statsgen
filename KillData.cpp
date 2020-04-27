@@ -22,25 +22,25 @@ char *KillData::KillTypeText()
 	switch (KillType(gameType,playerIndex))
 	{
 		case KILL_TYPE_KILL:
-			retVal=KILL_TYPE_STRING_KILL;
+			retVal=(char *)KILL_TYPE_STRING_KILL;
 			break;
 		case KILL_TYPE_DEATH:
-			retVal=KILL_TYPE_STRING_DEATH;
+			retVal=(char *)KILL_TYPE_STRING_DEATH;
 			break;
 		case KILL_TYPE_TEAMKILL:
-			retVal=KILL_TYPE_STRING_TEAMKILL;
+			retVal=(char *)KILL_TYPE_STRING_TEAMKILL;
 			break;
 		case KILL_TYPE_TEAMKILLVICTIM:
-			retVal=KILL_TYPE_STRING_TEAMKILLVICTIM;
+			retVal=(char *)KILL_TYPE_STRING_TEAMKILLVICTIM;
 			break;
 		case KILL_TYPE_TEAMSWAP:
-			retVal=KILL_TYPE_STRING_TEAMSWAP;
+			retVal=(char *)KILL_TYPE_STRING_TEAMSWAP;
 			break;
 		case KILL_TYPE_SUICIDE:
-			retVal=KILL_TYPE_STRING_SUICIDE;
+			retVal=(char *)KILL_TYPE_STRING_SUICIDE;
 			break;
 		default:
-			retVal=KILL_TYPE_STRING_UNKNOWN;
+			retVal=(char *)KILL_TYPE_STRING_UNKNOWN;
 			break;
 	}
 
@@ -119,8 +119,8 @@ wxString KillData::SQLCreateTable()
 				"targetlocation integer,"
 				"%s"
 			")",
-			SQLTableName().GetData(),
-		StatsgenDatabase::StringFieldDefinition("killtype","killtype",FIELD_WIDTH_KILL_TYPE).GetData()
+			STRING_TO_CHAR(SQLTableName()),
+		STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("killtype","killtype",FIELD_WIDTH_KILL_TYPE))
 	);
 
 	return SQL;
@@ -143,7 +143,7 @@ bool KillData::WriteToDatabase(int roundIndex,int itemIndex)
 				"('%d','%d','%d','%d','%d',"
 				"'%d','%d','%d','%d',"
 				"'%d','%d','%s')",
-				SQLTableName().GetData(),
+				STRING_TO_CHAR(SQLTableName()),
 				roundIndex,itemIndex,player.actualPlayerIndex,playerClass,playerTeam,
 				playerWeapon,playerAmmo,target.actualPlayerIndex,targetClass,
 				targetTeam,targetLocation,KillTypeText());

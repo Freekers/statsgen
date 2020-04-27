@@ -191,14 +191,14 @@ void PlayerInRound::Debug()
 	STATSGEN_DEBUG_CODE(errorMessage.Printf(
 	"PLIDX[%05d]DUR[%s]K[%06d]D[%06d]TK[%06d]SU[%06d]SC[%0.2f]SK[%0.2f][%s]",
 				playerIndex,
-				durationString.GetData(),
+				STRING_TO_CHAR(durationString),
 				kills,
 				deaths,
 				teamKills,
 				suicides,
 				score,
 				skill,
-				player.name.GetData());)
+				STRING_TO_CHAR(player.name));)
 	STATSGEN_DEBUG(DEBUG_ALWAYS,errorMessage)
 	streakCount=killStreak.GetCount();
 	if (streakCount>0)
@@ -268,7 +268,7 @@ wxString PlayerInRound::SQLCreateTable()
 				"suicides integer,"
 				"duration integer"
 			")",
-			SQLTableName().GetData());
+			STRING_TO_CHAR(SQLTableName()));
 
 	return SQL;
 }
@@ -284,7 +284,7 @@ wxString PlayerInRound::SQLCreateTableAward()
 				"awardindex integer,"
 				"score integer"
 			")",
-			SQLTableNameAward().GetData());
+			STRING_TO_CHAR(SQLTableNameAward()));
 
 	return SQL;
 }
@@ -311,13 +311,13 @@ bool PlayerInRound::WriteToDatabase(int roundIndex,int itemIndex)
 				"values"
 				"('%d','%d','%f','%f',"
 				"'%d','%d','%d','%d','%d')",
-				SQLTableName().GetData(),
+				STRING_TO_CHAR(SQLTableName()),
 				roundIndex,actualPlayerIndex,score,skill,
 				kills,deaths,teamKills,suicides,
 				(int)accumulatedDuration.GetSeconds().ToLong());
 	globalStatistics.statsgenDatabase.SimpleExecute(SQL);
 
-	STATSGEN_DEBUG(DEBUG_RARELY,"Written playerinround")
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Written playerinround")
 	awardCount=awardPoints.GetCount();
 	for (awardIndex=0;awardIndex<awardCount;awardIndex++)
 	{
@@ -328,12 +328,12 @@ bool PlayerInRound::WriteToDatabase(int roundIndex,int itemIndex)
 				"(roundindex,playerindex,awardindex,score)"
 				"values"
 				"('%d','%d','%d','%d')",
-				SQLTableNameAward().GetData(),
+				STRING_TO_CHAR(SQLTableNameAward()),
 				roundIndex,actualPlayerIndex,awardIndex,awardPoint);
 			globalStatistics.statsgenDatabase.SimpleExecute(SQL);
 		}
 	}
-	STATSGEN_DEBUG(DEBUG_RARELY,"Written awardpoints")
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Written awardpoints")
 	streakCount=teamKillStreak.GetCount();
 	for (streakIndex=0;streakIndex<streakCount;streakIndex++)
 	{
@@ -341,7 +341,7 @@ bool PlayerInRound::WriteToDatabase(int roundIndex,int itemIndex)
 		streak.WriteToDatabase(roundIndex,actualPlayerIndex,streakIndex,
 								KILL_TYPE_TEAMKILL);
 	}
-	STATSGEN_DEBUG(DEBUG_RARELY,"Written teamkillstreak")
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Written teamkillstreak")
 	streakCount=killStreak.GetCount();
 	for (streakIndex=0;streakIndex<streakCount;streakIndex++)
 	{
@@ -349,7 +349,7 @@ bool PlayerInRound::WriteToDatabase(int roundIndex,int itemIndex)
 		streak.WriteToDatabase(roundIndex,actualPlayerIndex,streakIndex,
 								KILL_TYPE_KILL);
 	}
-	STATSGEN_DEBUG(DEBUG_RARELY,"Written killstreak")
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Written killstreak")
 	streakCount=deathStreak.GetCount();
 	for (streakIndex=0;streakIndex<streakCount;streakIndex++)
 	{
@@ -357,7 +357,7 @@ bool PlayerInRound::WriteToDatabase(int roundIndex,int itemIndex)
 		streak.WriteToDatabase(roundIndex,actualPlayerIndex,streakIndex,
 								KILL_TYPE_DEATH);
 	}
-	STATSGEN_DEBUG(DEBUG_RARELY,"Written deathstreak")
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Written deathstreak")
 	STATSGEN_DEBUG_FUNCTION_END
 	return retVal;
 }

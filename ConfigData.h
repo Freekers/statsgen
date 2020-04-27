@@ -49,6 +49,13 @@ class ConfigData
 		void UpgradeDetails(wxString &description,wxString &upgradeType);
 		void Export(wxArrayString &upgradeList,
 					ConfigData &sourceConfig,
+					wxString description,
+					wxString group,
+					int exportType,
+					int exportAnswerType,
+					char *recommendation);
+		void Export(wxArrayString &upgradeList,
+					ConfigData &sourceConfig,
 					char *description,
 					char *group,
 					int exportType,
@@ -58,10 +65,14 @@ class ConfigData
 		void CommitChanges();
 		void RollbackChanges();
 		void EmptyCache();
+		bool ReadTextValue(wxString key,wxString *value);
 		bool ReadTextValue(char *key,wxString *value);
-		bool ReadTextValue(wxString &key,wxString *value);
+
+		bool ReadTextValue(wxString key,wxString *value,wxString defaultValue);
 		bool ReadTextValue(char *key,wxString *value,char *defaultValue);
-		bool ReadTextValue(wxString &key,wxString *value,char *defaultValue);
+		bool ReadTextValue(char *key,wxString *value,wxString defaultValue);
+		bool ReadTextValue(wxString key,wxString *value,char *defaultValue);
+
 		void WriteTextValue(wxString &key,wxString &value);
 		void WriteTextValue(char *key,wxString &value);
 		void WriteTextValue(wxString &key,char *value);

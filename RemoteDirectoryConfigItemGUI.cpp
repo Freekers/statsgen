@@ -9,182 +9,128 @@
 #include "GenericOKCancelDialog.h"
 
 BEGIN_EVENT_TABLE(RemoteDirectoryConfigItemGUI, wxPanel)
-		EVT_SIZE(RemoteDirectoryConfigItemGUI::OnResize)
 		EVT_TEXT(WINDOW_ID_TEXTCTRL_CONFIGVALUE,RemoteDirectoryConfigItemGUI::OnTextChange)
 		EVT_BUTTON(WINDOW_ID_CONFIG_BUTTON,RemoteDirectoryConfigItemGUI::OnButtonPressed)
 END_EVENT_TABLE()
 
 RemoteDirectoryConfigItemGUI::RemoteDirectoryConfigItemGUI()
 {
-	maxCharacters=-1;
-}
-
-void RemoteDirectoryConfigItemGUI::OnTextChange(wxCommandEvent& event)
-{
-	wxString	msg;
-	wxString	key;
-	wxString	value;
-
-	value=textEdit.GetValue();
-	if (configKey.Length()>0)
-	{
-		globalStatistics.configData.WriteTextValue(configKey,
-										value);
-	}
-	if (GetParent()!=NULL)
-	{
-		wxCommandEvent	newEvent;
-		newEvent.SetId(WINDOW_ID_TEXTCTRL_CONFIGVALUE);
-		newEvent.SetEventType(wxEVT_COMMAND_TEXT_UPDATED);
-		GetParent()->AddPendingEvent(newEvent);
-	}
+	STATSGEN_DEBUG_FUNCTION_START("RemoteDirectoryConfigItemGUI","RemoteDirectoryConfigItemGUI")
+	mFTPID	= "";
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 RemoteDirectoryConfigItemGUI::~RemoteDirectoryConfigItemGUI()
 {
+	STATSGEN_DEBUG_FUNCTION_START("RemoteDirectoryConfigItemGUI","~RemoteDirectoryConfigItemGUI")
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
-void RemoteDirectoryConfigItemGUI::SetConfigKey(wxString &configKeyIn)
+void RemoteDirectoryConfigItemGUI::SetConfigKey(wxString configKey,wxString defaultValue,wxString id)
 {
-	wxString	value;
-
-	configKey=configKeyIn;
-	if (configKey.Length()>0)
-	{
-		globalStatistics.configData.ReadTextValue(configKey,
-										&value,
-										(char *)defaultValue.GetData());
-		textEdit.SetValue(value);
-	}
+	STATSGEN_DEBUG_FUNCTION_START("RemoteDirectoryConfigItemGUI","SetConfigKey")
+	mFTPID	= id;
+	BaseConfigItemGUI::SetConfigKey(configKey,defaultValue);
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
-void RemoteDirectoryConfigItemGUI::Set(
-			wxString &configKeyIn,
-			wxString &labelTextIn,
-			wxString &defaultValueIn,
-			int maxCharactersIn,
-			wxString &FTPIDIn)
+void RemoteDirectoryConfigItemGUI::CreateDisplay(
+			wxWindow *parent,
+			int id,
+			wxString &labelTextIn)
 {
-	wxSizeEvent	event;
+	STATSGEN_DEBUG_FUNCTION_START("RemoteDirectoryConfigItemGUI","CreateDisplay")
 	wxSize		buttonSize(16,16);
 
-	configKey=configKeyIn;
-	labelText=labelTextIn;
-	defaultValue=defaultValueIn;
-	maxCharacters=maxCharactersIn;
-	FTPID=FTPIDIn;
+	mLabelText=labelTextIn;
+
+	Create(parent,id);
 	 
 
-	//SetConfigKey(configKey);
-	// Create the config items
-	label.Create(this,
-				-1,
-				labelText,
-				wxPoint(0,0));
+	mLabel = new wxStaticText();
+	mLabel->Create(this,wxID_ANY,mLabelText);
 
-	textEdit.Create(this,
+	mTextEdit = new wxTextCtrl();
+	mTextEdit->Create(this,
 				WINDOW_ID_TEXTCTRL_CONFIGVALUE,
-				defaultValue,
+				wxEmptyString,
 				wxDefaultPosition,
 				wxDefaultSize,
 				0,
 				wxDefaultValidator);
 
-	
-	SetConfigKey(configKey);
-	button.Create(this,
+	mButton = new wxBitmapButton();
+	mButton->Create(this,
 				WINDOW_ID_CONFIG_BUTTON,
 				wxArtProvider::GetIcon(wxART_FOLDER,
 										wxART_OTHER,
 										buttonSize));
-				
-	OnResize(event);
+
+	mMainSizer = new wxBoxSizer(wxHORIZONTAL);
+	mMainSizer->Add(mLabel,2,wxEXPAND);
+	mMainSizer->Add(mButton,0);
+	mMainSizer->Add(mTextEdit,7,wxEXPAND);
+
+	ConfigureSizer();
+	STATSGEN_DEBUG_FUNCTION_END
+}
+
+void RemoteDirectoryConfigItemGUI::OnTextChange(wxCommandEvent& event)
+{
+	STATSGEN_DEBUG_FUNCTION_START("RemoteDirectoryConfigItemGUI","OnTextChange")
+	wxString	msg;
+	wxString	key;
+	wxString	value;
+
+	if (mConfigKey.Length() == 0)
+	{
+		STATSGEN_DEBUG_FUNCTION_END
+		return;
+	}
+	value=GetValue();
+	globalStatistics.configData.WriteTextValue(mConfigKey,
+										value);
+	if (GetParent()!=NULL)
+	{
+		wxCommandEvent	newEvent;
+		newEvent.SetId(WINDOW_ID_TEXTCTRL_CONFIGVALUE);
+		newEvent.SetEventType(wxEVT_COMMAND_TEXT_UPDATED);
+		//GetParent()->AddPendingEvent(newEvent);
+		GetParent()->GetEventHandler()->AddPendingEvent(newEvent);
+	}
+	STATSGEN_DEBUG_FUNCTION_END
+}
+
+void RemoteDirectoryConfigItemGUI::ApplyConfigKeyChange()
+{
+	STATSGEN_DEBUG_FUNCTION_START("RemoteDirectoryConfigItemGUI","ApplyConfigKeyChange")
+	wxString	value;
+
+	if (mConfigKey.Length() == 0)
+	{
+		STATSGEN_DEBUG_FUNCTION_END
+		return;
+	}
+	globalStatistics.configData.ReadTextValue(mConfigKey,
+										&value,
+										mDefaultValue);
+	mTextEdit->SetValue(value);
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 wxString RemoteDirectoryConfigItemGUI::GetValue()
 {
-	return (textEdit.GetValue());
-}
+	STATSGEN_DEBUG_FUNCTION_START("RemoteDirectoryConfigItemGUI","GetValue")
+	wxString 	result;
+	result = mTextEdit->GetValue();
 
-int RemoteDirectoryConfigItemGUI::GetLabelWidth()
-{
-	wxSize		itemSize;
-
-	itemSize=label.GetSize();
-	return (itemSize.GetWidth());
-}
-
-void RemoteDirectoryConfigItemGUI::SetLabelWidth(int width)
-{
-	wxSize		itemSize;
-	wxPoint		itemPosition;
-
-	itemSize=label.GetSize();
-	itemPosition=label.GetPosition();
-
-	label.SetSize(itemPosition.x,
-						itemPosition.y,
-						width,
-						itemSize.GetHeight());
-}
-
-void RemoteDirectoryConfigItemGUI::OnResize(wxSizeEvent &event)
-{
-	wxString	msg;
-
-	wxSize		itemSize;
-	int			textWidth;
-	int			textHeight;
-	int			labelWidth;
-	int			labelHeight;
-	int			panelWidth;
-	int			panelHeight;
-	int			buttonWidth;
-	int			buttonHeight;
-	int			widthForTextEdit;
-	int			fixedWidth;
-	
-
-	itemSize=GetSize();
-	panelWidth=itemSize.GetWidth();
-	panelHeight=itemSize.GetHeight();
-
-	itemSize=label.GetSize();
-	labelWidth=itemSize.GetWidth();
-	labelHeight=itemSize.GetHeight();
-
-	itemSize=button.GetSize();
-	buttonWidth=itemSize.GetWidth();
-	buttonHeight=itemSize.GetHeight();
-
-	label.SetSize(0,0,labelWidth,labelHeight);
-	labelWidth+=5;
-
-	itemSize=textEdit.GetSize();
-	textWidth=itemSize.GetWidth();
-	textHeight=itemSize.GetHeight();
-
-	widthForTextEdit=panelWidth-labelWidth-buttonWidth;
-	fixedWidth=(maxCharacters * FONT_CHAR_WIDTH)+FONT_TEXT_CTRL_GAP;
-	if (maxCharacters>0)
-	{
-		// We have an overriding field width
-		if (fixedWidth<widthForTextEdit)
-		{
-			widthForTextEdit=fixedWidth;
-		}
-	}
-	if (widthForTextEdit<1)
-	{
-		widthForTextEdit=1;
-	}
-
-	button.SetSize(labelWidth,0,buttonWidth,buttonHeight);
-	textEdit.SetSize(labelWidth+buttonWidth,0,widthForTextEdit,textHeight);
+	STATSGEN_DEBUG_FUNCTION_END
+	return result;
 }
 
 void RemoteDirectoryConfigItemGUI::OnButtonPressed(wxCommandEvent& event)
 {
+	STATSGEN_DEBUG_FUNCTION_START("RemoteDirectoryConfigItemGUI","OnButtonPressed")
 	wxString	msg;
 	wxString	key;
 	wxString	value;
@@ -195,11 +141,13 @@ void RemoteDirectoryConfigItemGUI::OnButtonPressed(wxCommandEvent& event)
 	long		selectedSize;
 	wxString	path;
 
-	value=textEdit.GetValue();
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Getting value");
+	value=mTextEdit->GetValue();
 	path=value;
 
 	message="Select Directory";
-	GenericOKCancelDialog dialog(this,-1,
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Creating GenericOKCancelDialog");
+	GenericOKCancelDialog dialog(this,wxID_ANY,
 					message,
 					wxDefaultPosition,
 					wxDefaultSize,
@@ -209,34 +157,36 @@ void RemoteDirectoryConfigItemGUI::OnButtonPressed(wxCommandEvent& event)
 					wxRESIZE_BORDER |
 					wxMAXIMIZE_BOX,
 					_T(""));
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Creating FTPBrowserPanel");
 	FTPBrowserPanel	*browserPanel=new FTPBrowserPanel(
-										FTPID,
+										mFTPID,
 										path,
 										false);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"FTPBrowserPanel->Create");
 	browserPanel->Create(&dialog,
-						-1,
+						wxID_ANY,
 						wxDefaultPosition,
 						wxDefaultSize,
 						wxTAB_TRAVERSAL,
 						_T("panel"));
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"FTPBrowserPanel->CreateScreen");
 	browserPanel->CreateScreen();
 	
-	dialog.SetPanel(browserPanel);
-	dialog.CreateDialog();
-	result=(dialog.ShowModal()==WINDOW_ID_BUTTON_SAVE);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"dialog.DisplayDialog");
+	result = dialog.DisplayDialog(browserPanel);
 	if (result)
 	{
 		newFilename=browserPanel->GetCurrentSelection();
-		selectedSize=browserPanel->selectedSize;
+		selectedSize=browserPanel->mSelectedSize;
 		if (selectedSize>=0)
 		{
 			// Selected a file - get directory part
-			textEdit.SetValue(browserPanel->CurrentPath());
+			mTextEdit->SetValue(browserPanel->CurrentPath());
 		}
 		else
 		{
 			// Selected directory - just use selection
-			textEdit.SetValue(newFilename);
+			mTextEdit->SetValue(newFilename);
 		}
 	}
 	else
@@ -252,10 +202,13 @@ void RemoteDirectoryConfigItemGUI::OnButtonPressed(wxCommandEvent& event)
 	}
 	*/
 	
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void RemoteDirectoryConfigItemGUI::SetValue(wxString &value)
 {
-	textEdit.SetValue(value);
+	STATSGEN_DEBUG_FUNCTION_START("RemoteDirectoryConfigItemGUI","SetValue")
+	mTextEdit->SetValue(value);
+	STATSGEN_DEBUG_FUNCTION_END
 }
 

@@ -66,6 +66,7 @@ class DropListEditorPanel : public wxPanel
 		wxListCtrl				*dropListList;
 		GroupedConfigItemsPanel	*configItems;
 		wxString				filterString;
+		wxBoxSizer				*mMainSizer;
 		DECLARE_EVENT_TABLE()
 };
 

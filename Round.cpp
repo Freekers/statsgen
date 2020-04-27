@@ -73,7 +73,7 @@ void Round::Debug()
 	STATSGEN_DEBUG_FUNCTION_START("Round","Debug")
 	timeString=roundStartTime.Format();
 	durationString=roundDuration.Format("%H:%M:%S");
-	STATSGEN_DEBUG_CODE(errorMessage.Printf("Round:[%s] Duration[%s]", timeString.GetData(), durationString.GetData());)
+	STATSGEN_DEBUG_CODE(errorMessage.Printf("Round:[%s] Duration[%s]", STRING_TO_CHAR(timeString), STRING_TO_CHAR(durationString));)
 	STATSGEN_DEBUG(DEBUG_ALWAYS,errorMessage);
 	killCount=kills.GetCount();
 	for (killIndex=0;killIndex<killCount;killIndex++)
@@ -83,39 +83,39 @@ void Round::Debug()
 		STATSGEN_DEBUG_CODE(errorMessage.Printf("Kill %d:[%s]GT[%s]MAP[%s]PLIDX[%d]CL[%s]TM[%s]WP[%s]AM[%s]"
 				"TRIDX[%d]CL[%s]TM[%s]DM[%d]LO[%s]",
 				killIndex,
-				timeString.GetData(),
-				globalStatistics.GenericKeyID(globalStatistics.keysGametype,kill.gameType).GetData(),
-				globalStatistics.GenericKeyID(globalStatistics.keysMap,kill.mapName).GetData(),
+				STRING_TO_CHAR(timeString),
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysGametype,kill.gameType)),
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysMap,kill.mapName)),
 				kill.playerIndex,
-				globalStatistics.GenericKeyID(globalStatistics.keysClass,kill.playerClass).GetData(),
-				globalStatistics.GenericKeyID(globalStatistics.keysTeam,kill.playerTeam).GetData(),
-				globalStatistics.GenericKeyID(globalStatistics.keysWeapon,kill.playerWeapon).GetData(),
-				globalStatistics.GenericKeyID(globalStatistics.keysAmmo,kill.playerAmmo).GetData(),
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysClass,kill.playerClass)),
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysTeam,kill.playerTeam)),
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysWeapon,kill.playerWeapon)),
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysAmmo,kill.playerAmmo)),
 				kill.targetIndex,
-				globalStatistics.GenericKeyID(globalStatistics.keysClass,kill.targetClass).GetData(),
-				globalStatistics.GenericKeyID(globalStatistics.keysTeam,kill.targetTeam).GetData(),
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysClass,kill.targetClass)),
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysTeam,kill.targetTeam)),
 				kill.targetDamage,
-				globalStatistics.GenericKeyID(globalStatistics.keysLocation,kill.targetLocation).GetData());)
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysLocation,kill.targetLocation)));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,errorMessage);
 	}
 	actionCount=actions.GetCount();
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"actions");
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"actions");
 	for (actionIndex=0;actionIndex<actionCount;actionIndex++)
 	{
 		action=actions.Item(actionIndex);
 		timeString=action.actionTime.Format();
 		STATSGEN_DEBUG_CODE(errorMessage.Printf("Action %d:[%s]GT[%s]MAP[%s]PLIDX[%d]CL[%s]TM[%s]AC[%s]",
 				actionIndex,
-				timeString.GetData(),
-				globalStatistics.GenericKeyID(globalStatistics.keysGametype,action.gameType).GetData(),
-				globalStatistics.GenericKeyID(globalStatistics.keysMap,action.mapName).GetData(),
+				STRING_TO_CHAR(timeString),
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysGametype,action.gameType)),
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysMap,action.mapName)),
 				action.playerIndex,
-				globalStatistics.GenericKeyID(globalStatistics.keysClass,action.playerClass).GetData(),
-				globalStatistics.GenericKeyID(globalStatistics.keysTeam,action.playerTeam).GetData(),
-				globalStatistics.GenericKeyID(globalStatistics.keysAction,action.action).GetData());)
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysClass,action.playerClass)),
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysTeam,action.playerTeam)),
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysAction,action.action)));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,errorMessage);
 	}
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"teamwins");
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"teamwins");
 	teamWinCount=teamWins.GetCount();
 	for (teamWinIndex=0;teamWinIndex<teamWinCount;teamWinIndex++)
 	{
@@ -123,31 +123,31 @@ void Round::Debug()
 		timeString=teamWin.winTime.Format();
 		STATSGEN_DEBUG_CODE(errorMessage.Printf("Team Win %d:[%s]GT[%s]MAP[%s]PLIDX[%d]CL[%s]TM[%s]",
 				teamWinIndex,
-				timeString.GetData(),
-				globalStatistics.GenericKeyID(globalStatistics.keysGametype,teamWin.gameType).GetData(),
-				globalStatistics.GenericKeyID(globalStatistics.keysMap,teamWin.mapName).GetData(),
+				STRING_TO_CHAR(timeString),
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysGametype,teamWin.gameType)),
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysMap,teamWin.mapName)),
 				teamWin.playerIndex,
-				globalStatistics.GenericKeyID(globalStatistics.keysClass,teamWin.playerClass).GetData(),
-				globalStatistics.GenericKeyID(globalStatistics.keysTeam,teamWin.playerTeam).GetData());)
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysClass,teamWin.playerClass)),
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysTeam,teamWin.playerTeam)));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,errorMessage);
 	}
 	teamLossCount=teamLosses.GetCount();
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"teamloss");
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"teamloss");
 	for (teamLossIndex=0;teamLossIndex<teamLossCount;teamLossIndex++)
 	{
 		teamLoss=teamLosses.Item(teamLossIndex);
 		timeString=teamLoss.lossTime.Format();
 		STATSGEN_DEBUG_CODE(errorMessage.Printf("Team Loss %d:[%s]GT[%s]MAP[%s]PLIDX[%d]CL[%s]TM[%s]",
 				teamLossIndex,
-				timeString.GetData(),
-				globalStatistics.GenericKeyID(globalStatistics.keysGametype,teamLoss.gameType).GetData(),
-				globalStatistics.GenericKeyID(globalStatistics.keysMap,teamLoss.mapName).GetData(),
+				STRING_TO_CHAR(timeString),
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysGametype,teamLoss.gameType)),
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysMap,teamLoss.mapName)),
 				teamLoss.playerIndex,
-				globalStatistics.GenericKeyID(globalStatistics.keysClass,teamLoss.playerClass).GetData(),
-				globalStatistics.GenericKeyID(globalStatistics.keysTeam,teamLoss.playerTeam).GetData());)
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysClass,teamLoss.playerClass)),
+				STRING_TO_CHAR(globalStatistics.GenericKeyID(globalStatistics.keysTeam,teamLoss.playerTeam)));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,errorMessage);
 	}
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"speech");
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"speech");
 	speechCount=speeches.GetCount();
 	for (speechIndex=0;speechIndex<speechCount;speechIndex++)
 	{
@@ -155,13 +155,13 @@ void Round::Debug()
 		timeString=speech.speechTime.Format();
 		STATSGEN_DEBUG_CODE(errorMessage.Printf("Speech %d:[%s]PLIDX[%d] [%s]",
 				speechIndex,
-				timeString.GetData(),
+				STRING_TO_CHAR(timeString),
 				speech.playerIndex,
-				speech.speech.GetData());)
+				STRING_TO_CHAR(speech.speech));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,errorMessage);
 	}
 
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"players");
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"players");
 	playerCount=playersInRound.GetCount();
 	for (playerIndex=0;playerIndex<playerCount;playerIndex++)
 	{
@@ -212,13 +212,22 @@ bool Round::IsDropped()
 	STATSGEN_DEBUG_FUNCTION_START("Round","IsDropped")
 
 	globalStatistics.configData.ReadTextValue(
-									"/General/MinPlayersInRound",
+									(char *)"/General/MinPlayersInRound",
 									&minPlayersInRoundString,
-									"1");
+									(char *)"1");
 
-	minPlayersInRound=atoi(minPlayersInRoundString.GetData());
+	minPlayersInRound=atoi(STRING_TO_CHAR(minPlayersInRoundString));
 
-	STATSGEN_DEBUG_CODE(msg.Printf("kills=%d, actions=%d, playersinround=%d, minPlayersInRound=%d",kills.GetCount(),actions.GetCount(),playersInRound.GetCount(),minPlayersInRound);)
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"IsDropped:1");
+	msg.Printf("%d         ",(int)kills.GetCount());
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"IsDropped:2");
+	msg.Printf("%d,%d      ",(int)kills.GetCount(),(int)actions.GetCount());
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"IsDropped:3");
+	msg.Printf("%d,%d,%d   ",(int)kills.GetCount(),(int)actions.GetCount(),(int)playersInRound.GetCount());
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"IsDropped:4");
+	msg.Printf("%d,%d,%d,%d",(int)kills.GetCount(),(int)actions.GetCount(),(int)playersInRound.GetCount(),minPlayersInRound);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"IsDropped:done");
+	STATSGEN_DEBUG_CODE(msg.Printf("kills=%d, actions=%d, playersinround=%d, minPlayersInRound=%d",(int)kills.GetCount(),(int)actions.GetCount(),(int)playersInRound.GetCount(),minPlayersInRound);)
 	STATSGEN_DEBUG(DEBUG_SOMETIMES,msg)
 	retVal=false;
 	if (((kills.GetCount()==0) &&
@@ -406,16 +415,16 @@ void Round::AddKill(DecodedKill &decode,
 	kills.Add(kill);
 	STATSGEN_DEBUG_CODE(
 	msg.Printf("player:Name[%s],id[%s],Class[%s],Team[%s],Weapon[%s] target:Name[%s],id[%s],class[%s],team[%s],location[%s]",
-		playerName.GetData(),
-		playerID.GetData(),
-		playerClass.GetData(),
-		playerTeam.GetData(),
-		playerWeapon.GetData(),
-		targetName.GetData(),
-		targetID.GetData(),
-		targetClass.GetData(),
-		targetTeam.GetData(),
-		targetLocation.GetData());
+		STRING_TO_CHAR(playerName),
+		STRING_TO_CHAR(playerID),
+		STRING_TO_CHAR(playerClass),
+		STRING_TO_CHAR(playerTeam),
+		STRING_TO_CHAR(playerWeapon),
+		STRING_TO_CHAR(targetName),
+		STRING_TO_CHAR(targetID),
+		STRING_TO_CHAR(targetClass),
+		STRING_TO_CHAR(targetTeam),
+		STRING_TO_CHAR(targetLocation));
 						)
 	STATSGEN_DEBUG(DEBUG_RARELY,msg)
 	UpdatePlayerInRoundTime(kill.playerIndex,killTime,false);
@@ -480,7 +489,7 @@ void Round::AddSpeech(DecodedSpeech &decode,
 	bannedSpeechCount=globalStatistics.bannedSpeech.GetCount();
 	if (bannedSpeechCount>0)
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Checking Banned Speech")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Checking Banned Speech")
 		speechIndex=0;
 		while (speechIndex<speechLength)
 		{
@@ -500,7 +509,7 @@ void Round::AddSpeech(DecodedSpeech &decode,
 						bannedWord,
 						&replacementLength))
 				{
-					STATSGEN_DEBUG(DEBUG_RARELY,"Found it")
+					STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Found it")
 					speechFound=true;
 					break;
 				}
@@ -576,8 +585,8 @@ bool Round::SubstituteLogEntry(const char *logEntryType,
 	wxString	configValue;
 	bool		retVal;
 
-	configKey.Printf("/LogSubstitute%s/%s",logEntryType,logEntry.GetData());
-	globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+	configKey.Printf("/LogSubstitute%s/%s",logEntryType,STRING_TO_CHAR(logEntry));
+	globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 	if (configValue.Length()>0)
 	{
 		// entry found - substitute
@@ -598,8 +607,8 @@ void Round::StoreLogEntry(const char *logEntryType,
 {
 	wxString	configKey;
 
-	configKey.Printf("/LogEntries%s/%s",logEntryType,logEntry.GetData());
-	globalStatistics.configData.WriteTextValue(configKey,"");
+	configKey.Printf("/LogEntries%s/%s",logEntryType,STRING_TO_CHAR(logEntry));
+	globalStatistics.configData.WriteTextValue(configKey,(char *)"");
 }
 
 void Round::AddAction(DecodedAction &decode,
@@ -619,11 +628,11 @@ void Round::AddAction(DecodedAction &decode,
 
 	STATSGEN_DEBUG_CODE(
 	msg.Printf("playerName[%s] playerID[%s] playerClass[%s] playerTeam[%s] action[%s]",
-						decode.playerName.GetData(),
-						decode.playerID.GetData(),
-						decode.playerClass.GetData(),
-						decode.playerTeam.GetData(),
-						decode.action.GetData());
+						STRING_TO_CHAR(decode.playerName),
+						STRING_TO_CHAR(decode.playerID),
+						STRING_TO_CHAR(decode.playerClass),
+						STRING_TO_CHAR(decode.playerTeam),
+						STRING_TO_CHAR(decode.action));
 						)
 	STATSGEN_DEBUG(DEBUG_RARELY,msg);
 	SafeString(playerClass);
@@ -681,8 +690,8 @@ void Round::AddTeamWin(DecodedTeamWin &decode,
 		playerName=decode.playerNames.Item(playerIndex);
 		STATSGEN_DEBUG_CODE(
 		msg.Printf("Name[%s],Team[%s]",
-					playerName.GetData(),
-					teamName.GetData());
+					STRING_TO_CHAR(playerName),
+					STRING_TO_CHAR(teamName));
 							)
 		
 		STATSGEN_DEBUG(DEBUG_RARELY,msg)
@@ -729,8 +738,8 @@ void Round::AddTeamLoss(DecodedTeamLoss &decode,
 		playerName=decode.playerNames.Item(playerIndex);
 		STATSGEN_DEBUG_CODE(
 		msg.Printf("Name[%s],Team[%s]",
-					playerName.GetData(),
-					teamName.GetData());
+					STRING_TO_CHAR(playerName),
+					STRING_TO_CHAR(teamName));
 							)
 		
 		STATSGEN_DEBUG(DEBUG_RARELY,msg)
@@ -992,7 +1001,7 @@ void Round::CalculateScores(int roundIndex)
 			}
 			if (speechPoints>0)
 			{
-				playerInRound.UpdateMiscAwardPoints("Speech",speechPoints);
+				playerInRound.UpdateMiscAwardPoints((char *)"Speech",speechPoints);
 			}
 			// don't calculate players score if they are dropped
 
@@ -1037,7 +1046,7 @@ void Round::CalculateScores(int roundIndex)
 					playerInRoundUseful=true;
 					// This win belongs to this person
 					score+=teamWinScoreWeight;
-					playerInRound.UpdateMiscAwardPoints("Team Win",1);
+					playerInRound.UpdateMiscAwardPoints((char *)"Team Win",1);
 					playerInRound.teamWins=1;
 				}
 			}
@@ -1050,7 +1059,7 @@ void Round::CalculateScores(int roundIndex)
 					playerInRoundUseful=true;
 					// This loss belongs to this person
 					score+=teamLossScoreWeight;
-					playerInRound.UpdateMiscAwardPoints("Team Loss",1);
+					playerInRound.UpdateMiscAwardPoints((char *)"Team Loss",1);
 					playerInRound.teamLosses=1;
 				}
 			}
@@ -1066,8 +1075,8 @@ void Round::CalculateScores(int roundIndex)
 															kill.playerWeapon);
 					locationStr=globalStatistics.GenericKeyID(globalStatistics.keysLocation,
 															kill.targetLocation);
-					weaponSkill=globalStatistics.SkillWeight(weaponStr,"weapon",1.0);
-					locationSkill=globalStatistics.SkillWeight(locationStr,"location",1.0);
+					weaponSkill=globalStatistics.SkillWeight(weaponStr,(char *)"weapon",1.0);
+					locationSkill=globalStatistics.SkillWeight(locationStr,(char *)"location",1.0);
 
 					killType=kill.KillType(gameType,
 											playerInRound.playerIndex);
@@ -1155,10 +1164,10 @@ void Round::CalculateScores(int roundIndex)
 				player.skill+=					playerInRound.skill;
 				player.lastActiveRound=			roundIndex;
 	
-				playerInRound.UpdateMiscAwardPoints("Team Kills",playerInRound.teamKills);
-				playerInRound.UpdateMiscAwardPoints("Kills",playerInRound.kills);
-				playerInRound.UpdateMiscAwardPoints("Deaths",playerInRound.deaths);
-				playerInRound.UpdateMiscAwardPoints("Suicides",playerInRound.suicides);
+				playerInRound.UpdateMiscAwardPoints((char *)"Team Kills",playerInRound.teamKills);
+				playerInRound.UpdateMiscAwardPoints((char *)"Kills",playerInRound.kills);
+				playerInRound.UpdateMiscAwardPoints((char *)"Deaths",playerInRound.deaths);
+				playerInRound.UpdateMiscAwardPoints((char *)"Suicides",playerInRound.suicides);
 				streakCount=playerInRound.teamKillStreak.GetCount();
 				for (streakIndex=0;streakIndex<streakCount;streakIndex++)
 				{
@@ -1233,6 +1242,7 @@ void Round::WriteToDatabase(int roundIndex)
 	XPPoints		xp;
 	int				xpCount;
 	int				xpIndex;
+	wxString		dateTimeStr;
 	
 	STATSGEN_DEBUG_FUNCTION_START("Round","WriteToDatabase")
 
@@ -1249,15 +1259,15 @@ void Round::WriteToDatabase(int roundIndex)
 				"'%s',"
 				"'%s'"
 				")",
-				SQLVariableTableName().GetData(),
+				STRING_TO_CHAR(SQLVariableTableName()),
 				roundIndex,
 				serverIndex,
-				variable.GetData(),
-				value.GetData());
+				STRING_TO_CHAR(variable),
+				STRING_TO_CHAR(value));
 
 		globalStatistics.statsgenDatabase.SimpleExecute(SQL);
 	}
-	STATSGEN_DEBUG(DEBUG_RARELY,"Written Variables")
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Written Variables")
 	if (dropped)
 	{
 		droppedChar='Y';
@@ -1266,6 +1276,7 @@ void Round::WriteToDatabase(int roundIndex)
 	{
 		droppedChar='N';
 	}
+	dateTimeStr = roundStartTime.Format("%Y%m%d%H%M%S");
 	SQL.Printf("insert into %s "
 				"(roundidx,serverindex,starttime,duration,gametype,mapname,dropped) "
 				"values ("
@@ -1277,66 +1288,66 @@ void Round::WriteToDatabase(int roundIndex)
 				"'%d',"
 				"'%c'"
 				")",
-				SQLTableName().GetData(),
+				STRING_TO_CHAR(SQLTableName()),
 				roundIndex,
 				serverIndex,
-				roundStartTime.Format("%Y%C%m%d%H%M%S").GetData(),
+				STRING_TO_CHAR(dateTimeStr),
 				(int)roundDuration.GetSeconds().ToLong(),
 				gameType,
 				mapName,
 				droppedChar);
 
 	globalStatistics.statsgenDatabase.SimpleExecute(SQL);
-	STATSGEN_DEBUG(DEBUG_RARELY,"Written Round")
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Written Round")
 	count=kills.GetCount();
 	for (subIndex=0;subIndex<count;subIndex++)
 	{
 		kill=kills.Item(subIndex);
 		kill.WriteToDatabase(roundIndex,subIndex);
 	}
-	STATSGEN_DEBUG(DEBUG_RARELY,"Written Kills")
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Written Kills")
 	count=actions.GetCount();
 	for (subIndex=0;subIndex<count;subIndex++)
 	{
 		action=actions.Item(subIndex);
 		action.WriteToDatabase(roundIndex,subIndex);
 	}
-	STATSGEN_DEBUG(DEBUG_RARELY,"Written Actions")
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Written Actions")
 	count=teamWins.GetCount();
 	for (subIndex=0;subIndex<count;subIndex++)
 	{
 		teamWin=teamWins.Item(subIndex);
 		teamWin.WriteToDatabase(roundIndex,subIndex);
 	}
-	STATSGEN_DEBUG(DEBUG_RARELY,"Written Team Wins")
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Written Team Wins")
 	count=teamLosses.GetCount();
 	for (subIndex=0;subIndex<count;subIndex++)
 	{
 		teamLoss=teamLosses.Item(subIndex);
 		teamLoss.WriteToDatabase(roundIndex,subIndex);
 	}
-	STATSGEN_DEBUG(DEBUG_RARELY,"Written Team Losses")
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Written Team Losses")
 	count=speeches.GetCount();
 	for (subIndex=0;subIndex<count;subIndex++)
 	{
 		speech=speeches.Item(subIndex);
 		speech.WriteToDatabase(roundIndex,subIndex);
 	}
-	STATSGEN_DEBUG(DEBUG_RARELY,"Written Speech")
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Written Speech")
 	count=playersInRound.GetCount();
 	for (subIndex=0;subIndex<count;subIndex++)
 	{
 		player=playersInRound.Item(subIndex);
 		player.WriteToDatabase(roundIndex,subIndex);
 	}
-	STATSGEN_DEBUG(DEBUG_RARELY,"Written Players In Round")
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Written Players In Round")
 	xpCount=xpPoints.GetCount();	
 	for (xpIndex=0;xpIndex<xpCount;xpIndex++)
 	{
 		xp=xpPoints.Item(xpIndex);
 		xp.WriteToDatabase(roundIndex);
 	}
-	STATSGEN_DEBUG(DEBUG_RARELY,"Written XP Points")
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Written XP Points")
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
@@ -1366,9 +1377,9 @@ wxString Round::SQLCreateVariableTable()
 				"%s,"
 				"%s"
 			")",
-			SQLVariableTableName().GetData(),
-			StatsgenDatabase::StringFieldDefinition("variable","roundvariable",FIELD_WIDTH_VARIABLE).GetData(),
-			StatsgenDatabase::StringFieldDefinition("value","roundvalue",FIELD_WIDTH_VALUE).GetData()
+			STRING_TO_CHAR(SQLVariableTableName()),
+			STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("variable","roundvariable",FIELD_WIDTH_VARIABLE)),
+			STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("value","roundvalue",FIELD_WIDTH_VALUE))
 			);
 
 	return SQL;
@@ -1389,8 +1400,8 @@ wxString Round::SQLCreateTable()
 				"mapname int,"
 				"dropped varchar(1)"
 			")",
-			SQLTableName().GetData(),
-			StatsgenDatabase::StringFieldDefinition("starttime","roundstarttime",FIELD_WIDTH_ROUND_START_TIME).GetData()
+			STRING_TO_CHAR(SQLTableName()),
+			STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("starttime","roundstarttime",FIELD_WIDTH_ROUND_START_TIME))
 			);
 
 	return SQL;

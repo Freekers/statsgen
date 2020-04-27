@@ -19,22 +19,20 @@ PlayerDataDialog::PlayerDataDialog(wxWindow *parent,
 											title,
 											pos,
 											size,
-											style,
+											style|wxFULL_REPAINT_ON_RESIZE,
 											name)
 {
-	playerDataList=playerDataListIn;
-	panel=new PlayerDataEditorPanel(playerDataList,
+	mPlayerDataList=playerDataListIn;
+	mPanel=new PlayerDataEditorPanel(mPlayerDataList,
 									defaultPlayerData,
 									playerDataTitle);
-	panel->Create(this,
-				-1,
-				wxDefaultPosition,
-				wxDefaultSize);
+	mPanel->CreateDisplay(this, wxID_ANY);
+
 }
 
 bool PlayerDataDialog::DisplayDialog()
 {
-	return (GenericOKCancelDialog::DisplayDialog((wxPanel *)panel));
+	return (GenericOKCancelDialog::DisplayDialog((wxPanel *)mPanel));
 }
 
 PlayerDataDialog::~PlayerDataDialog()
@@ -43,7 +41,7 @@ PlayerDataDialog::~PlayerDataDialog()
 
 void PlayerDataDialog::OnSave(wxCommandEvent &event)
 {
-	playerDataList->WriteToFile();
+	mPlayerDataList->WriteToFile();
 	globalStatistics.configData.CommitChanges();
 	GenericOKCancelDialog::OnSave(event);
 }

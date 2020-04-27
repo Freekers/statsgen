@@ -43,7 +43,7 @@ wxString WebServer::ConfigKeyEnabled()
 {
 	wxString	configKey;
 
-	configKey.Printf("/%s/Enabled",ConfigKeyBase().GetData());
+	configKey.Printf("/%s/Enabled",STRING_TO_CHAR(ConfigKeyBase()));
 	return (configKey);
 }
 
@@ -51,7 +51,7 @@ wxString WebServer::ConfigKeyPort()
 {
 	wxString	configKey;
 
-	configKey.Printf("/%s/Port",ConfigKeyBase().GetData());
+	configKey.Printf("/%s/Port",STRING_TO_CHAR(ConfigKeyBase()));
 	return (configKey);
 }
 
@@ -59,7 +59,7 @@ wxString WebServer::ConfigKeyAdminUser()
 {
 	wxString	configKey;
 
-	configKey.Printf("/%s/AdminUser",ConfigKeyBase().GetData());
+	configKey.Printf("/%s/AdminUser",STRING_TO_CHAR(ConfigKeyBase()));
 	return (configKey);
 }
 
@@ -67,7 +67,7 @@ wxString WebServer::ConfigKeyAdminPassword()
 {
 	wxString	configKey;
 
-	configKey.Printf("/%s/AdminPassword",ConfigKeyBase().GetData());
+	configKey.Printf("/%s/AdminPassword",STRING_TO_CHAR(ConfigKeyBase()));
 	return (configKey);
 }
 
@@ -78,17 +78,17 @@ void WebServer::UpdateFromConfig()
 
 	STATSGEN_DEBUG_FUNCTION_START("WebServer","UpdateFromConfig")
 	configKey=ConfigKeyEnabled();
-	globalStatistics.configData.ReadTextValue(configKey,&configValue,"n");
+	globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"n");
 	enabled=(configValue.CmpNoCase("y")==0);
 
 	configKey=ConfigKeyPort();
-	globalStatistics.configData.ReadTextValue(configKey,&listenPort,"9000");
+	globalStatistics.configData.ReadTextValue(configKey,&listenPort,(char *)"9000");
 
 	configKey=ConfigKeyAdminUser();
-	globalStatistics.configData.ReadTextValue(configKey,&adminUser,"");
+	globalStatistics.configData.ReadTextValue(configKey,&adminUser,(char *)"");
 
 	configKey=ConfigKeyAdminPassword();
-	globalStatistics.configData.ReadTextValue(configKey,&adminPassword,"");
+	globalStatistics.configData.ReadTextValue(configKey,&adminPassword,(char *)"");
 
 	STATSGEN_DEBUG_FUNCTION_END
 }
@@ -136,7 +136,7 @@ void WebServer::StartServer()
 	if (enabled)
 	{
 		wxIPV4address	addr;
-		addr.Service(atoi(listenPort.GetData()));
+		addr.Service(atoi(STRING_TO_CHAR(listenPort)));
 		listenServer=new wxSocketServer(addr,serverFlags);
 		if (listenServer->Ok())
 		{

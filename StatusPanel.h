@@ -21,9 +21,7 @@ class StatusPanel : public wxPanel
 		void Reset();
 		void WakeUp();
 		long CurrentValue();
-		void OnResize(wxSizeEvent &event);
 		static wxString PanelName(int windowID);
-		void NormaliseWidths();
 		void ChoosePanel(int windowID);
 		void UpdateLabel(const char *label);
 		void Finalise();
@@ -54,16 +52,16 @@ class StatusPanel : public wxPanel
 	protected:
 
 	public:
-		int		currentWindowID;
+		int				mCurrentWindowID;
 	private:
-		wxArrayInt	panelIDs;	
-		ArrayOfPointers	panelPtrs;
-		ProgressPanel	*dynamicPanel;
-		ProgressPanel	*clonePanel;
-		StatsgenLog	logger;
-		bool		updateDisabled;
+		wxArrayInt		mPanelIDs;	
+		ArrayOfPointers	mPanelPtrs;
+		ProgressPanel	*mDynamicPanel;
+		ProgressPanel	*mClonePanel;
+		StatsgenLog		mLogger;
+		bool			mUpdateDisabled;
+		wxBoxSizer		*mMainSizer;
 
-		DECLARE_EVENT_TABLE()
 };
 
 #endif

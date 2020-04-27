@@ -33,8 +33,8 @@ wxString SpeechData::SQLCreateTable()
 				"playerindex integer,"
 				"%s"
 			")",
-			SQLTableName().GetData(),
-		StatsgenDatabase::StringFieldDefinition("speech","speech",FIELD_WIDTH_SPEECH).GetData());
+			STRING_TO_CHAR(SQLTableName()),
+		STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("speech","speech",FIELD_WIDTH_SPEECH)));
 
 	return SQL;
 }
@@ -51,11 +51,11 @@ bool SpeechData::WriteToDatabase(int roundIndex,int itemIndex)
 				"(roundindex,speechidx,playerindex,speech)"
 				"values"
 				"('%d','%d','%d','%s')",
-				SQLTableName().GetData(),
+				STRING_TO_CHAR(SQLTableName()),
 				roundIndex,
 				itemIndex,
 				player.actualPlayerIndex,
-				StatsgenDatabase::SafeForInsert(speech).GetData());
+				STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(speech)));
 	globalStatistics.statsgenDatabase.SimpleExecute(SQL);
 	return retVal;
 }

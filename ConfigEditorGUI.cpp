@@ -5,16 +5,15 @@
 #include "LogFileReader.h"
 
 BEGIN_EVENT_TABLE(ConfigEditorGUI, wxDialog)
-		EVT_SIZE(ConfigEditorGUI::OnResize)
-		EVT_LIST_ITEM_ACTIVATED(WINDOW_ID_LISTBOX_CONFIGITEMS,
+	EVT_LIST_ITEM_ACTIVATED(WINDOW_ID_LISTBOX_CONFIGITEMS,
 					ConfigEditorGUI::OnListItemSelected)
-		EVT_LIST_ITEM_SELECTED(WINDOW_ID_LISTBOX_CONFIGITEMS,
+	EVT_LIST_ITEM_SELECTED(WINDOW_ID_LISTBOX_CONFIGITEMS,
 					ConfigEditorGUI::OnListItemSelected)
-		EVT_BUTTON(WINDOW_ID_BUTTON_SAVE,ConfigEditorGUI::OnSave)
-		EVT_BUTTON(WINDOW_ID_BUTTON_QUIT,ConfigEditorGUI::OnQuit)
+	EVT_BUTTON(WINDOW_ID_BUTTON_SAVE,ConfigEditorGUI::OnSave)
+	EVT_BUTTON(WINDOW_ID_BUTTON_QUIT,ConfigEditorGUI::OnQuit)
 	//	EVT_TEXT(WINDOW_ID_TEXTCTRL_CONFIGVALUE,ConfigEditorGUI::OnTextChange)
-		EVT_COMBOBOX(WINDOW_ID_BOXED_DROPDOWN_FILTER1,ConfigEditorGUI::OnFilterChanged)
-		EVT_COMBOBOX(WINDOW_ID_BOXED_DROPDOWN_FILTER2,ConfigEditorGUI::OnFilterChanged)
+	EVT_COMBOBOX(WINDOW_ID_BOXED_DROPDOWN_FILTER1,ConfigEditorGUI::OnFilterChanged)
+	EVT_COMBOBOX(WINDOW_ID_BOXED_DROPDOWN_FILTER2,ConfigEditorGUI::OnFilterChanged)
 END_EVENT_TABLE()
 
 ConfigEditorGUI::ConfigEditorGUI(wxWindow *parent, 
@@ -39,12 +38,12 @@ ConfigEditorGUI::ConfigEditorGUI(wxWindow *parent,
 {
 	STATSGEN_DEBUG_FUNCTION_START("ConfigEditorGUI","ConfigEditorGUI")
 	// Zero things out
-	configKeys.Clear();
-	configDisplayNames.Clear();
-	filter1=filter1In;
-	filter2=filter2In;
-	configPanel=configPanelIn;
-	drawImages=drawImagesIn;
+	mConfigKeys.Clear();
+	mConfigDisplayNames.Clear();
+	mFilter1		= filter1In;
+	mFilter2		= filter2In;
+	mConfigPanel	= configPanelIn;
+	mDrawImages		= drawImagesIn;
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
@@ -57,10 +56,11 @@ void ConfigEditorGUI::OnTextChange(wxCommandEvent& event)
 	wxString	defaultValue="";
 	STATSGEN_DEBUG_FUNCTION_START("ConfigEditorGUI","OnTextChange")
 
-	value=valueText.GetValue();
+	value=mValueText.GetValue();
 	//globalStatistics.configData.WriteTextValue(lastSelectedKey,
 	//									value);
-	valueText.SetConfigKey(lastSelectedKey);
+	mValueText.SetConfigKey(lastSelectedKey);
+	mValueText.ApplyConfigKeyChange();
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
@@ -84,9 +84,10 @@ void ConfigEditorGUI::OnListItemSelected(wxListEvent& event)
 
 	STATSGEN_DEBUG_FUNCTION_START("ConfigEditorGUI","OnListItemSelected")
 	configIndex=(int)event.GetData();
-	lastSelectedKey=configKeys.Item(configIndex);
-	valueText.SetConfigKey(lastSelectedKey);
-	if (drawImages)
+	lastSelectedKey=mConfigKeys.Item(configIndex);
+	mValueText.SetConfigKey(lastSelectedKey);
+	mValueText.ApplyConfigKeyChange();
+	if (mDrawImages)
 	{
 		wxString	configKey;
 		wxString	localOutputFolder;
@@ -96,7 +97,7 @@ void ConfigEditorGUI::OnListItemSelected(wxListEvent& event)
 		globalStatistics.configData.ReadTextValue(configKey,&localOutputFolder);
 		imageFilename=localOutputFolder;
 		imageFilename+="\\";
-		imageFilename+=valueText.GetValue();
+		imageFilename+=mValueText.GetValue();
 		if (wxFileExists(imageFilename))
 		{
 			wxImage		imageFile;
@@ -104,15 +105,16 @@ void ConfigEditorGUI::OnListItemSelected(wxListEvent& event)
 			imageFile.LoadFile(imageFilename);
 			//imagePanel->SetSize(imagePanelX,imagePanelY,
 			//			imagePanelWidth,imagePanelHeight);
-			imagePanel->Scale(1.0);
-			imagePanel->SetImage(imageFile);
+			mImagePanel->SetImage(imageFile);
 
-			imagePanel->Proportion(imagePanelWidth,imagePanelHeight);
+			// Commented out by Shaun
+			// mImagePanel->Proportion(imagePanelWidth,imagePanelHeight);
+			// Commented out by Shaun
 			imageFile.Destroy();
 		}
 		else
 		{
-			imagePanel->Clear();
+			mImagePanel->Clear();
 		}
 	}
 	//globalStatistics.configData.ReadTextValue(lastSelectedKey,&value);
@@ -129,6 +131,7 @@ ConfigEditorGUI::~ConfigEditorGUI()
 
 void ConfigEditorGUI::PopulateConfigItems()
 {
+	STATSGEN_DEBUG_FUNCTION_START("ConfigEditorGUI","PopulateConfigItems")
 	wxListItem	listColumn;
 	int			count;
 	int			index;
@@ -144,29 +147,39 @@ void ConfigEditorGUI::PopulateConfigItems()
 	bool		filtered;
 	wxSizeEvent	event;
 
-	STATSGEN_DEBUG_FUNCTION_START("ConfigEditorGUI","PopulateConfigItems")
-	if (filter1!=NULL)
+	if (mFilter1!=NULL)
 	{
-		filterString1=filter1->GetSelectedCode();
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Getting filter1 code");
+		filterString1=mFilter1->GetSelectedCode();
 	}
-	if (filter2!=NULL)
+	if (mFilter2!=NULL)
 	{
-		filterString2=filter2->GetSelectedCode();
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Getting filter2 code");
+		filterString2=mFilter2->GetSelectedCode();
 	}
 
-	configItems.DeleteAllColumns();
-	configItems.DeleteAllItems();
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"DeleteAllColumns");
+	mConfigItems.DeleteAllColumns();
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"DeleteAllItems");
+	mConfigItems.DeleteAllItems();
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"SetText");
 	listColumn.SetText(_T("Key"));
-	listColumn.SetWidth(100);
-	configItems.InsertColumn(0,listColumn);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"SetWidth");
+	//listColumn.SetWidth(100);
+	//mConfigItems.InsertColumn(0,listColumn);
+	mConfigItems.InsertColumn(0,_T("Key"),wxLIST_FORMAT_LEFT,wxLIST_AUTOSIZE);
 
-	count=configKeys.GetCount();
+	count=mConfigKeys.GetCount();
 	for (index=0;index<count;index++)
 	{
-		name=configDisplayNames.Item(index);
-		key=configBaseKeys.Item(index);
-		keyPart1=GetLineToken(key,"_",1,&tokenCount);
-		keyPart2=GetLineToken(key,"_",2,&tokenCount);
+		name	= mConfigDisplayNames.Item(index);
+		key		= mConfigBaseKeys.Item(index);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"name");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,name);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"key");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,key);
+		keyPart1=GetLineToken(key,(char *)"_",1,&tokenCount);
+		keyPart2=GetLineToken(key,(char *)"_",2,&tokenCount);
 		filtered=false;
 		if ((filterString1.Length()>0) &&
 			(filterString1.CmpNoCase(keyPart1)!=0))
@@ -184,16 +197,19 @@ void ConfigEditorGUI::PopulateConfigItems()
 		}
 		if (!filtered)
 		{
-			listIndex=configItems.InsertItem((long)index,name,0);
-			configItems.SetItemData(listIndex,index);
+			listIndex=mConfigItems.InsertItem((long)index,name,0);
+			mConfigItems.SetItemData(listIndex,index);
 		}
 	}
-	OnResize(event);
+	mConfigItems.SetColumnWidth(0,wxLIST_AUTOSIZE);
+	// Force a sizer refresh (refresh does not seem to work)
+	PostSizeEventToParent();
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void ConfigEditorGUI::CreateDialog()
 {
+	STATSGEN_DEBUG_FUNCTION_START("ConfigEditorGUI","CreateDialog")
 	wxString	configKey="";
 	wxString	configValue="";
 	wxString	label="Enter Data";
@@ -213,8 +229,8 @@ void ConfigEditorGUI::CreateDialog()
 	wxString	key;
 	wxString	value;
 
-	STATSGEN_DEBUG_FUNCTION_START("ConfigEditorGUI","CreateDialog")
-	configItems.Create(this,
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Creating WINDOW_ID_LISTBOX_CONFIGITEMS");
+	mConfigItems.Create(this,
 					WINDOW_ID_LISTBOX_CONFIGITEMS,
 					configItemsPosition,
 					configItemsSize,
@@ -223,7 +239,6 @@ void ConfigEditorGUI::CreateDialog()
 					configItemsTitle);
 
 
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"configItems.Create")
 	//valueText.Create(this,
 	//				WINDOW_ID_TEXTCTRL_CONFIGVALUE,
 	//				valueTextValue,
@@ -232,43 +247,87 @@ void ConfigEditorGUI::CreateDialog()
 	//				valueTextStyle,
 	//				wxDefaultValidator,
 	//				valueTextName);
-	valueText.Create(this,-1,valueTextPosition,valueTextSize);
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"valueText.Create")
-	valueText.Set(configKey,label,defaultValue,-1);
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"valueText.Set")
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Creating valueText");
+	mValueText.CreateDisplay(this,wxID_ANY,label);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Setting valueText");
+	mValueText.SetConfigKey(configKey,defaultValue);
+	mValueText.ApplyConfigKeyChange();
 
-	if (filter1!=NULL)
+	if (mFilter1!=NULL)
 	{
-		filter1->CreateDialog(this,
-						WINDOW_ID_BOXED_DROPDOWN_FILTER1);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"filter1->CreateDialog");
+		mFilter1->CreateDialog(this, WINDOW_ID_BOXED_DROPDOWN_FILTER1);
 	}
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"filter1.CreateDialog")
-	if (filter2!=NULL)
+	if (mFilter2!=NULL)
 	{
-		filter2->CreateDialog(this,
-						WINDOW_ID_BOXED_DROPDOWN_FILTER2);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"filter2->CreateDialog");
+		mFilter2->CreateDialog(this, WINDOW_ID_BOXED_DROPDOWN_FILTER2);
 	}
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"filter.Created")
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"create saveButton")
 							
-	saveButton.Create(this,
+	mSaveButton.Create(this,
 					WINDOW_ID_BUTTON_SAVE,
 					_T(WINDOW_ID_BUTTON_SAVE_TEXT),
 					wxDefaultPosition);
-	quitButton.Create(this,
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"create quit Button")
+	mQuitButton.Create(this,
 					WINDOW_ID_BUTTON_QUIT,
 					_T(WINDOW_ID_BUTTON_QUIT_TEXT),
 					wxDefaultPosition);
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"buttons.Created")
-	if (drawImages)
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"buttons Created")
+	if (mDrawImages)
 	{
-		imagePanel=new ImagePanel(this,
-								-1,
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"drawing images")
+		mImagePanel=new ImagePanel(this,
+								wxID_ANY,
 								wxDefaultPosition,
 								wxDefaultSize,
 								0,
 								_T("imagepanel"));
 	}
 
+	wxBoxSizer	*controlsSizer;
+	wxBoxSizer	*editSizer;
+	wxBoxSizer	*valueSizer;
+
+	controlsSizer = new wxBoxSizer(wxHORIZONTAL);
+	controlsSizer->Add(&mSaveButton);
+	controlsSizer->Add(&mQuitButton);
+
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"controlsSizer created")
+	valueSizer = new wxBoxSizer(wxVERTICAL);
+	if (mFilter1 != NULL)
+	{
+		valueSizer->Add(mFilter1);
+	}
+	if (mFilter2 != NULL)
+	{
+		valueSizer->Add(mFilter2);
+	}
+	valueSizer->Add(&mValueText,0,wxEXPAND);
+	if (mConfigPanel != NULL)
+	{
+		valueSizer->Add(mConfigPanel,0,wxEXPAND);
+	}
+	if (mDrawImages)
+	{
+		valueSizer->Add(mImagePanel,1,wxGROW);
+	}
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"valuesSizer created")
+
+	editSizer = new wxBoxSizer(wxHORIZONTAL);
+	editSizer->Add(&mConfigItems,1,wxEXPAND);
+	editSizer->Add(valueSizer,0,wxEXPAND);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"editSizer created")
+
+	mMainSizer = new wxBoxSizer(wxVERTICAL);
+	mMainSizer->Add(editSizer,1,wxEXPAND);
+	mMainSizer->Add(controlsSizer);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"mainSizer created")
+
+	mMainSizer->SetSizeHints(this);
+	SetSizer(mMainSizer);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"populate config items")
 	PopulateConfigItems();
 	STATSGEN_DEBUG_FUNCTION_END
 					
@@ -319,14 +378,14 @@ void ConfigEditorGUI::AddConfigKey(
 
 	STATSGEN_DEBUG_FUNCTION_START("ConfigEditorGUI","AddConfigKey")
 	fullKey="/"+group+"/"+configKey;
-	configKeys.Add(fullKey);
-	configBaseKeys.Add(configKey);
+	mConfigKeys.Add(fullKey);
+	mConfigBaseKeys.Add(configKey);
 	if (useRealName)
 	{
 		key="/RealNames/"+configKey;
 		globalStatistics.configData.ReadTextValue(key,
 												&displayName,
-												(char *)configKey.GetData());
+												configKey);
 		displayName+=("(");
 		displayName+=(configKey);
 		displayName+=(")");
@@ -336,121 +395,7 @@ void ConfigEditorGUI::AddConfigKey(
 		displayName=configKey;
 	}
 
-	configDisplayNames.Add(displayName);
-	STATSGEN_DEBUG_FUNCTION_END
-}
-
-void ConfigEditorGUI::OnResize(wxSizeEvent &event)
-{
-	wxString	msg;
-
-	int		dialogWidth;
-	int		dialogHeight;
-	int		quitWidth;
-	int		quitHeight;
-	int		saveWidth;
-	int		saveHeight;
-	wxSize	itemSize;
-	wxPoint	itemPosition;
-	int		configItemsHeight;
-	int		configItemsWidth;
-	int		valueTextWidth;
-	int		valueTextHeight;
-
-	STATSGEN_DEBUG_FUNCTION_START("ConfigEditorGUI","OnResize")
-	itemSize=GetSize();
-	dialogWidth=itemSize.GetWidth();
-	dialogHeight=itemSize.GetHeight();
-
-	// Quit and Save buttons are at the bottom of the screen
-	itemSize=quitButton.GetSize();
-	quitWidth=itemSize.GetWidth();
-	quitHeight=itemSize.GetHeight();
-
-	itemSize=saveButton.GetSize();
-	saveWidth=itemSize.GetWidth();
-	saveHeight=itemSize.GetHeight();
-
-	// Save button
-	itemPosition.x=BUTTON_WIDTH_GAP;
-	itemPosition.y=dialogHeight-saveHeight-DIALOG_BOTTOM_BORDER_SIZE;
-	saveButton.SetPosition(itemPosition);
-
-	// Quit button
-	itemPosition.x=saveWidth+BUTTON_WIDTH_GAP+BUTTON_WIDTH_GAP;
-	itemPosition.y=dialogHeight-quitHeight-DIALOG_BOTTOM_BORDER_SIZE;
-	quitButton.SetPosition(itemPosition);
-
-	// List Box - fills all left side of screen (45 %)
-	configItemsWidth=(dialogWidth*45)/100;
-	configItemsHeight=(dialogHeight-
-					quitHeight-
-					DIALOG_BOTTOM_BORDER_SIZE-
-					BUTTON_HEIGHT_GAP);
-	configItems.SetSize(0,0,configItemsWidth,configItemsHeight);
-	configItems.SetColumnWidth(0,configItemsWidth);
-
-	// Filters are at the top right of the screen
-	itemPosition.x=dialogWidth/2;
-	itemPosition.y=5;
-
-	int filterIndex;
-	BoxedDropDown *currentFilter=NULL;
-
-	for (filterIndex=0;filterIndex<2;filterIndex++)
-	{
-		switch (filterIndex)
-		{
-			case 0:
-				currentFilter=filter1;
-				break;
-			case 1:
-				currentFilter=filter2;
-				break;
-		}
-		if (currentFilter!=NULL)
-		{
-			currentFilter->SetPosition(itemPosition);
-			itemSize=currentFilter->GetSize();
-			itemPosition.y+=(itemSize.GetHeight());
-			itemPosition.y+=5;
-		}
-	}
-
-	if (drawImages)
-	{
-		imagePanelX			=dialogWidth/2;
-		imagePanelY			=itemPosition.y;
-		imagePanelWidth		=configItemsWidth;
-		imagePanelHeight	=300;
-
-		itemPosition.y+=imagePanelHeight;
-		imagePanel->SetSize(imagePanelX,imagePanelY,
-						imagePanelWidth,imagePanelHeight);
-		imagePanel->Proportion(imagePanelWidth,imagePanelHeight);
-	}
-	if (configPanel!=NULL)
-	{
-		configPanel->SetPosition(itemPosition);
-		itemSize=configPanel->GetSize();
-		configPanel->SetSize(dialogWidth/2,
-						itemPosition.y,
-						configItemsWidth,
-						itemSize.GetHeight());
-		itemSize=configPanel->GetSize();
-		itemPosition.y+=(itemSize.GetHeight());
-		itemPosition.y+=5;
-	}
-
-	// Text ctrl is underneath any filters
-	itemSize=valueText.GetSize();
-	valueTextWidth=configItemsWidth;
-	valueTextHeight=itemSize.GetHeight();
-	valueText.SetSize(dialogWidth/2,
-						itemPosition.y,
-						valueTextWidth,
-						valueTextHeight);
-
+	mConfigDisplayNames.Add(displayName);
 	STATSGEN_DEBUG_FUNCTION_END
 }
 

@@ -3,7 +3,6 @@
 #include "GlobalStatistics.h"
 
 BEGIN_EVENT_TABLE(AwardEditorPanel, wxPanel)
-		EVT_SIZE(AwardEditorPanel::OnResize)
 		EVT_TREE_ITEM_RIGHT_CLICK(WINDOW_ID_AWARDCHOICESPANEL,AwardEditorPanel::OnRightClick)
 		EVT_TREE_ITEM_RIGHT_CLICK(WINDOW_ID_AWARDDEFINITIONPANEL,AwardEditorPanel::OnRightClick)
 		EVT_TEXT(WINDOW_ID_TEXTCTRL_CONFIGVALUE,AwardEditorPanel::OnConfigChanged)
@@ -20,7 +19,6 @@ BEGIN_EVENT_TABLE(AwardEditorPanel, wxPanel)
 END_EVENT_TABLE()
 
 BEGIN_EVENT_TABLE(AwardChoicesPanel, wxPanel)
-		EVT_SIZE(AwardChoicesPanel::OnResize)
 		EVT_TREE_ITEM_RIGHT_CLICK(WINDOW_ID_WEAPONLIST,AwardChoicesPanel::OnRightClick)
 		EVT_TREE_ITEM_RIGHT_CLICK(WINDOW_ID_ACTIONLIST,AwardChoicesPanel::OnRightClick)
 		EVT_TREE_ITEM_RIGHT_CLICK(WINDOW_ID_LOCATIONLIST,AwardChoicesPanel::OnRightClick)
@@ -29,7 +27,6 @@ BEGIN_EVENT_TABLE(AwardChoicesPanel, wxPanel)
 END_EVENT_TABLE()
 
 BEGIN_EVENT_TABLE(AwardDefinitionPanel, wxPanel)
-		EVT_SIZE(AwardDefinitionPanel::OnResize)
 		EVT_TREE_ITEM_RIGHT_CLICK(WINDOW_ID_WEAPONLIST,AwardDefinitionPanel::OnRightClick)
 		EVT_TREE_ITEM_RIGHT_CLICK(WINDOW_ID_ACTIONLIST,AwardDefinitionPanel::OnRightClick)
 		EVT_TREE_ITEM_RIGHT_CLICK(WINDOW_ID_LOCATIONLIST,AwardDefinitionPanel::OnRightClick)
@@ -53,6 +50,7 @@ AwardEditorPanel::AwardEditorPanel(
 				name)
 
 {
+	STATSGEN_DEBUG_FUNCTION_START("AwardEditorPanel","Constructor")
 	wxString		configGroup;
 	wxString		configKey;
 	wxSizeEvent		dummyEvent;
@@ -63,8 +61,7 @@ AwardEditorPanel::AwardEditorPanel(
 	wxArrayString	serverTypeCodes;
 	wxArrayString	serverTypeNames;
 
-	STATSGEN_DEBUG_FUNCTION_START("AwardEditorPanel","Constructor")
-	awardID=awardIDIn;
+	mAwardID=awardIDIn;
 	serverTypeCode="";
 	serverTypeName="Any";
 	serverTypeCodes.Add(serverTypeCode);
@@ -76,45 +73,63 @@ AwardEditorPanel::AwardEditorPanel(
 		serverTypeCodes.Add(serverTypeCode);
 		serverTypeNames.Add(serverTypeName);
 	}
-	configGroup="AWARDDEFINITION"+awardID;
-	overallConfig=new GroupedConfigItemsPanel("Overall Details");
-	overallConfig->Create(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE,wxDefaultPosition,wxDefaultSize);
+	configGroup="AWARDDEFINITION"+mAwardID;
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"overallconfig");
+	mOverallConfig=new GroupedConfigItemsPanel((char *)"Overall Details");
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"overallconfig Create");
+	mOverallConfig->CreateDisplay(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE);
 
-	overallConfig->AddSelection("Server Type Filter",serverTypeConfigKey,"",serverTypeCodes,serverTypeNames);
-	configKey.Printf("/%s/Name",configGroup.GetData());
-	overallConfig->Add("Name", configKey,"",-1,NULL);
-	configKey.Printf("/%s/Image",configGroup.GetData());
-	overallConfig->Add("Image URL", configKey,"",-1,NULL);
-	configKey.Printf("/%s/Weighted",configGroup.GetData());
-	overallConfig->AddBoolean("Weighted", configKey,"N",NULL);
-	splitter=new wxSplitterWindow(this, -1, 
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"overallconfig AddSelection");
+	mOverallConfig->AddSelection((char *)"Server Type Filter",serverTypeConfigKey,(char *)"",serverTypeCodes,serverTypeNames);
+	configKey.Printf("/%s/Name",STRING_TO_CHAR(configGroup));
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"overallconfig Add");
+	mOverallConfig->Add((char *)"Name", configKey,(char *)"",-1,NULL);
+	configKey.Printf("/%s/Image",STRING_TO_CHAR(configGroup));
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"overallconfig Add");
+	mOverallConfig->Add((char *)"Image URL", configKey,(char *)"",-1,NULL);
+	configKey.Printf("/%s/Weighted",STRING_TO_CHAR(configGroup));
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"overallconfig AddBoolean");
+	mOverallConfig->AddBoolean((char *)"Weighted", configKey,(char *)"N",NULL);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Splitter Window");
+	mSplitter=new wxSplitterWindow(this, wxID_ANY, 
 								wxDefaultPosition,
 								wxDefaultSize,
 								wxSP_3D);
 								
-	awardChoices=new AwardChoicesPanel(
-						splitter,
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"AwardChoicesPanel");
+	mAwardChoices=new AwardChoicesPanel(
+						mSplitter,
 						WINDOW_ID_AWARDCHOICESPANEL,
 						wxDefaultPosition,
 						wxDefaultSize,
 						0,
 						_T(""),
-						awardID);
-	awardChoices->Enable();
-	awardDefinition=new AwardDefinitionPanel(
-						splitter,
+						mAwardID);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"AwardChoicesPanel Enable");
+	mAwardChoices->Enable();
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"AwardDefinitionPanel");
+	mAwardDefinition=new AwardDefinitionPanel(
+						mSplitter,
 						WINDOW_ID_AWARDDEFINITIONPANEL,
 						wxDefaultPosition,
 						wxDefaultSize,
 						0,
 						_T(""),
-						awardID);
+						mAwardID);
 
-	awardDefinition->Enable();
-	splitter->SplitHorizontally(awardChoices,awardDefinition);
-	splitter->SetSashGravity(0.5);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"AwardDefinitionPanel Enable");
+	mAwardDefinition->Enable();
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Split Horizontally");
+	mSplitter->SplitHorizontally(mAwardChoices,mAwardDefinition);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Sash Gravity");
+	mSplitter->SetSashGravity(0.5);
 
-	OnResize(dummyEvent);
+	mMainSizer = new wxBoxSizer(wxVERTICAL);
+	mMainSizer->Add(mOverallConfig,0,wxEXPAND);
+	mMainSizer->Add(mSplitter,1,wxEXPAND);
+
+	mMainSizer->SetSizeHints(this);
+	SetSizer(mMainSizer);
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
@@ -126,6 +141,7 @@ AwardEditorPanel::~AwardEditorPanel()
 
 void AwardEditorPanel::OnConfigChanged(wxCommandEvent &event)
 {
+	STATSGEN_DEBUG_FUNCTION_START("AwardEditorPanel","OnConfigChanged")
 	wxString			serverTypeConfigKey="/tmp/awardeditorservertype";
 	static wxString		lastConfigValue="";
 	wxString			serverTypeConfigValue;
@@ -135,17 +151,19 @@ void AwardEditorPanel::OnConfigChanged(wxCommandEvent &event)
 	if (serverTypeConfigValue.Cmp(lastConfigValue)!=0)
 	{
 		lastConfigValue=serverTypeConfigValue;
-		if ((awardChoices!=NULL)&&(awardDefinition!=NULL))
+		if ((mAwardChoices!=NULL)&&(mAwardDefinition!=NULL))
 		{
-			awardChoices->SetFilter(serverTypeConfigValue);
-			awardDefinition->SetFilter(serverTypeConfigValue);
+			mAwardChoices->SetFilter(serverTypeConfigValue);
+			mAwardDefinition->SetFilter(serverTypeConfigValue);
 		}
 	}
 
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void AwardEditorPanel::OnPopupMenu(wxCommandEvent &event)
 {
+	STATSGEN_DEBUG_FUNCTION_START("AwardEditorPanel","OnPopupMenu")
 	long			selectedTree;
 	int				selectedCodesCount;
 	int				selectedCodesIndex;
@@ -155,18 +173,17 @@ void AwardEditorPanel::OnPopupMenu(wxCommandEvent &event)
 	bool			killList;
 	bool			teamkillList;
 
-	STATSGEN_DEBUG_FUNCTION_START("AwardEditorPanel","OnPopupMenu")
 	if (menuSelection==AWARD_DEFINITION_DELETE_COMPONENT)
 	{
 		// Award Definition 
-		selectedTree=awardDefinition->selectedDefinitionTree;
-		selectedCodes=awardDefinition->selectedCodes;
+		selectedTree	= mAwardDefinition->mSelectedDefinitionTree;
+		selectedCodes	= mAwardDefinition->mSelectedCodes;
 	}
 	else
 	{
 		// Award Choice
-		selectedTree=awardChoices->selectedChoiceTree;
-		selectedCodes=awardChoices->selectedCodes;
+		selectedTree	= mAwardChoices->mSelectedChoiceTree;
+		selectedCodes	= mAwardChoices->mSelectedCodes;
 	}
 	selectedCodesCount=selectedCodes.GetCount();
 	for (selectedCodesIndex=0;selectedCodesIndex<selectedCodesCount;selectedCodesIndex++)
@@ -178,8 +195,8 @@ void AwardEditorPanel::OnPopupMenu(wxCommandEvent &event)
 				switch (menuSelection)
 				{
 					case AWARD_DEFINITION_DELETE_COMPONENT:
-						awardDefinition->awardDefinition->SplitCode(selectedCode,&killList,&teamkillList);
-						awardDefinition->RemoveWeaponComponent(selectedCode,killList,teamkillList);
+						mAwardDefinition->mAwardDefinition->SplitCode(selectedCode,&killList,&teamkillList);
+						mAwardDefinition->RemoveWeaponComponent(selectedCode,killList,teamkillList);
 						break;
 					case AWARD_CHOICES_ADD_KILL_POSITIVE:
 					case AWARD_CHOICES_ADD_KILL_NEGATIVE:
@@ -187,7 +204,7 @@ void AwardEditorPanel::OnPopupMenu(wxCommandEvent &event)
 					case AWARD_CHOICES_ADD_DEATH_NEGATIVE:
 					case AWARD_CHOICES_ADD_TK_POSITIVE:
 					case AWARD_CHOICES_ADD_TK_NEGATIVE:
-						awardDefinition->AddWeaponComponent(
+						mAwardDefinition->AddWeaponComponent(
 											selectedCode,
 											(menuSelection==AWARD_CHOICES_ADD_KILL_POSITIVE)||
 											(menuSelection==AWARD_CHOICES_ADD_KILL_NEGATIVE),
@@ -199,8 +216,8 @@ void AwardEditorPanel::OnPopupMenu(wxCommandEvent &event)
 											
 						break;
 					case AWARD_CHOICES_ADD_KILL_AND_DEATH:
-						awardDefinition->AddWeaponComponent(selectedCode,true,true,false);
-						awardDefinition->AddWeaponComponent(selectedCode,false,false,false);
+						mAwardDefinition->AddWeaponComponent(selectedCode,true,true,false);
+						mAwardDefinition->AddWeaponComponent(selectedCode,false,false,false);
 						break;
 				}
 				break;
@@ -208,8 +225,8 @@ void AwardEditorPanel::OnPopupMenu(wxCommandEvent &event)
 				switch (menuSelection)
 				{
 					case AWARD_DEFINITION_DELETE_COMPONENT:
-						awardDefinition->awardDefinition->SplitCode(selectedCode,&killList,&teamkillList);
-						awardDefinition->RemoveLocationComponent(selectedCode,killList,teamkillList);
+						mAwardDefinition->mAwardDefinition->SplitCode(selectedCode,&killList,&teamkillList);
+						mAwardDefinition->RemoveLocationComponent(selectedCode,killList,teamkillList);
 						break;
 					case AWARD_CHOICES_ADD_KILL_POSITIVE:
 					case AWARD_CHOICES_ADD_KILL_NEGATIVE:
@@ -217,7 +234,7 @@ void AwardEditorPanel::OnPopupMenu(wxCommandEvent &event)
 					case AWARD_CHOICES_ADD_DEATH_NEGATIVE:
 					case AWARD_CHOICES_ADD_TK_POSITIVE:
 					case AWARD_CHOICES_ADD_TK_NEGATIVE:
-						awardDefinition->AddLocationComponent(
+						mAwardDefinition->AddLocationComponent(
 											selectedCode,
 											(menuSelection==AWARD_CHOICES_ADD_KILL_POSITIVE)||
 											(menuSelection==AWARD_CHOICES_ADD_KILL_NEGATIVE),
@@ -229,8 +246,8 @@ void AwardEditorPanel::OnPopupMenu(wxCommandEvent &event)
 											
 						break;
 					case AWARD_CHOICES_ADD_KILL_AND_DEATH:
-						awardDefinition->AddLocationComponent(selectedCode,true,true,false);
-						awardDefinition->AddLocationComponent(selectedCode,false,false,false);
+						mAwardDefinition->AddLocationComponent(selectedCode,true,true,false);
+						mAwardDefinition->AddLocationComponent(selectedCode,false,false,false);
 						break;
 				}
 				break;
@@ -238,12 +255,12 @@ void AwardEditorPanel::OnPopupMenu(wxCommandEvent &event)
 				switch (menuSelection)
 				{
 					case AWARD_DEFINITION_DELETE_COMPONENT:
-						awardDefinition->awardDefinition->SplitCode(selectedCode,&killList,&teamkillList);
-						awardDefinition->RemoveActionComponent(selectedCode);
+						mAwardDefinition->mAwardDefinition->SplitCode(selectedCode,&killList,&teamkillList);
+						mAwardDefinition->RemoveActionComponent(selectedCode);
 						break;
 					case AWARD_CHOICES_ADD_POSITIVE:
 					case AWARD_CHOICES_ADD_NEGATIVE:
-						awardDefinition->AddActionComponent(
+						mAwardDefinition->AddActionComponent(
 											selectedCode,
 											(menuSelection==AWARD_CHOICES_ADD_POSITIVE));
 						break;
@@ -253,12 +270,12 @@ void AwardEditorPanel::OnPopupMenu(wxCommandEvent &event)
 				switch (menuSelection)
 				{
 					case AWARD_DEFINITION_DELETE_COMPONENT:
-						awardDefinition->awardDefinition->SplitCode(selectedCode,&killList,&teamkillList);
-						awardDefinition->RemoveMiscComponent(selectedCode);
+						mAwardDefinition->mAwardDefinition->SplitCode(selectedCode,&killList,&teamkillList);
+						mAwardDefinition->RemoveMiscComponent(selectedCode);
 						break;
 					case AWARD_CHOICES_ADD_POSITIVE:
 					case AWARD_CHOICES_ADD_NEGATIVE:
-						awardDefinition->AddMiscComponent(
+						mAwardDefinition->AddMiscComponent(
 											selectedCode,
 											(menuSelection==AWARD_CHOICES_ADD_POSITIVE));
 						break;
@@ -268,12 +285,12 @@ void AwardEditorPanel::OnPopupMenu(wxCommandEvent &event)
 				switch (menuSelection)
 				{
 					case AWARD_DEFINITION_DELETE_COMPONENT:
-						awardDefinition->awardDefinition->SplitCode(selectedCode,&killList,&teamkillList);
-						awardDefinition->RemoveXPComponent(selectedCode);
+						mAwardDefinition->mAwardDefinition->SplitCode(selectedCode,&killList,&teamkillList);
+						mAwardDefinition->RemoveXPComponent(selectedCode);
 						break;
 					case AWARD_CHOICES_ADD_POSITIVE:
 					case AWARD_CHOICES_ADD_NEGATIVE:
-						awardDefinition->AddXPComponent(
+						mAwardDefinition->AddXPComponent(
 											selectedCode,
 											(menuSelection==AWARD_CHOICES_ADD_POSITIVE));
 						break;
@@ -286,11 +303,11 @@ void AwardEditorPanel::OnPopupMenu(wxCommandEvent &event)
 
 void AwardEditorPanel::OnRightClick(wxTreeEvent &event)
 {
+	STATSGEN_DEBUG_FUNCTION_START("AwardEditorPanel","OnRightClick")
 	wxMenu	popupMenu(_T(""));
 	long	panelId=event.GetId();
-	long	selectedChoiceTree=awardChoices->selectedChoiceTree;
+	long	selectedChoiceTree=mAwardChoices->mSelectedChoiceTree;
 
-	STATSGEN_DEBUG_FUNCTION_START("AwardEditorPanel","OnRightClick")
 	if (panelId==WINDOW_ID_AWARDCHOICESPANEL)
 	{
 		switch (selectedChoiceTree)
@@ -330,40 +347,6 @@ void AwardEditorPanel::OnRightClick(wxTreeEvent &event)
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
-void AwardEditorPanel::OnResize(wxSizeEvent &event)
-{
-	wxString	msg;
-	wxSize		itemSize;
-	int			panelWidth;
-	int		panelHeight;
-	int		overallConfigWidth;
-	int		overallConfigHeight;
-	int		choiceHeight;
-	int		choiceWidth;
-
-	STATSGEN_DEBUG_FUNCTION_START("AwardEditorPanel","OnResize")
-	itemSize=GetSize();
-	panelWidth=itemSize.GetWidth();
-	panelHeight=itemSize.GetHeight();
-	
-	overallConfigWidth=panelWidth;
-	overallConfigHeight=panelHeight;
-
-
-	overallConfigHeight=100;
-	choiceHeight=(panelHeight-overallConfigHeight);
-	choiceWidth=panelWidth;
-	
-	splitter->SetSize(0,overallConfigHeight,
-						choiceWidth,choiceHeight);
-	splitter->SetSashPosition(choiceHeight/2);
-
-	overallConfig->SetSize(0,0,
-				overallConfigWidth,
-				overallConfigHeight);
-	STATSGEN_DEBUG_FUNCTION_END
-}
-
 AwardChoicesPanel::AwardChoicesPanel(wxWindow *parent, 
 				wxWindowID id,
 				const wxPoint &pos,
@@ -379,81 +362,96 @@ AwardChoicesPanel::AwardChoicesPanel(wxWindow *parent,
 				name)
 
 {
+	STATSGEN_DEBUG_FUNCTION_START("AwardChoicesPanel","Constructor")
 	wxTreeItemId	rootItem;
 	long			listStyle;
 	wxString		filterConfig="/tmp/awardeditorservertype";
 
 
-	STATSGEN_DEBUG_FUNCTION_START("AwardChoicesPanel","Constructor")
-	awardID=awardIDIn;
-	globalStatistics.configData.ReadTextValue(filterConfig,&filter);
+	mAwardID=awardIDIn;
+	globalStatistics.configData.ReadTextValue(filterConfig,&mFilter);
 
-	listStyle=wxTR_NO_BUTTONS | wxTR_HIDE_ROOT | wxTR_EXTENDED | wxTR_MULTIPLE;
+	//listStyle=wxTR_NO_BUTTONS | wxTR_HIDE_ROOT | wxTR_EXTENDED | wxTR_MULTIPLE;
+	//listStyle=wxTR_NO_BUTTONS | wxTR_HIDE_ROOT | wxTR_MULTIPLE;
+	listStyle=wxTR_HAS_BUTTONS |  wxTR_MULTIPLE;
 
-	weaponList=new wxTreeCtrl(this, WINDOW_ID_WEAPONLIST, wxDefaultPosition,wxDefaultSize, listStyle);
-	actionList=new wxTreeCtrl(this, WINDOW_ID_ACTIONLIST, wxDefaultPosition,wxDefaultSize, listStyle);
-	locationList=new wxTreeCtrl(this, WINDOW_ID_LOCATIONLIST, wxDefaultPosition,wxDefaultSize, listStyle);
-	miscList=new wxTreeCtrl(this, WINDOW_ID_MISCAWARDLIST, wxDefaultPosition,wxDefaultSize, listStyle);
-	xpList=new wxTreeCtrl(this, WINDOW_ID_XPAWARDLIST, wxDefaultPosition,wxDefaultSize, listStyle);
+	mWeaponList=new wxTreeCtrl(this, WINDOW_ID_WEAPONLIST, wxDefaultPosition,wxDefaultSize, listStyle);
+	mActionList=new wxTreeCtrl(this, WINDOW_ID_ACTIONLIST, wxDefaultPosition,wxDefaultSize, listStyle);
+	mLocationList=new wxTreeCtrl(this, WINDOW_ID_LOCATIONLIST, wxDefaultPosition,wxDefaultSize, listStyle);
+	mMiscList=new wxTreeCtrl(this, WINDOW_ID_MISCAWARDLIST, wxDefaultPosition,wxDefaultSize, listStyle);
+	mXPList=new wxTreeCtrl(this, WINDOW_ID_XPAWARDLIST, wxDefaultPosition,wxDefaultSize, listStyle);
 
-	weaponList->AddRoot(_T(""));
-	actionList->AddRoot(_T(""));
-	xpList->AddRoot(_T(""));
-	locationList->AddRoot(_T(""));
-	rootItem=miscList->AddRoot(_T(""));
+	mMainSizer = new wxBoxSizer(wxHORIZONTAL);
+	mMainSizer->Add(mWeaponList,1,wxEXPAND);
+	mMainSizer->Add(mLocationList,1,wxEXPAND);
+	mMainSizer->Add(mActionList,1,wxEXPAND);
+	mMainSizer->Add(mMiscList,1,wxEXPAND);
+	mMainSizer->Add(mXPList,1,wxEXPAND);
+	mMainSizer->SetSizeHints(this);
+	SetSizer(mMainSizer);
 
-	label=new wxStaticText(this,-1,_T("Choose From The Following Award Components"));
-	weaponList->Hide();
-	locationList->Hide();
-	actionList->Hide();
-	xpList->Hide();
-	miscList->Hide();
-	PopulateList(weaponList,"WEAPON","weapon");
-	PopulateList(actionList,"ACTION","action");
-	PopulateList(xpList,"XP","xp");
-	PopulateList(locationList,"LOCATION","location");
+	mWeaponList->AddRoot(_T("Weapons"));
+	mActionList->AddRoot(_T("Actions"));
+	mXPList->AddRoot(_T("XP"));
+	mLocationList->AddRoot(_T("Locations"));
+	rootItem=mMiscList->AddRoot(_T("Misc"));
+
+	mLabel=new wxStaticText(this,-1,_T("Choose From The Following Award Components"));
+	mWeaponList->Hide();
+	mLocationList->Hide();
+	mActionList->Hide();
+	mXPList->Hide();
+	mMiscList->Hide();
+	PopulateList(mWeaponList,"WEAPON","weapon");
+	PopulateList(mActionList,"ACTION","action");
+	PopulateList(mXPList,"XP","xp");
+	PopulateList(mLocationList,"LOCATION","location");
 
 	wxArrayString	miscAwardComponents;
 	wxString	awardComponent;
 
 	awardComponent="Speech";miscAwardComponents.Add(awardComponent);
-	miscList->AppendItem(rootItem,awardComponent,-1,-1,new StringTreeItemData(awardComponent));
+	mMiscList->AppendItem(rootItem,awardComponent,-1,-1,new StringTreeItemData(awardComponent));
 	awardComponent="Team Win";miscAwardComponents.Add(awardComponent);
-	miscList->AppendItem(rootItem,awardComponent,-1,-1,new StringTreeItemData(awardComponent));
+	mMiscList->AppendItem(rootItem,awardComponent,-1,-1,new StringTreeItemData(awardComponent));
 	awardComponent="Team Loss";miscAwardComponents.Add(awardComponent);
-	miscList->AppendItem(rootItem,awardComponent,-1,-1,new StringTreeItemData(awardComponent));
+	mMiscList->AppendItem(rootItem,awardComponent,-1,-1,new StringTreeItemData(awardComponent));
 	awardComponent="Suicides";miscAwardComponents.Add(awardComponent);
-	miscList->AppendItem(rootItem,awardComponent,-1,-1,new StringTreeItemData(awardComponent));
+	mMiscList->AppendItem(rootItem,awardComponent,-1,-1,new StringTreeItemData(awardComponent));
 	awardComponent="Kills";miscAwardComponents.Add(awardComponent);
-	miscList->AppendItem(rootItem,awardComponent,-1,-1,new StringTreeItemData(awardComponent));
+	mMiscList->AppendItem(rootItem,awardComponent,-1,-1,new StringTreeItemData(awardComponent));
 	awardComponent="Deaths";miscAwardComponents.Add(awardComponent);
-	miscList->AppendItem(rootItem,awardComponent,-1,-1,new StringTreeItemData(awardComponent));
+	mMiscList->AppendItem(rootItem,awardComponent,-1,-1,new StringTreeItemData(awardComponent));
 	awardComponent="Team Kills";miscAwardComponents.Add(awardComponent);
-	miscList->AppendItem(rootItem,awardComponent,-1,-1,new StringTreeItemData(awardComponent));
+	mMiscList->AppendItem(rootItem,awardComponent,-1,-1,new StringTreeItemData(awardComponent));
 	//miscList->InsertItems(miscAwardComponents,0);
-	miscList->Expand(rootItem);
-	weaponList->Show();
-	locationList->Show();
-	actionList->Show();
-	miscList->Show();
-	xpList->Show();
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Expanding miscList root");
+	mMiscList->Expand(rootItem);
+	mWeaponList->Show();
+	mLocationList->Show();
+	mActionList->Show();
+	mMiscList->Show();
+	mXPList->Show();
 				
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void AwardChoicesPanel::SetFilter(wxString &filterString)
 {
-	filter=filterString;
-	PopulateList(weaponList,"WEAPON","weapon");
-	PopulateList(actionList,"ACTION","action");
-	PopulateList(xpList,"XP","xp");
-	PopulateList(locationList,"LOCATION","location");
+	STATSGEN_DEBUG_FUNCTION_START("AwardChoicesPanel","SetFilter")
+	mFilter=filterString;
+	PopulateList(mWeaponList,"WEAPON","weapon");
+	PopulateList(mActionList,"ACTION","action");
+	PopulateList(mXPList,"XP","xp");
+	PopulateList(mLocationList,"LOCATION","location");
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void AwardChoicesPanel::PopulateList(wxTreeCtrl *listBox,
 									const char *group,
 									const char *realnamePrefix)
 {
+	STATSGEN_DEBUG_FUNCTION_START("AwardChoicesPanel","PopulateList")
 	wxString		logEntryGroup;
 	wxArrayString	keys;
 	wxArrayString	values;
@@ -465,8 +463,10 @@ void AwardChoicesPanel::PopulateList(wxTreeCtrl *listBox,
 	wxString		configKey;
 	wxTreeItemId	rootItem;
 	wxArrayString	weaponGroups;
-	STATSGEN_DEBUG_FUNCTION_START("AwardChoicesPanel","PopulateList")
+	wxString		msg;
 
+	msg.Printf("group [%s] realnamePrefix [%s]",group,realnamePrefix);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 	if (strcmp("WEAPON",group)==0)
 	{
 		weaponGroups=globalStatistics.configData.ReadWeaponGroups();
@@ -478,27 +478,34 @@ void AwardChoicesPanel::PopulateList(wxTreeCtrl *listBox,
 	globalStatistics.configData.ReadGroup(logEntryGroup, keys, values);
 	WX_APPEND_ARRAY(keys,weaponGroups);
 	keyCount=keys.GetCount();
+	msg.Printf("keyCount = %d",keyCount);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"filter");
+	STATSGEN_DEBUG(DEBUG_ALWAYS,mFilter);
 	for (keyIndex=0;keyIndex<keyCount;keyIndex++)
 	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"key");
 		key=keys.Item(keyIndex);
-		if (filter.Length()>0)
+		STATSGEN_DEBUG(DEBUG_ALWAYS,key);
+		if (mFilter.Length()>0)
 		{
-			filter = filter.Lower();
+			mFilter = mFilter.Lower();
 			wxString filterKey;
 			filterKey=key.Lower();
-			if (!filterKey.StartsWith(filter))
+			if (!filterKey.StartsWith(mFilter))
 			{
 				continue;
 			}
 		}
 		configKey.Printf("/RealNames/%s_%s",
 						realnamePrefix,
-						key.GetData());
-		globalStatistics.configData.ReadTextValue(configKey,&realName,
-												(char *)key.GetData());
+						STRING_TO_CHAR(key));
+		globalStatistics.configData.ReadTextValue(configKey,&realName, key);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,realName);
 		realNames.Add(realName);
 		listBox->AppendItem(rootItem,realName,-1,-1,new StringTreeItemData(key));
 	}
+	listBox->Expand(rootItem);
 	listBox->Show();
 	STATSGEN_DEBUG_FUNCTION_END
 }
@@ -511,6 +518,7 @@ AwardChoicesPanel::~AwardChoicesPanel()
 
 void AwardChoicesPanel::OnRightClick(wxTreeEvent &event)
 {
+	STATSGEN_DEBUG_FUNCTION_START("AwardChoicesPanel","OnRightClick")
 	StringTreeItemData	*itemData;
 	wxArrayTreeItemIds	selections;
 	wxString			codeSelected;
@@ -519,26 +527,25 @@ void AwardChoicesPanel::OnRightClick(wxTreeEvent &event)
 	int					selectionIndex;
 	wxTreeCtrl			*selectedTree=NULL;
 
-	STATSGEN_DEBUG_FUNCTION_START("AwardChoicesPanel","OnRightClick")
-	selectedCodes.Clear();
+	mSelectedCodes.Clear();
 
-	selectedChoiceTree=event.GetId();
-	switch (selectedChoiceTree)
+	mSelectedChoiceTree=event.GetId();
+	switch (mSelectedChoiceTree)
 	{
 		case WINDOW_ID_WEAPONLIST:
-			selectedTree=weaponList;
+			selectedTree=mWeaponList;
 			break;
 		case WINDOW_ID_ACTIONLIST:
-			selectedTree=actionList;
+			selectedTree=mActionList;
 			break;
 		case WINDOW_ID_LOCATIONLIST:
-			selectedTree=locationList;
+			selectedTree=mLocationList;
 			break;
 		case WINDOW_ID_MISCAWARDLIST:
-			selectedTree=miscList;
+			selectedTree=mMiscList;
 			break;
 		case WINDOW_ID_XPAWARDLIST:
-			selectedTree=xpList;
+			selectedTree=mXPList;
 			break;
 	}
 	if (selectedTree!=NULL)
@@ -550,49 +557,18 @@ void AwardChoicesPanel::OnRightClick(wxTreeEvent &event)
 	{
 		selection=selections.Item(selectionIndex);
 		itemData=(StringTreeItemData *)selectedTree->GetItemData(selection);
-		codeSelected=itemData->GetString();
-		selectedCodes.Add(codeSelected);
+		if (itemData != NULL)
+		{
+			codeSelected=itemData->GetString();
+			mSelectedCodes.Add(codeSelected);
+		}
 	}
 
 	event.SetId(this->GetId());
-	GetParent()->AddPendingEvent(event);
+	//GetParent()->AddPendingEvent(event);
+	GetParent()->GetEventHandler()->AddPendingEvent(event);
 	
 	STATSGEN_DEBUG_FUNCTION_END
-}
-
-void AwardChoicesPanel::OnResize(wxSizeEvent &event)
-{
-	wxString	msg;
-	wxSize		itemSize;
-	int		panelWidth;
-	int		panelHeight;
-	int		choiceHeight;
-	int		choiceWidth;
-	int		labelHeight;
-	int		labelWidth;
-	int		labelX;
-
-	STATSGEN_DEBUG_FUNCTION_START("AwardChoicesPanel","OnResize")
-	itemSize=GetSize();
-	panelWidth=itemSize.GetWidth();
-	panelHeight=itemSize.GetHeight();
-	
-	itemSize=label->GetSize();
-	labelWidth=itemSize.GetWidth();
-	labelHeight=itemSize.GetHeight();
-
-	labelX=(panelWidth-labelWidth)/2;
-	choiceHeight=panelHeight-labelHeight;
-	choiceWidth=panelWidth/5;
-
-	label->SetSize(labelX,0, labelWidth,labelHeight);
-	weaponList->SetSize(0,labelHeight, choiceWidth,choiceHeight);
-	locationList->SetSize(choiceWidth*1,labelHeight, choiceWidth,choiceHeight);
-	actionList->SetSize(choiceWidth*2,labelHeight, choiceWidth,choiceHeight);
-	miscList->SetSize(choiceWidth*3,labelHeight, choiceWidth,choiceHeight);
-	xpList->SetSize(choiceWidth*4,labelHeight, choiceWidth,choiceHeight);
-	STATSGEN_DEBUG_FUNCTION_END
-
 }
 
 AwardDefinitionPanel::AwardDefinitionPanel(wxWindow *parent, 
@@ -610,51 +586,62 @@ AwardDefinitionPanel::AwardDefinitionPanel(wxWindow *parent,
 				name)
 
 {
+	STATSGEN_DEBUG_FUNCTION_START("AwardDefinitionPanel","Constructor")
 	long	listStyle;
 	wxString			filterConfig="/tmp/awardeditorservertype";
 
-	STATSGEN_DEBUG_FUNCTION_START("AwardDefinitionPanel","Constructor")
 
-	globalStatistics.configData.ReadTextValue(filterConfig,&filter);
-	awardID=awardIDIn;
+	globalStatistics.configData.ReadTextValue(filterConfig,&mFilter);
+	mAwardID=awardIDIn;
 
-	awardDefinition=new AwardDefinition(awardID);
+	mAwardDefinition=new AwardDefinition(mAwardID);
 
-	listStyle=wxTR_NO_BUTTONS | wxTR_HIDE_ROOT | wxTR_EXTENDED | wxTR_MULTIPLE;
+	//listStyle=wxTR_NO_BUTTONS | wxTR_HIDE_ROOT | wxTR_EXTENDED | wxTR_MULTIPLE;
+	//listStyle=wxTR_NO_BUTTONS | wxTR_HIDE_ROOT | wxTR_MULTIPLE;
+	listStyle=wxTR_HAS_BUTTONS |  wxTR_MULTIPLE;
 
-	weaponList=new wxTreeCtrl(this, WINDOW_ID_WEAPONLIST, wxDefaultPosition,wxDefaultSize, listStyle);
-	actionList=new wxTreeCtrl(this, WINDOW_ID_ACTIONLIST, wxDefaultPosition,wxDefaultSize, listStyle);
-	locationList=new wxTreeCtrl(this, WINDOW_ID_LOCATIONLIST, wxDefaultPosition,wxDefaultSize, listStyle);
-	miscList=new wxTreeCtrl(this, WINDOW_ID_MISCAWARDLIST, wxDefaultPosition,wxDefaultSize, listStyle);
-	xpList=new wxTreeCtrl(this, WINDOW_ID_XPAWARDLIST, wxDefaultPosition,wxDefaultSize, listStyle);
+	mWeaponList=new wxTreeCtrl(this, WINDOW_ID_WEAPONLIST, wxDefaultPosition,wxDefaultSize, listStyle);
+	mActionList=new wxTreeCtrl(this, WINDOW_ID_ACTIONLIST, wxDefaultPosition,wxDefaultSize, listStyle);
+	mLocationList=new wxTreeCtrl(this, WINDOW_ID_LOCATIONLIST, wxDefaultPosition,wxDefaultSize, listStyle);
+	mMiscList=new wxTreeCtrl(this, WINDOW_ID_MISCAWARDLIST, wxDefaultPosition,wxDefaultSize, listStyle);
+	mXPList=new wxTreeCtrl(this, WINDOW_ID_XPAWARDLIST, wxDefaultPosition,wxDefaultSize, listStyle);
 
-	weaponList->AddRoot(_T(""));
-	actionList->AddRoot(_T(""));
-	locationList->AddRoot(_T(""));
-	miscList->AddRoot(_T(""));
-	xpList->AddRoot(_T(""));
+	mMainSizer = new wxBoxSizer(wxHORIZONTAL);
+	mMainSizer->Add(mWeaponList,1,wxEXPAND);
+	mMainSizer->Add(mLocationList,1,wxEXPAND);
+	mMainSizer->Add(mActionList,1,wxEXPAND);
+	mMainSizer->Add(mMiscList,1,wxEXPAND);
+	mMainSizer->Add(mXPList,1,wxEXPAND);
+	mMainSizer->SetSizeHints(this);
+	SetSizer(mMainSizer);
 
-	label=new wxStaticText(this,-1,_T("Currently Defined Components For This Award"));
+	mWeaponList->AddRoot(_T("Weapons"));
+	mActionList->AddRoot(_T("Actions"));
+	mLocationList->AddRoot(_T("Locations"));
+	mMiscList->AddRoot(_T("Misc"));
+	mXPList->AddRoot(_T("XP"));
 
-	weaponList->Hide();
-	locationList->Hide();
-	actionList->Hide();
-	miscList->Hide();
-	xpList->Hide();
-	PopulateList(weaponList,awardDefinition->weaponKillComponents,"weapon","KILL");
-	PopulateList(weaponList,awardDefinition->weaponDeathComponents,"weapon","DEATH");
-	PopulateList(weaponList,awardDefinition->weaponTKComponents,"weapon","TK");
-	PopulateList(locationList,awardDefinition->locationKillComponents,"location","KILL");
-	PopulateList(locationList,awardDefinition->locationDeathComponents,"location","DEATH");
-	PopulateList(locationList,awardDefinition->locationTKComponents,"location","TK");
-	PopulateList(actionList,awardDefinition->actionComponents,"action","");
-	PopulateList(xpList,awardDefinition->xpComponents,"xp","");
-	PopulateList(miscList,awardDefinition->miscComponents,"","");
-	weaponList->Show();
-	locationList->Show();
-	actionList->Show();
-	miscList->Show();
-	xpList->Show();
+	mLabel=new wxStaticText(this,wxID_ANY,_T("Currently Defined Components For This Award"));
+
+	mWeaponList->Hide();
+	mLocationList->Hide();
+	mActionList->Hide();
+	mMiscList->Hide();
+	mXPList->Hide();
+	PopulateList(mWeaponList,mAwardDefinition->weaponKillComponents,"weapon","KILL");
+	PopulateList(mWeaponList,mAwardDefinition->weaponDeathComponents,"weapon","DEATH");
+	PopulateList(mWeaponList,mAwardDefinition->weaponTKComponents,"weapon","TK");
+	PopulateList(mLocationList,mAwardDefinition->locationKillComponents,"location","KILL");
+	PopulateList(mLocationList,mAwardDefinition->locationDeathComponents,"location","DEATH");
+	PopulateList(mLocationList,mAwardDefinition->locationTKComponents,"location","TK");
+	PopulateList(mActionList,mAwardDefinition->actionComponents,"action","");
+	PopulateList(mXPList,mAwardDefinition->xpComponents,"xp","");
+	PopulateList(mMiscList,mAwardDefinition->miscComponents,"","");
+	mWeaponList->Show();
+	mLocationList->Show();
+	mActionList->Show();
+	mMiscList->Show();
+	mXPList->Show();
 	STATSGEN_DEBUG_FUNCTION_END
 
 }
@@ -662,159 +649,126 @@ AwardDefinitionPanel::AwardDefinitionPanel(wxWindow *parent,
 AwardDefinitionPanel::~AwardDefinitionPanel()
 {
 	STATSGEN_DEBUG_FUNCTION_START("AwardDefinitionPanel","Destructor")
-	if (awardDefinition!=NULL)
+	if (mAwardDefinition!=NULL)
 	{
-		delete(awardDefinition);
+		delete(mAwardDefinition);
 	}
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void AwardDefinitionPanel::SetFilter(wxString &filterString)
 {
-	filter=filterString;
-	wxTreeItemId	weaponRootItem=weaponList->GetRootItem();
-	wxTreeItemId	locationRootItem=locationList->GetRootItem();
-	wxTreeItemId	actionRootItem=actionList->GetRootItem();
-	wxTreeItemId	xpRootItem=xpList->GetRootItem();
+	STATSGEN_DEBUG_FUNCTION_START("AwardDefinitionPanel","SetFilter")
+	mFilter=filterString;
+	wxTreeItemId	weaponRootItem		= mWeaponList->GetRootItem();
+	wxTreeItemId	locationRootItem	= mLocationList->GetRootItem();
+	wxTreeItemId	actionRootItem		= mActionList->GetRootItem();
+	wxTreeItemId	xpRootItem			= mXPList->GetRootItem();
 
-	weaponList->Hide();
-	weaponList->DeleteChildren(weaponRootItem);
-	locationList->Hide();
-	locationList->DeleteChildren(locationRootItem);
-	actionList->Hide();
-	actionList->DeleteChildren(actionRootItem);
-	xpList->Hide();
-	xpList->DeleteChildren(xpRootItem);
-	PopulateList(weaponList,awardDefinition->weaponKillComponents,"weapon","KILL");
-	PopulateList(weaponList,awardDefinition->weaponDeathComponents,"weapon","DEATH");
-	PopulateList(weaponList,awardDefinition->weaponTKComponents,"weapon","TK");
-	PopulateList(locationList,awardDefinition->locationKillComponents,"location","KILL");
-	PopulateList(locationList,awardDefinition->locationDeathComponents,"location","DEATH");
-	PopulateList(locationList,awardDefinition->locationTKComponents,"location","TK");
-	PopulateList(actionList,awardDefinition->actionComponents,"action","");
-	PopulateList(xpList,awardDefinition->xpComponents,"xp","");
+	mWeaponList->Hide();
+	mWeaponList->DeleteChildren(weaponRootItem);
+	mLocationList->Hide();
+	mLocationList->DeleteChildren(locationRootItem);
+	mActionList->Hide();
+	mActionList->DeleteChildren(actionRootItem);
+	mXPList->Hide();
+	mXPList->DeleteChildren(xpRootItem);
+	PopulateList(mWeaponList,mAwardDefinition->weaponKillComponents,"weapon","KILL");
+	PopulateList(mWeaponList,mAwardDefinition->weaponDeathComponents,"weapon","DEATH");
+	PopulateList(mWeaponList,mAwardDefinition->weaponTKComponents,"weapon","TK");
+	PopulateList(mLocationList,mAwardDefinition->locationKillComponents,"location","KILL");
+	PopulateList(mLocationList,mAwardDefinition->locationDeathComponents,"location","DEATH");
+	PopulateList(mLocationList,mAwardDefinition->locationTKComponents,"location","TK");
+	PopulateList(mActionList,mAwardDefinition->actionComponents,"action","");
+	PopulateList(mXPList,mAwardDefinition->xpComponents,"xp","");
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void AwardDefinitionPanel::AddWeaponComponent(wxString &code,bool kill,bool positive,bool teamkill)
 {
 	STATSGEN_DEBUG_FUNCTION_START("AwardDefinitionPanel","AddWeaponComponent")
-	awardDefinition->AddWeaponComponent(code,kill,positive,teamkill);
-	weaponList->DeleteAllItems();
-	weaponList->AddRoot(_T(""));
-	PopulateList(weaponList,awardDefinition->weaponKillComponents,"weapon","KILL");
-	PopulateList(weaponList,awardDefinition->weaponDeathComponents,"weapon","DEATH");
-	PopulateList(weaponList,awardDefinition->weaponTKComponents,"weapon","TK");
+	mAwardDefinition->AddWeaponComponent(code,kill,positive,teamkill);
+	mWeaponList->DeleteAllItems();
+	mWeaponList->AddRoot(_T("Weapons"));
+	PopulateList(mWeaponList,mAwardDefinition->weaponKillComponents,"weapon","KILL");
+	PopulateList(mWeaponList,mAwardDefinition->weaponDeathComponents,"weapon","DEATH");
+	PopulateList(mWeaponList,mAwardDefinition->weaponTKComponents,"weapon","TK");
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void AwardDefinitionPanel::RemoveWeaponComponent(wxString &code,bool killList,bool teamkillList)
 {
 	STATSGEN_DEBUG_FUNCTION_START("AwardDefinitionPanel","RemoveWeaponComponent")
-	awardDefinition->RemoveWeaponComponent(code,killList,teamkillList);
-	weaponList->DeleteAllItems();
-	weaponList->AddRoot(_T(""));
-	PopulateList(weaponList,awardDefinition->weaponKillComponents,"weapon","KILL");
-	PopulateList(weaponList,awardDefinition->weaponDeathComponents,"weapon","DEATH");
-	PopulateList(weaponList,awardDefinition->weaponTKComponents,"weapon","TK");
+	mAwardDefinition->RemoveWeaponComponent(code,killList,teamkillList);
+	mWeaponList->DeleteAllItems();
+	mWeaponList->AddRoot(_T("Weapons"));
+	PopulateList(mWeaponList,mAwardDefinition->weaponKillComponents,"weapon","KILL");
+	PopulateList(mWeaponList,mAwardDefinition->weaponDeathComponents,"weapon","DEATH");
+	PopulateList(mWeaponList,mAwardDefinition->weaponTKComponents,"weapon","TK");
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void AwardDefinitionPanel::AddLocationComponent(wxString &code,bool kill,bool positive,bool teamkill)
 {
 	STATSGEN_DEBUG_FUNCTION_START("AwardDefinitionPanel","AddLocationComponent")
-	awardDefinition->AddLocationComponent(code,kill,positive,teamkill);
-	locationList->DeleteAllItems();
-	locationList->AddRoot(_T(""));
-	PopulateList(locationList,awardDefinition->locationKillComponents,"location","KILL");
-	PopulateList(locationList,awardDefinition->locationDeathComponents,"location","DEATH");
-	PopulateList(locationList,awardDefinition->locationTKComponents,"location","TK");
+	mAwardDefinition->AddLocationComponent(code,kill,positive,teamkill);
+	mLocationList->DeleteAllItems();
+	mLocationList->AddRoot(_T("Locations"));
+	PopulateList(mLocationList,mAwardDefinition->locationKillComponents,"location","KILL");
+	PopulateList(mLocationList,mAwardDefinition->locationDeathComponents,"location","DEATH");
+	PopulateList(mLocationList,mAwardDefinition->locationTKComponents,"location","TK");
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void AwardDefinitionPanel::RemoveLocationComponent(wxString &code,bool killList,bool teamkillList)
 {
 	STATSGEN_DEBUG_FUNCTION_START("AwardDefinitionPanel","RemoveLocationComponent")
-	awardDefinition->RemoveLocationComponent(code,killList,teamkillList);
-	locationList->DeleteAllItems();
-	locationList->AddRoot(_T(""));
-	PopulateList(locationList,awardDefinition->locationKillComponents,"location","KILL");
-	PopulateList(locationList,awardDefinition->locationDeathComponents,"location","DEATH");
-	PopulateList(locationList,awardDefinition->locationTKComponents,"location","TK");
+	mAwardDefinition->RemoveLocationComponent(code,killList,teamkillList);
+	mLocationList->DeleteAllItems();
+	mLocationList->AddRoot(_T("Locations"));
+	PopulateList(mLocationList,mAwardDefinition->locationKillComponents,"location","KILL");
+	PopulateList(mLocationList,mAwardDefinition->locationDeathComponents,"location","DEATH");
+	PopulateList(mLocationList,mAwardDefinition->locationTKComponents,"location","TK");
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void AwardDefinitionPanel::AddActionComponent(wxString &code,bool positive)
 {
 	STATSGEN_DEBUG_FUNCTION_START("AwardDefinitionPanel","AddActionComponent")
-	awardDefinition->AddActionComponent(code,positive);
-	actionList->DeleteAllItems();
-	actionList->AddRoot(_T(""));
-	PopulateList(actionList,awardDefinition->actionComponents,"action","");
+	mAwardDefinition->AddActionComponent(code,positive);
+	mActionList->DeleteAllItems();
+	mActionList->AddRoot(_T("Actions"));
+	PopulateList(mActionList,mAwardDefinition->actionComponents,"action","");
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void AwardDefinitionPanel::RemoveActionComponent(wxString &code)
 {
 	STATSGEN_DEBUG_FUNCTION_START("AwardDefinitionPanel","RemoveActionComponent")
-	awardDefinition->RemoveActionComponent(code);
-	actionList->DeleteAllItems();
-	actionList->AddRoot(_T(""));
-	PopulateList(actionList,awardDefinition->actionComponents,"action","");
+	mAwardDefinition->RemoveActionComponent(code);
+	mActionList->DeleteAllItems();
+	mActionList->AddRoot(_T("Actions"));
+	PopulateList(mActionList,mAwardDefinition->actionComponents,"action","");
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void AwardDefinitionPanel::AddMiscComponent(wxString &code,bool positive)
 {
 	STATSGEN_DEBUG_FUNCTION_START("AwardDefinitionPanel","AddMiscComponent")
-	awardDefinition->AddMiscComponent(code,positive);
-	miscList->DeleteAllItems();
-	miscList->AddRoot(_T(""));
-	PopulateList(miscList,awardDefinition->miscComponents,"","");
+	mAwardDefinition->AddMiscComponent(code,positive);
+	mMiscList->DeleteAllItems();
+	mMiscList->AddRoot(_T("Misc"));
+	PopulateList(mMiscList,mAwardDefinition->miscComponents,"","");
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void AwardDefinitionPanel::RemoveMiscComponent(wxString &code)
 {
 	STATSGEN_DEBUG_FUNCTION_START("AwardDefinitionPanel","RemoveMiscComponent")
-	awardDefinition->RemoveMiscComponent(code);
-	miscList->DeleteAllItems();
-	miscList->AddRoot(_T(""));
-	PopulateList(miscList,awardDefinition->miscComponents,"","");
-	STATSGEN_DEBUG_FUNCTION_END
-}
-
-void AwardDefinitionPanel::OnResize(wxSizeEvent &event)
-{
-	wxString	msg;
-	wxSize		itemSize;
-	int		panelWidth;
-	int		panelHeight;
-	int		choiceHeight;
-	int		choiceWidth;
-	int		labelWidth;
-	int		labelHeight;
-	int		labelX;
-
-	STATSGEN_DEBUG_FUNCTION_START("AwardDefinitionPanel","OnResize")
-	itemSize=GetSize();
-	panelWidth=itemSize.GetWidth();
-	panelHeight=itemSize.GetHeight();
-
-	itemSize=label->GetSize();
-	labelWidth=itemSize.GetWidth();
-	labelHeight=itemSize.GetHeight();
-	labelX=(panelWidth-labelWidth)/2;
-
-	choiceHeight=panelHeight-labelHeight;
-	choiceWidth=panelWidth/5;
-
-	label->SetSize(labelX,0,labelWidth,labelHeight);
-	weaponList->SetSize(0,labelHeight, choiceWidth,choiceHeight);
-	locationList->SetSize(choiceWidth*1,labelHeight, choiceWidth,choiceHeight);
-	actionList->SetSize(choiceWidth*2,labelHeight, choiceWidth,choiceHeight);
-	miscList->SetSize(choiceWidth*3,labelHeight, choiceWidth,choiceHeight);
-	xpList->SetSize(choiceWidth*4,labelHeight, choiceWidth,choiceHeight);
-
+	mAwardDefinition->RemoveMiscComponent(code);
+	mMiscList->DeleteAllItems();
+	mMiscList->AddRoot(_T("Misc"));
+	PopulateList(mMiscList,mAwardDefinition->miscComponents,"","");
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
@@ -823,6 +777,7 @@ void AwardDefinitionPanel::PopulateList(wxTreeCtrl *listBox,
 									const char *realnamePrefix,
 									const char *suffix)
 {
+	STATSGEN_DEBUG_FUNCTION_START("AwardDefinitionPanel","PopulateList")
 	wxString		code;
 	int				codeCount;
 	int				codeIndex;
@@ -835,7 +790,6 @@ void AwardDefinitionPanel::PopulateList(wxTreeCtrl *listBox,
 	char			suffixChar;
 	
 
-	STATSGEN_DEBUG_FUNCTION_START("AwardDefinitionPanel","PopulateList")
 	listBox->Hide();
 	if (strcmp(suffix,"TK")==0)
 	{
@@ -858,26 +812,25 @@ void AwardDefinitionPanel::PopulateList(wxTreeCtrl *listBox,
 	{
 		code=codes.Item(codeIndex);
 		prefixedCode=code;
-		awardDefinition->SplitCode(code,&positive,&teamkilldummy);
+		mAwardDefinition->SplitCode(code,&positive,&teamkilldummy);
 
 		if (strlen(realnamePrefix)>0)
 		{
 			wxString filterCode;
 
 			filterCode = code.Lower();
-			filter=filter.Lower();
-			if ((filter.Length()>0)&&(!globalStatistics.configData.IsWeaponGroupKey(filterCode)))
+			mFilter=mFilter.Lower();
+			if ((mFilter.Length()>0)&&(!globalStatistics.configData.IsWeaponGroupKey(filterCode)))
 			{
-				if (!filterCode.StartsWith(filter))
+				if (!filterCode.StartsWith(mFilter))
 				{
 					continue;
 				}
 			}
 			configKey.Printf("/RealNames/%s_%s",
 						realnamePrefix,
-						code.GetData());
-			globalStatistics.configData.ReadTextValue(configKey,&realName,
-												(char *)code.GetData());
+						STRING_TO_CHAR(code));
+			globalStatistics.configData.ReadTextValue(configKey,&realName, code);
 		}
 		else
 		{
@@ -900,6 +853,7 @@ void AwardDefinitionPanel::PopulateList(wxTreeCtrl *listBox,
 		prefixedCode=suffixChar+prefixedCode;
 		listBox->AppendItem(rootItem,realName,-1,-1,new StringTreeItemData(prefixedCode));
 	}
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Expanding listBox root");
 	listBox->Expand(rootItem);
 	listBox->Show();
 	STATSGEN_DEBUG_FUNCTION_END
@@ -907,6 +861,7 @@ void AwardDefinitionPanel::PopulateList(wxTreeCtrl *listBox,
 
 void AwardDefinitionPanel::OnRightClick(wxTreeEvent &event)
 {
+	STATSGEN_DEBUG_FUNCTION_START("AwardDefinitionPanel","OnRightClick")
 	StringTreeItemData	*itemData;
 	wxArrayTreeItemIds	selections;
 	wxString			codeSelected;
@@ -915,26 +870,25 @@ void AwardDefinitionPanel::OnRightClick(wxTreeEvent &event)
 	int					selectionIndex;
 	wxTreeCtrl			*selectedTree=NULL;
 
-	STATSGEN_DEBUG_FUNCTION_START("AwardDefinitionPanel","OnRightClick")
-	selectedCodes.Clear();
+	mSelectedCodes.Clear();
 
-	selectedDefinitionTree=event.GetId();
-	switch (selectedDefinitionTree)
+	mSelectedDefinitionTree=event.GetId();
+	switch (mSelectedDefinitionTree)
 	{
 		case WINDOW_ID_WEAPONLIST:
-			selectedTree=weaponList;
+			selectedTree=mWeaponList;
 			break;
 		case WINDOW_ID_ACTIONLIST:
-			selectedTree=actionList;
+			selectedTree=mActionList;
 			break;
 		case WINDOW_ID_LOCATIONLIST:
-			selectedTree=locationList;
+			selectedTree=mLocationList;
 			break;
 		case WINDOW_ID_MISCAWARDLIST:
-			selectedTree=miscList;
+			selectedTree=mMiscList;
 			break;
 		case WINDOW_ID_XPAWARDLIST:
-			selectedTree=xpList;
+			selectedTree=mXPList;
 			break;
 	}
 	if (selectedTree!=NULL)
@@ -947,11 +901,12 @@ void AwardDefinitionPanel::OnRightClick(wxTreeEvent &event)
 		selection=selections.Item(selectionIndex);
 		itemData=(StringTreeItemData *)selectedTree->GetItemData(selection);
 		codeSelected=itemData->GetString();
-		selectedCodes.Add(codeSelected);
+		mSelectedCodes.Add(codeSelected);
 	}
 
 	event.SetId(this->GetId());
-	GetParent()->AddPendingEvent(event);
+	//GetParent()->AddPendingEvent(event);
+	GetParent()->GetEventHandler()->AddPendingEvent(event);
 	
 	STATSGEN_DEBUG_FUNCTION_END
 }
@@ -959,20 +914,20 @@ void AwardDefinitionPanel::OnRightClick(wxTreeEvent &event)
 void AwardDefinitionPanel::AddXPComponent(wxString &code,bool positive)
 {
 	STATSGEN_DEBUG_FUNCTION_START("AwardDefinitionPanel","AddXPComponent")
-	awardDefinition->AddXPComponent(code,positive);
-	xpList->DeleteAllItems();
-	xpList->AddRoot(_T(""));
-	PopulateList(xpList,awardDefinition->xpComponents,"xp","");
+	mAwardDefinition->AddXPComponent(code,positive);
+	mXPList->DeleteAllItems();
+	mXPList->AddRoot(_T("XP"));
+	PopulateList(mXPList,mAwardDefinition->xpComponents,"xp","");
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void AwardDefinitionPanel::RemoveXPComponent(wxString &code)
 {
 	STATSGEN_DEBUG_FUNCTION_START("AwardDefinitionPanel","RemoveXPComponent")
-	awardDefinition->RemoveXPComponent(code);
-	xpList->DeleteAllItems();
-	xpList->AddRoot(_T(""));
-	PopulateList(xpList,awardDefinition->xpComponents,"xp","");
+	mAwardDefinition->RemoveXPComponent(code);
+	mXPList->DeleteAllItems();
+	mXPList->AddRoot(_T("XP"));
+	PopulateList(mXPList,mAwardDefinition->xpComponents,"xp","");
 	STATSGEN_DEBUG_FUNCTION_END
 }
 

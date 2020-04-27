@@ -9,32 +9,32 @@
 #include "WindowIDs.h"
 #include "GlobalStatistics.h"
 
-BEGIN_EVENT_TABLE(StatusPanel, wxPanel)
-		EVT_SIZE(StatusPanel::OnResize)
-END_EVENT_TABLE()
-
 StatusPanel::StatusPanel()
 {
-	updateDisabled=false;
-	panelIDs.Clear();
-	panelPtrs.Clear();
-	dynamicPanel=NULL;
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","StatusPanel")
+	mUpdateDisabled	=false;
+	mPanelIDs.Clear();
+	mPanelPtrs.Clear();
+	mDynamicPanel	=NULL;
 	SetClone(NULL);
-	wxLog::SetActiveTarget(&logger);
+	wxLog::SetActiveTarget(&mLogger);
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 StatusPanel::~StatusPanel()
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","~StatusPanel")
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void StatusPanel::DisableUpdate()
 {
-	updateDisabled=true;
+	mUpdateDisabled = true;
 }
 
 void StatusPanel::SetDynamicPanel(ProgressPanel *panelIn)
 {
-	dynamicPanel=panelIn;
+	mDynamicPanel = panelIn;
 }
 
 void StatusPanel::ChoosePanel(int windowID)
@@ -43,11 +43,11 @@ void StatusPanel::ChoosePanel(int windowID)
 
 	STATSGEN_DEBUG_UPDATE_DEBUG_LEVEL(windowID)
 	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","ChoosePanel")
-	STATSGEN_DEBUG(DEBUG_ALWAYS,PanelName(windowID))
-	if (!updateDisabled)
+	STATSGEN_DEBUG(DEBUG_ALWAYS,STRING_TO_CHAR(PanelName(windowID)))
+	if (!mUpdateDisabled)
 
 	{
-		currentWindowID=windowID;
+		mCurrentWindowID=windowID;
 		panel=WhichPanel();
 		if (panel!=NULL)
 		{
@@ -60,9 +60,10 @@ void StatusPanel::ChoosePanel(int windowID)
 
 void StatusPanel::UpdateColouredBar()
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","UpdateColouredBar")
 	ProgressPanel	*panel;
 
-	if (!updateDisabled)
+	if (!mUpdateDisabled)
 	{
 		panel=WhichPanel();
 		if (panel!=NULL)
@@ -73,95 +74,24 @@ void StatusPanel::UpdateColouredBar()
 		}
 	}
 
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void StatusPanel::UpdateLabel(const char *label)
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","UpdateLabel")
 	ProgressPanel	*panel;
 
-	if (!updateDisabled)
+	if (!mUpdateDisabled)
 	{
-	panel=WhichPanel();
-	if (panel!=NULL)
-	{
+		panel=WhichPanel();
+		if (panel!=NULL)
 		{
 			panel->SetLabel(label);
-			NormaliseWidths();
 			UpdateClone(panel);
 		}
 	}
-	}
-}
-
-void StatusPanel::NormaliseWidths()
-{
-	ProgressPanel	*panel;
-	int				labelWidth;
-	int				maxLabelWidth;
-	int				windowID;
-
-
-	if (!updateDisabled)
-	{
-	maxLabelWidth=0;
-	for (windowID=WINDOW_ID_PROGRESS_PANEL_GENERAL;
-		windowID<WINDOW_ID_PROGRESS_PANEL_MAX;
-		windowID++)
-	{
-		panel=(ProgressPanel *)panelPtrs.Item(windowID-WINDOW_ID_PROGRESS_PANEL_GENERAL);
-		labelWidth=panel->LabelWidth();
-		if (labelWidth>maxLabelWidth)
-		{
-			maxLabelWidth=labelWidth;
-		}
-		
-	}
-	for (windowID=WINDOW_ID_PROGRESS_PANEL_GENERAL;
-		windowID<WINDOW_ID_PROGRESS_PANEL_MAX;
-		windowID++)
-	{
-		panel=(ProgressPanel *)panelPtrs.Item(windowID-WINDOW_ID_PROGRESS_PANEL_GENERAL);
-		panel->SetLabelWidth(maxLabelWidth);
-		UpdateClone(panel);
-	}
-	}
-}
-
-void StatusPanel::OnResize(wxSizeEvent &event)
-{
-	wxString		msg;
-
-	wxSize			itemSize;
-	int				gap=3;
-	int				windowID;
-	int				currentY;
-	int				width;
-	int				maxWidth;
-	ProgressPanel	*panel;
-	
-	if (!updateDisabled)
-	{
-	CreatePanels();
-	currentY=0;
-	maxWidth=0;
-	for (windowID=WINDOW_ID_PROGRESS_PANEL_GENERAL;
-		windowID<WINDOW_ID_PROGRESS_PANEL_MAX;
-		windowID++)
-	{
-		panel=(ProgressPanel *)panelPtrs.Item(windowID-WINDOW_ID_PROGRESS_PANEL_GENERAL);
-		itemSize=panel->GetSize();
-		panel->SetSize(0,currentY,itemSize.GetWidth(),itemSize.GetHeight());
-		currentY+=itemSize.GetHeight();
-		width=itemSize.GetWidth();
-		if (width>maxWidth)
-		{
-			maxWidth=width;
-		}
-		currentY+=gap;
-	}
-
-	SetSize(maxWidth,currentY);
-	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void StatusPanel::Initiate(long topValue,
@@ -170,102 +100,108 @@ void StatusPanel::Initiate(long topValue,
 						const char *rateUnits,
 						long rateScale)
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","Initiate")
 	ProgressPanel	*panel;
-	if (!updateDisabled)
-	{
-	panel=WhichPanel();
-	if (panel!=NULL)
-	{
-		{
-			panel->Initiate(topValue,units,scale,rateUnits,rateScale);
-			UpdateClone(panel);
-		}
-	}
-	}
-}
-
-void StatusPanel::WakeUp()
-{
-	ProgressPanel	*panel;
-
-	if (!updateDisabled)
-	{
-	panel=WhichPanel();
-	if (panel!=NULL)
-	{
-		{
-		{
-			panel->WakeUp();
-			UpdateClone(panel);
-		}
-		}
-	}
-	}
-}
-
-void StatusPanel::Update(long value)
-{
-	ProgressPanel	*panel;
-
-	if (!updateDisabled)
-	{
-	panel=WhichPanel();
-	if (panel!=NULL)
-	{
-		{
-		{
-			panel->Update(value);
-			UpdateClone(panel);
-		}
-		}
-	}
-	}
-}
-
-void StatusPanel::Finalise()
-{
-	ProgressPanel	*panel;
-
-
-	if (!updateDisabled)
-	{
-	panel=WhichPanel();
-	if (panel!=NULL)
-	{
-		{
-			panel->Finalise();
-			currentWindowID=WINDOW_ID_PROGRESS_PANEL_GENERAL;
-			UpdateClone(panel);
-		}
-	}
-	}
-}
-
-long StatusPanel::CurrentValue()
-{
-	ProgressPanel	*panel;
-
-	if (!updateDisabled)
+	if (!mUpdateDisabled)
 	{
 		panel=WhichPanel();
 		if (panel!=NULL)
 		{
-			return(panel->CurrentValue());
+			{
+				panel->Initiate(topValue,units,scale,rateUnits,rateScale);
+				UpdateClone(panel);
+			}
+		}
+	}
+	STATSGEN_DEBUG_FUNCTION_END
+}
+
+void StatusPanel::WakeUp()
+{
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","Wakeup")
+	ProgressPanel	*panel;
+
+	if (!mUpdateDisabled)
+	{
+		panel=WhichPanel();
+		if (panel!=NULL)
+		{
+			panel->WakeUp();
+			UpdateClone(panel);
+		}
+	}
+	STATSGEN_DEBUG_FUNCTION_END
+}
+
+void StatusPanel::Update(long value)
+{
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","Update")
+	ProgressPanel	*panel;
+
+	if (!mUpdateDisabled)
+	{
+		panel=WhichPanel();
+		if (panel!=NULL)
+		{
+			panel->Update(value);
+			UpdateClone(panel);
+		}
+	}
+	STATSGEN_DEBUG_FUNCTION_END
+}
+
+void StatusPanel::Finalise()
+{
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","Finalise")
+	ProgressPanel	*panel;
+
+
+	if (!mUpdateDisabled)
+	{
+		panel=WhichPanel();
+		if (panel!=NULL)
+		{
+			panel->Finalise();
+			mCurrentWindowID=WINDOW_ID_PROGRESS_PANEL_GENERAL;
+			UpdateClone(panel);
+		}
+	}
+	STATSGEN_DEBUG_FUNCTION_END
+}
+
+long StatusPanel::CurrentValue()
+{
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","CurrentValue")
+	ProgressPanel	*panel;
+	long			result;
+
+	if (!mUpdateDisabled)
+	{
+		panel=WhichPanel();
+		if (panel!=NULL)
+		{
+			result = panel->CurrentValue();
 		}
 		else
 		{
-			return ((long)0);
+			result = (long)0;
 		}
 	}
+	else
+	{
+		result = (long)0;
+	}
 
-	return ((long)0);
+	STATSGEN_DEBUG_FUNCTION_END
+	return result;
 }
 
 void StatusPanel::SetOffset(long value)
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","SetOffset")
 	ProgressPanel	*panel;
 
-	if (!updateDisabled)
+	if (!mUpdateDisabled)
 	{
 		panel=WhichPanel();
 		if (panel!=NULL)
@@ -274,143 +210,184 @@ void StatusPanel::SetOffset(long value)
 			UpdateClone(panel);
 		}
 	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void StatusPanel::CreatePanels()
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","CreatePanels")
 	ProgressPanel	*panel;
 	int				windowID;
 	int				panelCount;
+	wxSize			maxSize;
+	wxSize			descriptionSize;
+	int				windowIndex;
 
-	if (!updateDisabled)
+	if (!mUpdateDisabled)
 	{
-	panelCount=panelIDs.GetCount();
-	if (panelCount>0)
-	{
-		return;
+		panelCount=mPanelIDs.GetCount();
+		if (panelCount>0)
+		{
+			STATSGEN_DEBUG_FUNCTION_END
+			return;
+		}
+
+		mCurrentWindowID=WINDOW_ID_PROGRESS_PANEL_GENERAL;
+
+		mMainSizer = new wxBoxSizer(wxVERTICAL);
+		for (windowID=WINDOW_ID_PROGRESS_PANEL_GENERAL;
+			windowID<WINDOW_ID_PROGRESS_PANEL_MAX;
+			windowID++)
+		{
+			panel=new ProgressPanel();
+			panel->Create(this,windowID,wxDefaultPosition,wxDefaultSize,
+				wxRAISED_BORDER);
+
+			panel->SetLabel(PanelName(windowID));
+			mPanelIDs.Add(windowID);
+			mPanelPtrs.Add((void *)panel);
+			mMainSizer->Add(panel,1,wxEXPAND);
+			descriptionSize = panel->GetDescriptionSize();
+			if (maxSize.GetWidth()<descriptionSize.GetWidth())
+			{
+				maxSize.SetWidth(descriptionSize.GetWidth());
+			}
+			if (maxSize.GetHeight()<descriptionSize.GetHeight())
+			{
+				maxSize.SetHeight(descriptionSize.GetHeight());
+			}
+		}
+		windowIndex = 0;
+		for (windowID=WINDOW_ID_PROGRESS_PANEL_GENERAL;
+			windowID<WINDOW_ID_PROGRESS_PANEL_MAX;
+			windowID++)
+		{
+			panel = (ProgressPanel *)mPanelPtrs[windowIndex];
+			panel->SetDescriptionMinimumSize(maxSize);
+			windowIndex++;
+		}
+
+		mMainSizer->SetSizeHints(this);
+		SetSizer(mMainSizer);
+
 	}
-
-	currentWindowID=WINDOW_ID_PROGRESS_PANEL_GENERAL;
-
-	for (windowID=WINDOW_ID_PROGRESS_PANEL_GENERAL;
-		windowID<WINDOW_ID_PROGRESS_PANEL_MAX;
-		windowID++)
-	{
-		panel=new ProgressPanel();
-		panel->Create(this,windowID,wxDefaultPosition,wxDefaultSize,
-			wxRAISED_BORDER);
-
-		panel->SetLabel(PanelName(windowID));
-		panelIDs.Add(windowID);
-		panelPtrs.Add((void *)panel);
-	}
-
-	NormaliseWidths();
-	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void StatusPanel::EnableTimeToGo()
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","EnableTimeToGo")
 	ProgressPanel	*panel;
 
-	if (!updateDisabled)
+	if (!mUpdateDisabled)
 	{
-	panel=WhichPanel();
-	if (panel!=NULL)
-	{
-		panel->EnableTimeToGo();
-		UpdateClone(panel);
+		panel=WhichPanel();
+		if (panel!=NULL)
+		{
+			panel->EnableTimeToGo();
+			UpdateClone(panel);
+		}
 	}
-	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void StatusPanel::DisableTimeToGo()
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","DisableTimeToGo")
 	ProgressPanel	*panel;
 
-	if (!updateDisabled)
+	if (!mUpdateDisabled)
 	{
-	panel=WhichPanel();
-	if (panel!=NULL)
-	{
-		panel->DisableTimeToGo();
-		UpdateClone(panel);
+		panel=WhichPanel();
+		if (panel!=NULL)
+		{
+			panel->DisableTimeToGo();
+			UpdateClone(panel);
+		}
 	}
-	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void StatusPanel::SetStatus(wxString &statusText)
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","SetStatus")
 	ProgressPanel	*panel;
 
 
-	if (!updateDisabled)
+	if (!mUpdateDisabled)
 	{
-	panel=WhichPanel();
-	if (panel!=NULL)
-	{
+		panel=WhichPanel();
+		if (panel!=NULL)
 		{
-			panel->SetStatus(statusText);
-			UpdateClone(panel);
+			{
+				panel->SetStatus(statusText);
+				UpdateClone(panel);
+			}
 		}
 	}
-	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void StatusPanel::ClearErrors()
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","ClearErrors")
 	ProgressPanel	*panel;
 	int				windowID;
 
-	if (!updateDisabled)
+	if (!mUpdateDisabled)
 	{
-	for (windowID=WINDOW_ID_PROGRESS_PANEL_GENERAL;
-		windowID<WINDOW_ID_PROGRESS_PANEL_MAX;
-		windowID++)
-	{
-		panel=(ProgressPanel *)panelPtrs.Item(windowID-WINDOW_ID_PROGRESS_PANEL_GENERAL);
-		panel->ClearErrors();
-		UpdateClone(panel);
+		for (windowID=WINDOW_ID_PROGRESS_PANEL_GENERAL;
+			windowID<WINDOW_ID_PROGRESS_PANEL_MAX;
+			windowID++)
+		{
+			panel=(ProgressPanel *)mPanelPtrs.Item(windowID-WINDOW_ID_PROGRESS_PANEL_GENERAL);
+			panel->ClearErrors();
+			UpdateClone(panel);
+		}
 	}
-	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void StatusPanel::LogError(wxString &errorText,int severity)
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","LogError")
 	ProgressPanel	*panel;
 
 
-	if (!updateDisabled)
+	if (!mUpdateDisabled)
 	{
-	panel=WhichPanel();
-	if (panel!=NULL)
-	{
+		panel=WhichPanel();
+		if (panel!=NULL)
 		{
-			panel->LogError(errorText,severity);
-			UpdateClone(panel);
+			{
+				panel->LogError(errorText,severity);
+				UpdateClone(panel);
+			}
+		}
+		else
+		{
 		}
 	}
-	else
-	{
-	}
-	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 ProgressPanel *StatusPanel::WhichPanel()
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","WhichPanel")
 	ProgressPanel	*panel=NULL;
 
-	if (!updateDisabled)
+	if (!mUpdateDisabled)
 	{
-	if (currentWindowID==WINDOW_ID_PROGRESS_PANEL_DYNAMIC)
-	{
-		panel=dynamicPanel;
+		if (mCurrentWindowID==WINDOW_ID_PROGRESS_PANEL_DYNAMIC)
+		{
+			panel=mDynamicPanel;
+		}
+		else
+		{
+			panel=(ProgressPanel *)mPanelPtrs.Item(mCurrentWindowID-WINDOW_ID_PROGRESS_PANEL_GENERAL);
+		}
 	}
-	else
-	{
-		panel=(ProgressPanel *)panelPtrs.Item(currentWindowID-WINDOW_ID_PROGRESS_PANEL_GENERAL);
-	}
-	}
+	STATSGEN_DEBUG_FUNCTION_END
 	return (panel);
 }
 
@@ -477,38 +454,40 @@ wxString StatusPanel::PanelName(int windowID)
 
 void StatusPanel::SetStatus(const char *statusTextIn)
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","SetStatus")
 	wxString statusText;
 
 	statusText=statusTextIn;
-	if (!updateDisabled)
+	if (!mUpdateDisabled)
 	{
-	SetStatus(statusText);
+		SetStatus(statusText);
 	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 bool StatusPanel::StageRan(int windowID)
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","StageRan")
 	wxString			SQL;
 	wxString			panelName;
 	TemplateOpenQuery	query;
 	int					counter;
 	int					retVal;
 
-	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","StageRan")
 	panelName=PanelName(windowID);
 
 	SQL.Printf("select * from progressbar where stage='%s' and status like '\% done'",
-				panelName.GetData());
+				STRING_TO_CHAR(panelName));
 	STATSGEN_DEBUG(DEBUG_ALWAYS,SQL);
 	query.Initiate(SQL,globalStatistics.statsgenDatabase.DBHandle());
 	retVal=query.NextRow();
 	if (retVal)
 	{
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"stage ran");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"stage ran");
 	}
 	else
 	{
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"stage not ran");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"stage not ran");
 	}
 	STATSGEN_DEBUG_FUNCTION_END
 	return (retVal);
@@ -516,22 +495,22 @@ bool StatusPanel::StageRan(int windowID)
 
 bool StatusPanel::RecoveryMode()
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","RecoveryMode")
 	bool retVal=false;
 	bool writeDatabaseRan;
 	bool processTemplateRan;
 
-	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","RecoveryMode")
 	writeDatabaseRan=StageRan(WINDOW_ID_PROGRESS_PANEL_WRITE_DATABASE);
 	processTemplateRan=StageRan(WINDOW_ID_PROGRESS_PANEL_PROCESS_TEMPLATE);
 
 	retVal=writeDatabaseRan && (!processTemplateRan);
 	if (retVal)
 	{
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"recovery mode");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"recovery mode");
 	}
 	else
 	{
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"not in recovery");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"not in recovery");
 	}
 	STATSGEN_DEBUG_FUNCTION_END
 	return (retVal);
@@ -539,6 +518,7 @@ bool StatusPanel::RecoveryMode()
 
 void StatusPanel::StoreProgress(wxString &filename)
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","StoreProgress")
 	FILE				*fp;
 	TemplateOpenQuery	query;
 	wxString			SQL="select * from progressbar order by logtime,stage,statusindex";
@@ -555,7 +535,7 @@ void StatusPanel::StoreProgress(wxString &filename)
 
 	wxString			lineToWrite;
 
-	fp=fopen(filename.GetData(),"w");
+	fp=fopen(STRING_TO_CHAR(filename),"w");
 	if (fp!=NULL)
 	{
 		globalStatistics.statsgenDatabase.OpenDB();
@@ -564,51 +544,60 @@ void StatusPanel::StoreProgress(wxString &filename)
 		{
 			stage=query.RetrieveProperty(propertyStage);
 			logtime=query.RetrieveProperty(propertyLogtime);
-			wxDateTime	dateTime((time_t)atoi(logtime.GetData()));
+			wxDateTime	dateTime((time_t)atoi(STRING_TO_CHAR(logtime)));
 			logtime=dateTime.FormatISODate() + " " + dateTime.FormatISOTime();
 			status=query.RetrieveProperty(propertyStatus);
 			severity=query.RetrieveProperty(propertySeverity);
 			error=query.RetrieveProperty(propertyError);
 
 			lineToWrite.Printf("%24s %14s %10s %30s %s",
-				stage.GetData(),
-				logtime.GetData(),
-				status.GetData(),
-				severity.GetData(),
-				error.GetData()
+				STRING_TO_CHAR(stage),
+				STRING_TO_CHAR(logtime),
+				STRING_TO_CHAR(status),
+				STRING_TO_CHAR(severity),
+				STRING_TO_CHAR(error)
 						);
-			fprintf(fp,"%s\n",lineToWrite.GetData());
+			fprintf(fp,"%s\n",STRING_TO_CHAR(lineToWrite));
 		}
 		fclose(fp);
 	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void StatusPanel::SetClone(ProgressPanel *clonePanelIn)
 {
-	clonePanel=clonePanelIn;
+	mClonePanel = clonePanelIn;
 }
 
 void StatusPanel::UpdateClone(ProgressPanel *sourcePanel)
 {
-	if (clonePanel!=NULL)
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","UpdateClone")
+	if (mClonePanel!=NULL)
 	{
 		if (sourcePanel!=NULL)
 		{
-			sourcePanel->UpdateClone(clonePanel);
+			sourcePanel->UpdateClone(mClonePanel);
 		}
 	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 
 bool StatusPanel::GetEventUpdating()
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","GetEventUpdating")
 	ProgressPanel	*panel;
-	panel=(ProgressPanel *)panelPtrs.Item(0);
-	return (panel->GetEventUpdating());
+	bool			result;
+	panel=(ProgressPanel *)mPanelPtrs.Item(0);
+	result =  panel->GetEventUpdating();
+
+	STATSGEN_DEBUG_FUNCTION_END
+	return result;
 }
 
 void StatusPanel::EventUpdating(bool value)
 {
+	STATSGEN_DEBUG_FUNCTION_START("StatusPanel","EventUpdating")
 	ProgressPanel	*panel;
 	int				windowID;
 
@@ -617,8 +606,9 @@ void StatusPanel::EventUpdating(bool value)
 		windowID<WINDOW_ID_PROGRESS_PANEL_MAX;
 		windowID++)
 	{
-		panel=(ProgressPanel *)panelPtrs.Item(windowID-WINDOW_ID_PROGRESS_PANEL_GENERAL);
+		panel=(ProgressPanel *)mPanelPtrs.Item(windowID-WINDOW_ID_PROGRESS_PANEL_GENERAL);
 		panel->EventUpdating(value);
 	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 

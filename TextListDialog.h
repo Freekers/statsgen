@@ -27,18 +27,19 @@ class TextListDialog : public GenericOKCancelDialog
 		virtual void OnSave(wxCommandEvent& event);
 		virtual void OnQuit(wxCommandEvent& event);
 		virtual void OnNew(wxCommandEvent& event);
-		virtual void OnResize(wxSizeEvent &event);
+		virtual void ControlsSizerPre();
+		virtual void ControlsSizerPost();
 		virtual bool DisplayDialog();
 		virtual void SortOn(bool value);
 		virtual void SingleWords(bool value);
-		wxButton	newButton;
+		wxButton	mNewButton;
 
 	protected:
 
 	private:
-		TextListEditorPanel	*panel;
-		wxString		group;
-		bool			singleWords;
+		TextListEditorPanel	*mPanel;
+		wxString		mGroup;
+		bool			mSingleWords;
 		DECLARE_EVENT_TABLE()
 };
 

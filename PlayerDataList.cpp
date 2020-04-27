@@ -32,7 +32,7 @@ void PlayerDataList::ReadFromFile()
 
 	globalStatistics.configData.ReadTextValue(filenameConfigKey,
 												&filename,
-												(char *)defaultFilename.GetData());
+												defaultFilename);
 	playerDataList.Clear();
 	if (wxFileExists(filename))
 	{
@@ -61,8 +61,8 @@ void PlayerDataList::WriteToFile()
 
 	globalStatistics.configData.ReadTextValue(filenameConfigKey,
 												&filename,
-												(char *)defaultFilename.GetData());
-	fp=fopen(filename.GetData(),"w");
+												defaultFilename);
+	fp=fopen(STRING_TO_CHAR(filename),"w");
 	if (fp!=NULL)
 	{
 		PlayerDataEntry		playerDataEntry;
@@ -91,7 +91,7 @@ void PlayerDataList::AddPlayer(wxString &guid,wxString &name,wxString &data)
 
 	STATSGEN_DEBUG_FUNCTION_START("PlayerDataList","AddPlayer")
 	
-	STATSGEN_DEBUG_CODE(msg.Printf("Adding [%s] [%s] [%s]", guid.GetData(), name.GetData(), data.GetData());)
+	STATSGEN_DEBUG_CODE(msg.Printf("Adding [%s] [%s] [%s]", STRING_TO_CHAR(guid), STRING_TO_CHAR(name), STRING_TO_CHAR(data));)
 	STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 	oldIndex=DeletePlayer(guid,name);
 	playerDataEntry.playerGUID=guid;
@@ -117,7 +117,7 @@ int PlayerDataList::DeletePlayer(wxString &guid,wxString &name)
 	int					retVal=-1;
 
 	STATSGEN_DEBUG_FUNCTION_START("PlayerDataList","DeletePlayer")
-	STATSGEN_DEBUG_CODE(msg.Printf("Deleting [%s] [%s]", guid.GetData(), name.GetData()); STATSGEN_DEBUG(DEBUG_ALWAYS,msg);)
+	STATSGEN_DEBUG_CODE(msg.Printf("Deleting [%s] [%s]", STRING_TO_CHAR(guid), STRING_TO_CHAR(name)); STATSGEN_DEBUG(DEBUG_ALWAYS,msg);)
 	playerCount=playerDataList.GetCount();
 	for (playerIndex=0;playerIndex<playerCount;playerIndex++)
 	{
@@ -127,7 +127,7 @@ int PlayerDataList::DeletePlayer(wxString &guid,wxString &name)
 		{
 			playerDataList.RemoveAt(playerIndex);
 			retVal=playerIndex;
-			STATSGEN_DEBUG(DEBUG_ALWAYS,"Removing");
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Removing");
 			break;
 		}
 	}
@@ -150,8 +150,8 @@ wxString PlayerDataList::SQLCreateTable()
 					"playerindex integer,"
 					"%s"
 				")",
-				SQLTableName().GetData(),
-				StatsgenDatabase::StringFieldDefinition("playerdata","playerdata",FIELD_WIDTH_PLAYER_DATA).GetData());
+				STRING_TO_CHAR(SQLTableName()),
+				STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("playerdata","playerdata",FIELD_WIDTH_PLAYER_DATA)));
 	return (SQL);
 }
 
@@ -178,7 +178,7 @@ bool PlayerDataList::WriteToDatabase()
 	for (listIndex=0;listIndex<listCount;listIndex++)
 	{
 		listEntry=playerDataList.Item(listIndex);
-		listEntry.WriteToDatabase(SQLTableName().GetData());
+		listEntry.WriteToDatabase(STRING_TO_CHAR(SQLTableName()));
 	}
 
 	return (retVal);

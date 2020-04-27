@@ -10,13 +10,13 @@
 BoxedDropDown::BoxedDropDown()
 {
 	STATSGEN_DEBUG_FUNCTION_START("BoxedDropDown","BoxedDropDown")
-	allEntriesAllowed=true;
+	mAllEntriesAllowed=true;
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void BoxedDropDown::AllEntriesAllowed(bool allEntries)
 {
-	allEntriesAllowed=allEntries;
+	mAllEntriesAllowed=allEntries;
 }
 
 BoxedDropDown::~BoxedDropDown()
@@ -35,31 +35,25 @@ bool BoxedDropDown::CreateDialog(wxWindow *parent,
 	bool			retVal=true;
 	wxString		label;
 	wxArrayString	dropDownEntries;
-	wxSize			itemSize;
-	wxPoint			itemPosition;
 	wxString		msg;
-	int				dropDownWidth;
-	int				dropDownHeight;
-	int				boxWidth;
-	int				boxHeight;
 	wxString		defaultSelection="??";
 	wxString		dialogName="BoxedDropDown";
 
 	STATSGEN_DEBUG_FUNCTION_START("BoxedDropDown","CreateDialog")
 	label=GetLabel();
 	DropDownEntries(dropDownEntries,defaultSelection);
-	if (allEntriesAllowed)
+	if (mAllEntriesAllowed)
 	{
 		dropDownEntries.Insert(AllName(),0);
 		defaultSelection=AllName();
 	}
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"Create")
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Create")
 	Create(parent,id,pos,size,style,name);
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"staticBox.Create")
-	staticBox.Create(this,-1,label);
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"dropDown.Create")
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"staticBox.Create")
+	mTitleBox = new wxStaticBox(this,wxID_ANY,label);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"dropDown.Create")
 	//dropDown=new wxComboBox(&staticBox,
-	dropDown=new wxComboBox(this,
+	mDropDown=new wxComboBox(this,
 						id,
 						defaultSelection,
 						wxDefaultPosition,
@@ -69,30 +63,15 @@ bool BoxedDropDown::CreateDialog(wxWindow *parent,
 						wxCB_READONLY,
 						wxDefaultValidator,
 						dialogName);
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"dropDown.SetValue")
-	dropDown->SetValue(defaultSelection);
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"dropDown.GetSize")
-	itemSize=dropDown->GetSize();
-	dropDownHeight=itemSize.GetHeight();
-	dropDownWidth=itemSize.GetWidth();
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"dropDown.SetValue")
+	mDropDown->SetValue(defaultSelection);
 
-	boxWidth=dropDownWidth+STATIC_BOX_LEFT_GAP+STATIC_BOX_RIGHT_GAP;
-	boxHeight=dropDownHeight+STATIC_BOX_TOP_GAP+STATIC_BOX_BOTTOM_GAP;
-
-	itemPosition.x=0;
-	itemPosition.y=0;
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"staticBox.set size")
-	staticBox.SetPosition(itemPosition);
-	staticBox.SetSize(wxSize(boxWidth,boxHeight));
-
-	itemPosition.x=STATIC_BOX_LEFT_GAP;
-	itemPosition.y=STATIC_BOX_TOP_GAP;
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"dropDown.SetPosition")
-	dropDown->SetPosition(itemPosition);
-
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"SetSize")
-	SetSize(wxSize(boxWidth+00,boxHeight+00));
-						
+	mTitleSizer		= new wxStaticBoxSizer(mTitleBox,wxVERTICAL);
+	mContentsSizer	= new wxBoxSizer(wxVERTICAL);
+	mContentsSizer->Add(mDropDown,1,wxEXPAND);
+	mTitleSizer->Add(mContentsSizer,1,wxEXPAND);
+	mTitleSizer->SetSizeHints(this);
+	SetSizer(mTitleSizer);
 	STATSGEN_DEBUG_FUNCTION_END
 	return (retVal);
 }
@@ -103,7 +82,7 @@ wxString BoxedDropDown::GetSelectedCode()
 	wxString	name;
 	wxString	code;
 
-	name=dropDown->GetValue();
+	name=mDropDown->GetValue();
 
 	code=FindCodeFromName(name);
 

@@ -42,7 +42,7 @@ wxString Cheaters::SQLCreateTable()
 			"("
 				"name string"
 			")",
-			SQLTableName().GetData());
+			STRING_TO_CHAR(SQLTableName()));
 
 	return SQL;
 }
@@ -60,15 +60,15 @@ bool Cheaters::WriteToDatabase()
 	{
 		name=names.Item(nameIndex);
 		SQL.Printf("delete from %s where name=\'%s\'", 
-				SQLTableName().GetData(),
-				StatsgenDatabase::SafeForInsert(name).GetData());
+				STRING_TO_CHAR(SQLTableName()),
+				STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(name)));
 		globalStatistics.statsgenDatabase.SimpleExecute(SQL);
 		SQL.Printf("insert into %s"
 				"(name)"
 				"values"
 				"('%s')",
-				SQLTableName().GetData(),
-				StatsgenDatabase::SafeForInsert(name).GetData());
+				STRING_TO_CHAR(SQLTableName()),
+				STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(name)));
 		globalStatistics.statsgenDatabase.SimpleExecute(SQL);
 	}
 

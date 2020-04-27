@@ -35,8 +35,11 @@ bool TemplateFile::ReadTemplateFile(wxString &filename,wxString parentOrg)
 	wxString		beforeInclude;
 	wxString		afterInclude;
 	wxString		parent;
+	wxString		msg;
 	STATSGEN_DEBUG_FUNCTION_START("TemplateFile","ReadTemplateFile")
 
+	STATSGEN_DEBUG_CODE(msg.Printf("filename[%s]",STRING_TO_CHAR(filename));)
+	STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 	previousTemplateLine=currentTemplateLine;
 	previousTemplateFile=currentTemplateFile;
 	currentTemplateFile=filename;
@@ -51,7 +54,7 @@ bool TemplateFile::ReadTemplateFile(wxString &filename,wxString parentOrg)
 		lineCount=templateFile.GetLineCount();
 		for (lineIndex=0;lineIndex<lineCount;lineIndex++)
 		{
-			parent.Printf("%s:%s:%d",parentOrg.GetData(),currentTemplateFile.GetData(),lineIndex);
+			parent.Printf("%s:%s:%d",STRING_TO_CHAR(parentOrg),STRING_TO_CHAR(currentTemplateFile),lineIndex);
 			progress->Update(templateLines.GetCount());
 			currentTemplateLine=lineIndex;
 			line=templateFile.GetLine(lineIndex);
@@ -156,14 +159,14 @@ bool TemplateFile::ReadTemplateFile(wxString &filename,wxString parentOrg)
 	{
 		wxString	addition;
 		addition.Printf(", Template File [%s] error line [%d]",
-						currentTemplateFile.GetData(),
+						STRING_TO_CHAR(currentTemplateFile),
 						currentTemplateLine);
 		errorMessage+=addition;
 		if (previousTemplateFile.Length()>0)
 		{
 	
 			addition.Printf(", Opened from [%s] at line [%d",
-						previousTemplateFile.GetData(),
+						STRING_TO_CHAR(previousTemplateFile),
 						previousTemplateLine);
 			errorMessage+=addition;
 		}
@@ -257,6 +260,7 @@ bool TemplateFile::SplitTemplateLine(wxString &templateLine,
 
 bool TemplateFile::ReadTemplate(wxString &filename)
 {
+	STATSGEN_DEBUG_FUNCTION_START("TemplateFile","ReadTemplate")
 	bool							retVal;
 	wxString						parent;
 
@@ -277,6 +281,7 @@ bool TemplateFile::ReadTemplate(wxString &filename)
 
 	// Template Line read in
 
+	STATSGEN_DEBUG_FUNCTION_END
 	return (retVal);
 }
 
@@ -311,24 +316,24 @@ bool TemplateFile::Process()
 					templateVariable);
 	if (retVal)
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Compiled Successfully")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Compiled Successfully")
 
 		retVal=compiledSection.Process(*this,templateVariable);
 		if (retVal)
 		{
 			msg="Processing Succeeded";progress->LogError(msg,SeverityOK);
-			STATSGEN_DEBUG(DEBUG_RARELY,"Processed Successfully")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Processed Successfully")
 		}
 		else
 		{
 			msg="Processing Failed";progress->LogError(msg,SeverityError);
-			STATSGEN_DEBUG(DEBUG_RARELY,"Processing failed")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Processing failed")
 		}
 	}
 	else
 	{
 		msg="Compilation Failed";progress->LogError(msg,SeverityError);
-		STATSGEN_DEBUG(DEBUG_RARELY,"Compilation failed")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Compilation failed")
 	}
 
 
@@ -400,10 +405,10 @@ bool TemplateFile::OpenFile(wxString &templateCode,
 	wxString			localDirectory;
 	STATSGEN_DEBUG_FUNCTION_START("TemplateFile","OpenFile")
 
-	filename=GetLineToken(templateCode," ",2,&tokenCount);
+	filename=GetLineToken(templateCode,(char *)" ",2,&tokenCount);
 	if (tokenCount!=2)
 	{
-		msg.Printf("openfile with too many parameters [%s]",templateCode.GetData());
+		msg.Printf("openfile with too many parameters [%s]",STRING_TO_CHAR(templateCode));
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
 		progress->LogError(msg,SeverityCaution);
 		retVal=false;
@@ -411,7 +416,7 @@ bool TemplateFile::OpenFile(wxString &templateCode,
 	else
 	{
 		configKey="/General/LocalOutput";
-		globalStatistics.configData.ReadTextValue(configKey,&localDirectory,"");
+		globalStatistics.configData.ReadTextValue(configKey,&localDirectory,(char *)"");
 		STATSGEN_DEBUG(DEBUG_RARELY,localDirectory);
 		wxFileName		constructedFile=wxFileName::DirName(localDirectory);
 		constructedFile.SetFullName(filename);
@@ -444,7 +449,7 @@ bool TemplateFile::OpenFile(wxString &templateCode,
 		else
 		{
 			delete openFile;
-			msg.Printf("Failed to open output file [%s]",filename.GetData());
+			msg.Printf("Failed to open output file [%s]",STRING_TO_CHAR(filename));
 			STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 			progress->LogError(msg,SeverityError);
 		}
@@ -491,12 +496,12 @@ bool TemplateFile::Loop(TemplateVariable &templateVariable,
 	wxString	msg;
 
 	STATSGEN_DEBUG_FUNCTION_START("TemplateFile","Loop")
-	rowVariable=GetLineToken(templateCodeText," ",4,&tokenCount);
-	rowIndexVariable=GetLineToken(templateCodeText," ",7,&tokenCount);
+	rowVariable=GetLineToken(templateCodeText,(char *)" ",4,&tokenCount);
+	rowIndexVariable=GetLineToken(templateCodeText,(char *)" ",7,&tokenCount);
 	SQLQuery="";
 	for (tokenIndex=8;tokenIndex<=tokenCount;tokenIndex++)
 	{
-		token=GetLineToken(templateCodeText," ",tokenIndex,&tokenCount);
+		token=GetLineToken(templateCodeText,(char *)" ",tokenIndex,&tokenCount);
 		SQLQuery+=token;
 		if (tokenIndex<tokenCount)
 		{
@@ -506,7 +511,7 @@ bool TemplateFile::Loop(TemplateVariable &templateVariable,
 
 	if (tokenCount<8)
 	{
-		msg.Printf("loop syntax incorrect [%s]",templateCodeText.GetData());
+		msg.Printf("loop syntax incorrect [%s]",STRING_TO_CHAR(templateCodeText));
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 		progress->LogError(msg,SeverityCaution);
 		retVal=false;
@@ -566,19 +571,19 @@ bool TemplateFile::ProcessTemplate(bool allowProcessing,
 		if (templateCodeText.Length()>0)
 		{
 			// We have a template code to handle
-			templateCode=GetLineToken(templateCodeText," ",1,&tokenCount);
+			templateCode=GetLineToken(templateCodeText,(char *)" ",1,&tokenCount);
 			if (templateCode.Cmp("openfile")==0)
 			{
 				if (allowProcessing)
 				{
-					retVal=OpenFile(templateCodeText,"w",templateVariable);
+					retVal=OpenFile(templateCodeText,(char *)"w",templateVariable);
 				}
 			}
 			else if (templateCode.CmpNoCase("appendfile")==0)
 			{
 				if (allowProcessing)
 				{
-					retVal=OpenFile(templateCodeText,"a",templateVariable);
+					retVal=OpenFile(templateCodeText,(char *)"a",templateVariable);
 				}
 			}
 			else if (templateCode.CmpNoCase("closefile")==0)
@@ -680,7 +685,7 @@ bool TemplateFile::ProcessTemplate(bool allowProcessing,
 				else
 				{
 					// Invalid Loop command
-					msg.Printf("Invalid loop statement [%s]",templateCodeText.GetData());
+					msg.Printf("Invalid loop statement [%s]",STRING_TO_CHAR(templateCodeText));
 					STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 					progress->LogError(msg,SeverityCaution);
 				}
@@ -801,7 +806,7 @@ void TemplateFile::Debug()
 	for (lineIndex=0;lineIndex<lineCount;lineIndex++)
 	{
 		line=templateLines.Item(lineIndex);
-		STATSGEN_DEBUG_CODE(errorMessage.Printf("%5d: [%s]",lineIndex,line.GetData());)
+		STATSGEN_DEBUG_CODE(errorMessage.Printf("%5d: [%s]",lineIndex,STRING_TO_CHAR(line));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,errorMessage);
 	}
 	STATSGEN_DEBUG_FUNCTION_END
@@ -892,7 +897,7 @@ void TemplateFile::ExportToCPP(wxString &filename,wxString &prefix)
 	outputFile.Create(filename);
 	cppLine="#include <wx/wx.h>";outputFile.AddLine(cppLine);
 	cppLine="void ExportTemplateFile(wxString &directory,wxArrayString &fileLines,char *filename);";outputFile.AddLine(cppLine);
-	cppLine.Printf("void ExportTemplate%s(wxString &directory)",prefix.GetData());outputFile.AddLine(cppLine);
+	cppLine.Printf("void ExportTemplate%s(wxString &directory)",STRING_TO_CHAR(prefix));outputFile.AddLine(cppLine);
 	cppLine="{";outputFile.AddLine(cppLine);
 	cppLine="    wxString      filename;";outputFile.AddLine(cppLine);
 	cppLine="    wxArrayString fileLines;";outputFile.AddLine(cppLine);
@@ -912,12 +917,12 @@ void TemplateFile::ExportToCPP(wxString &filename,wxString &prefix)
 			fileLine=textFile->GetLine(lineIndex);
 			fileLine.Replace("\\","\\\\");
 			fileLine.Replace("\"","\\\"");
-			cppLine.Printf("    fileLine=\"%s\";fileLines.Add(fileLine);",fileLine.GetData());
+			cppLine.Printf("    fileLine=\"%s\";fileLines.Add(fileLine);",STRING_TO_CHAR(fileLine));
 			outputFile.AddLine(cppLine);
 		}
 		wxFileName	constructedName(templatefilename);
 
-		cppLine.Printf("    ExportTemplateFile(directory,fileLines,\"%s\");",constructedName.GetFullName().GetData());
+		cppLine.Printf("    ExportTemplateFile(directory,fileLines,(char *)\"%s\");",STRING_TO_CHAR(constructedName.GetFullName()));
 		outputFile.AddLine(cppLine);
 	}
 	cppLine="}";outputFile.AddLine(cppLine);
@@ -982,9 +987,9 @@ bool TemplateFile::Compile(
 	{
 		STATSGEN_DEBUG_CODE(
 		msg.Printf("line#=[%d] of [%d] starting template code=[%s]",
-			*currentLineIndex,lineCount,currentTemplateLine.GetData());
+			*currentLineIndex,lineCount,STRING_TO_CHAR(currentTemplateLine));
 							)
-		STATSGEN_DEBUG(DEBUG_RARELY,msg.GetData())
+		STATSGEN_DEBUG(DEBUG_RARELY,STRING_TO_CHAR(msg))
 		progress->Update(*currentLineIndex);
 
 		if (currentTemplateLine.Length()==0)
@@ -1014,7 +1019,7 @@ bool TemplateFile::Compile(
 		if (lineSplitOK)
 		{
 			compiledLineRaw=new CompiledTemplateLineRaw;
-			STATSGEN_DEBUG(DEBUG_RARELY,"split the line ok")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"split the line ok")
 			STATSGEN_DEBUG(DEBUG_RARELY,beforeTemplateCode)
 			STATSGEN_DEBUG(DEBUG_RARELY,templateCodeText)
 			STATSGEN_DEBUG(DEBUG_RARELY,afterTemplateCode)
@@ -1039,7 +1044,7 @@ bool TemplateFile::Compile(
 				{
 					case TEMPLATE_COMMAND_IF:
 						compiledLineIF=new CompiledTemplateLineIF;
-						STATSGEN_DEBUG(DEBUG_RARELY,"IF")
+						STATSGEN_DEBUG(DEBUG_RARELY,(char *)"IF")
 						compiledLineIF->SetTemplateCode(templateCodeText);
 						// Now compile again using the
 						// next bit of the code
@@ -1051,7 +1056,7 @@ bool TemplateFile::Compile(
 											templateVariable);
 						if ((*finishedType)==TEMPLATE_FINISHED_ELSE)
 						{
-							STATSGEN_DEBUG(DEBUG_RARELY,"Finished on an else")
+							STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Finished on an else")
 							// Else statement - another subsection
 							compileResult=Compile(compiledLineIF->falseSection,
 												currentLineIndex,
@@ -1061,7 +1066,7 @@ bool TemplateFile::Compile(
 						}
 						if ((*finishedType)==TEMPLATE_FINISHED_ENDIF)
 						{
-							STATSGEN_DEBUG(DEBUG_RARELY,"Finished on an endif")
+							STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Finished on an endif")
 							// success - we have finished this section
 							finished=false;
 							*finishedType=TEMPLATE_FINISHED_OK;
@@ -1070,8 +1075,8 @@ bool TemplateFile::Compile(
 						else
 						{
 							msg.Printf("IF with no ENDIF [%s]",
-								TemplateErrorDetails(
-										sectionStartIndex).GetData());
+								STRING_TO_CHAR(TemplateErrorDetails(
+										sectionStartIndex)));
 							progress->LogError(msg,SeverityError);
 							STATSGEN_DEBUG_CODE(
 							msg.Printf("Finished on %d",*finishedType);
@@ -1085,14 +1090,14 @@ bool TemplateFile::Compile(
 						compiledSection.Add(compiledLineIF);
 						break;
 					case TEMPLATE_COMMAND_ELSE:
-						STATSGEN_DEBUG(DEBUG_RARELY,"ELSE")
+						STATSGEN_DEBUG(DEBUG_RARELY,(char *)"ELSE")
 						// Finished this section
 						*finishedType=TEMPLATE_FINISHED_ELSE;
 						finished=true;
 						retVal=true;
 						break;
 					case TEMPLATE_COMMAND_ENDIF:
-						STATSGEN_DEBUG(DEBUG_RARELY,"ENDIF")
+						STATSGEN_DEBUG(DEBUG_RARELY,(char *)"ENDIF")
 						// Finished this section
 						*finishedType=TEMPLATE_FINISHED_ENDIF;
 						finished=true;
@@ -1100,7 +1105,7 @@ bool TemplateFile::Compile(
 						break;
 					case TEMPLATE_COMMAND_PROCEDURE:
 						compiledLinePROCEDURE=new CompiledTemplateLinePROCEDURE;
-						STATSGEN_DEBUG(DEBUG_RARELY,"PROCEDURE")
+						STATSGEN_DEBUG(DEBUG_RARELY,(char *)"PROCEDURE")
 						compiledLinePROCEDURE->SetTemplateCode(templateCodeText);
 						compileResult=Compile(compiledLinePROCEDURE->procedureBody,
 											currentLineIndex,
@@ -1109,7 +1114,7 @@ bool TemplateFile::Compile(
 											templateVariable);
 						if ((*finishedType)==TEMPLATE_FINISHED_RETURN)
 						{
-							STATSGEN_DEBUG(DEBUG_RARELY,"Finished on RETURN")
+							STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Finished on RETURN")
 							finished=false;
 							*finishedType=TEMPLATE_FINISHED_OK;
 							retVal=true;
@@ -1118,8 +1123,8 @@ bool TemplateFile::Compile(
 						else
 						{
 							msg.Printf("PROCEDURE with no RETURN [%s]",
-								TemplateErrorDetails(
-										sectionStartIndex).GetData());
+								STRING_TO_CHAR(TemplateErrorDetails(
+										sectionStartIndex)));
 							progress->LogError(msg,SeverityError);
 							STATSGEN_DEBUG_CODE(
 							msg.Printf("Finished on %d",*finishedType);
@@ -1133,7 +1138,7 @@ bool TemplateFile::Compile(
 						//compiledSection.Add(compiledLinePROCEDURE);
 						break;
 					case TEMPLATE_COMMAND_RETURN:
-						STATSGEN_DEBUG(DEBUG_RARELY,"RETURN")
+						STATSGEN_DEBUG(DEBUG_RARELY,(char *)"RETURN")
 						// Finished this section
 						*finishedType=TEMPLATE_FINISHED_RETURN;
 						retVal=true;
@@ -1141,7 +1146,7 @@ bool TemplateFile::Compile(
 						break;
 					case TEMPLATE_COMMAND_LOOP:
 						compiledLineLOOP=new CompiledTemplateLineLOOP;
-						STATSGEN_DEBUG(DEBUG_RARELY,"LOOP")
+						STATSGEN_DEBUG(DEBUG_RARELY,(char *)"LOOP")
 						compiledLineLOOP->SetTemplateCode(templateCodeText);
 						// Now compile again using the
 						// next bit of the code
@@ -1153,7 +1158,7 @@ bool TemplateFile::Compile(
 											templateVariable);
 						if ((*finishedType)==TEMPLATE_FINISHED_ENDLOOP)
 						{
-							STATSGEN_DEBUG(DEBUG_RARELY,"Finished on ENDLOOP")
+							STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Finished on ENDLOOP")
 							finished=false;
 							*finishedType=TEMPLATE_FINISHED_OK;
 							retVal=true;
@@ -1161,8 +1166,8 @@ bool TemplateFile::Compile(
 						else
 						{
 							msg.Printf("LOOP with no ENDLOOP [%s]",
-								TemplateErrorDetails(
-										sectionStartIndex).GetData());
+								STRING_TO_CHAR(TemplateErrorDetails(
+										sectionStartIndex)));
 							progress->LogError(msg,SeverityError);
 							STATSGEN_DEBUG_CODE(
 							msg.Printf("Finished on %d",*finishedType);
@@ -1176,7 +1181,7 @@ bool TemplateFile::Compile(
 						compiledSection.Add(compiledLineLOOP);
 						break;
 					case TEMPLATE_COMMAND_ENDLOOP:
-						STATSGEN_DEBUG(DEBUG_RARELY,"ENDLOOP")
+						STATSGEN_DEBUG(DEBUG_RARELY,(char *)"ENDLOOP")
 						// Finished this section
 						*finishedType=TEMPLATE_FINISHED_ENDLOOP;
 						retVal=true;
@@ -1184,34 +1189,34 @@ bool TemplateFile::Compile(
 						break;
 					case TEMPLATE_COMMAND_OPENFILE:
 						compiledLineOPENFILE=new CompiledTemplateLineOPENFILE;
-						STATSGEN_DEBUG(DEBUG_RARELY,"OPENFILE")
+						STATSGEN_DEBUG(DEBUG_RARELY,(char *)"OPENFILE")
 						compiledLineOPENFILE->SetTemplateCode(templateCodeText);
 						compiledSection.Add(compiledLineOPENFILE);
 						break;
 					case TEMPLATE_COMMAND_APPENDFILE:
 						compiledLineAPPENDFILE=new CompiledTemplateLineAPPENDFILE;
-						STATSGEN_DEBUG(DEBUG_RARELY,"APPENDFILE")
+						STATSGEN_DEBUG(DEBUG_RARELY,(char *)"APPENDFILE")
 						compiledLineAPPENDFILE->SetTemplateCode(templateCodeText);
 						compiledSection.Add(compiledLineAPPENDFILE);
 						break;
 					case TEMPLATE_COMMAND_CLOSEFILE:
 						compiledLineCLOSEFILE=new CompiledTemplateLineCLOSEFILE;
-						STATSGEN_DEBUG(DEBUG_RARELY,"CLOSEFILE")
+						STATSGEN_DEBUG(DEBUG_RARELY,(char *)"CLOSEFILE")
 						compiledLineCLOSEFILE->SetTemplateCode(templateCodeText);
 						compiledSection.Add(compiledLineCLOSEFILE);
 						break;
 					case TEMPLATE_COMMAND_VARIABLE:
 						compiledLineVARIABLE=new CompiledTemplateLineVARIABLE;
-						STATSGEN_DEBUG(DEBUG_RARELY,"VARIABLE")
+						STATSGEN_DEBUG(DEBUG_RARELY,(char *)"VARIABLE")
 						compiledLineVARIABLE->SetTemplateCode(templateCodeText);
 						compiledSection.Add(compiledLineVARIABLE);
 						break;
 					default:
 						msg.Printf("Unknown Template Code [%s]",
-								TemplateErrorDetails(
-										sectionStartIndex).GetData());
+								STRING_TO_CHAR(TemplateErrorDetails(
+										sectionStartIndex)));
 						progress->LogError(msg,SeverityError);
-						STATSGEN_DEBUG(DEBUG_RARELY,"Unknown Template Code")
+						STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Unknown Template Code")
 						// Unknown Template Command
 						finished=true;
 						*finishedType=TEMPLATE_FINISHED_ERROR;
@@ -1226,7 +1231,7 @@ bool TemplateFile::Compile(
 			}
 			else
 			{
-				STATSGEN_DEBUG(DEBUG_RARELY,"no template code left - add to raw")
+				STATSGEN_DEBUG(DEBUG_RARELY,(char *)"no template code left - add to raw")
 				// No template code - so we are moving to a new line of raw data
 				// add in the linefeed
 				//rawTemplateCode+="\n";
@@ -1235,7 +1240,7 @@ bool TemplateFile::Compile(
 		}
 		else
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"Failed to split the template line")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Failed to split the template line")
 			// failed to split the template line - we are finished
 			*finishedType=TEMPLATE_FINISHED_ERROR;
 			currentTemplateLine="";
@@ -1273,10 +1278,10 @@ CompiledTemplateLinePROCEDURE *TemplateFile::FindCustomProcedure(wxString &proce
 	procedureCount = customProcedures.GetCount();
 	for (procedureIndex = 0;procedureIndex < procedureCount;procedureIndex++)
 	{
-		STATSGEN_DEBUG_CODE(msg.Printf("checking procedure %d of %d for [%s]",procedureIndex,procedureCount,procedureName.GetData());)
+		STATSGEN_DEBUG_CODE(msg.Printf("checking procedure %d of %d for [%s]",procedureIndex,procedureCount,STRING_TO_CHAR(procedureName));)
 		STATSGEN_DEBUG(DEBUG_RARELY,msg)
 		currentProcedure = (CompiledTemplateLinePROCEDURE *)customProcedures.Item(procedureIndex);
-		STATSGEN_DEBUG(DEBUG_RARELY,"got a procedure - checking it's name")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"got a procedure - checking it's name")
 		STATSGEN_DEBUG(DEBUG_RARELY,procedureName)
 		if (currentProcedure->procedureName.CmpNoCase(procedureName) == 0)
 		{
@@ -1308,7 +1313,7 @@ wxString TemplateFile::TemplateErrorDetails(int lineIndex)
 		}
 	}
 
-	errorDetails.Printf("[%s]@[%s]",templateLine.GetData(),lineRef.GetData());
+	errorDetails.Printf("[%s]@[%s]",STRING_TO_CHAR(templateLine),STRING_TO_CHAR(lineRef));
 	return (errorDetails);
 }
 int TemplateFile::IdentifyTemplateCode(wxString &templateCode)
@@ -1320,7 +1325,7 @@ int TemplateFile::IdentifyTemplateCode(wxString &templateCode)
 	STATSGEN_DEBUG_FUNCTION_START("TemplateFile","IdentifyTemplateCode")
 	STATSGEN_DEBUG(DEBUG_RARELY,templateCode)
 	retVal=TEMPLATE_COMMAND_VARIABLE;
-	templateCommand=GetLineToken(templateCode," ",1,&tokenCount);
+	templateCommand=GetLineToken(templateCode,(char *)" ",1,&tokenCount);
 	templateCommand.MakeLower();
 	STATSGEN_DEBUG(DEBUG_RARELY,templateCommand)
 	if ((retVal == TEMPLATE_COMMAND_VARIABLE) && (templateCommand.Cmp("if")==0))
@@ -1482,12 +1487,12 @@ bool CompiledTemplateLineIF::ParseTemplateCode()
 	if (templateCodeParameters.StartsWith("(") &&
 		templateCodeParameters.EndsWith(")"))
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Appears correctly formatted")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Appears correctly formatted")
 		retVal=true;
 	}
 	else
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Syntax error")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Syntax error")
 		// error in syntax
 		retVal=false;
 	}
@@ -1508,7 +1513,7 @@ bool CompiledTemplateLineIF::Process(TemplateFile &templateFile,
 	progress->WakeUp();
 	if (usesSubstitution)
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Substitution required")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Substitution required")
 		conditionStatement=variableList.SubstituteVariableValues(templateCodeParameters);
 	}
 	else
@@ -1545,7 +1550,7 @@ bool CompiledTemplateLineLOOP::ParseTemplateCode()
 
 	if (!usesSubstitution)
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Doesn't use substitution")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Doesn't use substitution")
 		// as it does not use substitution we can extract stuff out
 		// straight away
 		retVal = SplitLoopParameters(templateCodeParameters);
@@ -1568,9 +1573,9 @@ bool CompiledTemplateLineLOOP::SplitLoopParameters(wxString &parameterString)
 	rowVariableName="";
 	indexVariableName="";
 	sql="";
-	token=GetLineToken(parameterString," ",3,&tokenCount);
+	token=GetLineToken(parameterString,(char *)" ",3,&tokenCount);
 	STATSGEN_DEBUG_CODE(
-	msg.Printf("tokenCount [%d], first important token [%s]",tokenCount,token.GetData());
+	msg.Printf("tokenCount [%d], first important token [%s]",tokenCount,STRING_TO_CHAR(token));
 						)
 	STATSGEN_DEBUG(DEBUG_RARELY,msg)
 	if (tokenCount<7)
@@ -1581,7 +1586,7 @@ bool CompiledTemplateLineLOOP::SplitLoopParameters(wxString &parameterString)
 	else
 	{
 		rowVariableName=token;
-		token=GetLineToken(parameterString," ",6,&tokenCount);
+		token=GetLineToken(parameterString,(char *)" ",6,&tokenCount);
 		indexVariableName=token;
 	}
 
@@ -1589,7 +1594,7 @@ bool CompiledTemplateLineLOOP::SplitLoopParameters(wxString &parameterString)
 	{
 		for (tokenIndex=7;tokenIndex<=tokenCount;tokenIndex++)
 		{
-			token=GetLineToken(parameterString," ",tokenIndex,&tokenCount);
+			token=GetLineToken(parameterString,(char *)" ",tokenIndex,&tokenCount);
 			if (sql.Length()>0)
 			{
 				sql+=" ";
@@ -1617,7 +1622,7 @@ bool CompiledTemplateLineLOOP::Process(TemplateFile &templateFile,
 	// Store the template query on the stack
 	if (usesSubstitution)
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Substitution required")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Substitution required")
 		loopStatement=variableList.SubstituteVariableValues(templateCodeParameters);
 		STATSGEN_DEBUG(DEBUG_RARELY,loopStatement)
 		SplitLoopParameters(loopStatement);
@@ -1635,7 +1640,7 @@ bool CompiledTemplateLineLOOP::Process(TemplateFile &templateFile,
 		retVal=subSection.Process(templateFile,variableList);
 		if (!retVal)
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"subsection failed")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"subsection failed")
 			break;
 		}
 		rowIndex++;
@@ -1664,7 +1669,7 @@ bool CompiledTemplateLineOPENFILE::ParseTemplateCode()
 
 char *CompiledTemplateLineOPENFILE::Mode()
 {
-	return("w");
+	return((char *)"w");
 }
 
 bool CompiledTemplateLineOPENFILE::Process(TemplateFile &templateFile,
@@ -1680,13 +1685,13 @@ bool CompiledTemplateLineOPENFILE::Process(TemplateFile &templateFile,
 	STATSGEN_DEBUG_FUNCTION_START("CompiledTemplateLineOPENFILE","Process")
 	progress->WakeUp();
 	configKey="/General/LocalOutput";
-	globalStatistics.configData.ReadTextValue(configKey,&localDirectory,"");
+	globalStatistics.configData.ReadTextValue(configKey,&localDirectory,(char *)"");
 
 	wxFileName		constructedFile=wxFileName::DirName(localDirectory);
 	STATSGEN_DEBUG(DEBUG_RARELY,templateCodeParameters)
 	if (usesSubstitution)
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Substitution required")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Substitution required")
 		filename=variableList.SubstituteVariableValues(templateCodeParameters);
 	}
 	else
@@ -1701,7 +1706,7 @@ bool CompiledTemplateLineOPENFILE::Process(TemplateFile &templateFile,
 	retVal=openFile->Open(filename,Mode());
 	if (retVal)
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"file opened ok")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"file opened ok")
 		// Successfully opened file - add it to the openfile stack
 		variableList.openFiles.Add(openFile);
 		templateFile.AddCreatedFile(filename);
@@ -1709,7 +1714,7 @@ bool CompiledTemplateLineOPENFILE::Process(TemplateFile &templateFile,
 	else
 	{
 		delete openFile;
-		msg.Printf("Failed to open output file [%s]",filename.GetData());
+		msg.Printf("Failed to open output file [%s]",STRING_TO_CHAR(filename));
 		STATSGEN_DEBUG(DEBUG_RARELY,msg)
 		progress->LogError(msg,SeverityError);
 	}
@@ -1737,7 +1742,7 @@ bool CompiledTemplateLineAPPENDFILE::ParseTemplateCode()
 
 char *CompiledTemplateLineAPPENDFILE::Mode()
 {
-	return("a");
+	return((char *)"a");
 }
 
 CompiledTemplateLineCLOSEFILE::~CompiledTemplateLineCLOSEFILE()
@@ -1785,7 +1790,7 @@ bool CompiledTemplateLineVARIABLE::Process(TemplateFile &templateFile,
 	STATSGEN_DEBUG(DEBUG_RARELY,templateCode)
 	if (usesSubstitution)
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Substitution required")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Substitution required")
 		variableName=variableList.SubstituteVariableValues(templateCode);
 	}
 	else
@@ -1863,7 +1868,7 @@ bool CompiledTemplateSection::Process(TemplateFile &templateFile,
 		retVal=compiledTemplateLine->Process(templateFile,variableList);
 		if (!retVal)
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"Failed to process compiled line")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Failed to process compiled line")
 			break;
 		}
 	}
@@ -1895,7 +1900,7 @@ bool CompiledTemplateLinePROCEDURE::ParseTemplateCode()
 	STATSGEN_DEBUG(DEBUG_RARELY,parameterList);
 	if (procedureName.Length()>0)
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Appears correctly formatted");
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Appears correctly formatted");
 		while (parameterList.Length()>0)
 		{
 			STATSGEN_DEBUG(DEBUG_RARELY,parameterList);
@@ -1909,7 +1914,7 @@ bool CompiledTemplateLinePROCEDURE::ParseTemplateCode()
 	}
 	else
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Syntax error")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Syntax error")
 		// error in syntax
 		retVal=false;
 	}
@@ -1962,10 +1967,10 @@ void CompiledTemplateLinePROCEDURE::Execute(TemplateFile *templateFile,TemplateV
 	{
 		parameterValue=parameterValues->Item(parameterIndex);
 		parameter=parameterVars.Item(parameterIndex);
-		parameterVar.Printf("self_%s",parameter.GetData());
+		parameterVar.Printf("self_%s",STRING_TO_CHAR(parameter));
 		STATSGEN_DEBUG(DEBUG_RARELY,parameter)
 		STATSGEN_DEBUG(DEBUG_RARELY,parameterVar)
-		STATSGEN_DEBUG(DEBUG_RARELY,parameterValue)
+		STATSGEN_DEBUG(DEBUG_RARELY,parameterValue->GetString())
 		if (parameterValue->IsQuery())
 		{
 			TemplateOpenQuery	*clonedQuery;

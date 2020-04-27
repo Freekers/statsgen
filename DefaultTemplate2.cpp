@@ -27,7 +27,7 @@ void ExportTemplateQuick(wxString &directory)
     fileLine="$$updatestatus(\"Time Played List\")$$$$messagecentrekey=\"TopTimePlayed\"$$$$title=\"^7Time Played\"$$$$sortkey=\"duration\"$$$$include quickplayerlists.html$$";fileLines.Add(fileLine);
     fileLine="$$updatestatus(\"Rounds Played List\")$$$$messagecentrekey=\"TopRoundsPlayed\"$$$$title=\"^7Rounds Played\"$$$$sortkey=\"rounds\"$$$$include quickplayerlists.html$$";fileLines.Add(fileLine);
     fileLine="$$updatestatus(\"XP List\")$$$$include quickxplists.html$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"quick.template");
+    ExportTemplateFile(directory,fileLines,(char *)"quick.template");
     fileLines.Clear();
     fileLine="$$suffix=\"classes\"$$$$table=\"class\"$$$$title=\"Class\"$$$$include quicktotallist.html$$";fileLines.Add(fileLine);
     fileLine="$$suffix=\"gametypes\"$$$$table=\"gametype\"$$$$title=\"Game Type\"$$$$include quicktotallist.html$$";fileLines.Add(fileLine);
@@ -35,7 +35,7 @@ void ExportTemplateQuick(wxString &directory)
     fileLine="$$suffix=\"maps\"$$$$table=\"map\"$$$$title=\"Map\"$$$$include quicktotallist.html$$";fileLines.Add(fileLine);
     fileLine="$$suffix=\"weapons\"$$$$table=\"weapon\"$$$$title=\"Weapon\"$$$$include quicktotallist.html$$";fileLines.Add(fileLine);
     fileLine="$$suffix=\"teams\"$$$$table=\"team\"$$$$title=\"Team\"$$$$include quicktotallist.html$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"quickmainpage.html");
+    ExportTemplateFile(directory,fileLines,(char *)"quickmainpage.html");
     fileLines.Clear();
     fileLine="$$loop row as totaltype index as totaltypeindex select * from %%table%%$$";fileLines.Add(fileLine);
     fileLine="$$messagecentrekey=\"Top%%table%%%%totaltype.id%%\"$$";fileLines.Add(fileLine);
@@ -43,7 +43,7 @@ void ExportTemplateQuick(wxString &directory)
     fileLine="$$MessageCentre(messagecentrekey,playertotal.name,playertotal.kills)$$";fileLines.Add(fileLine);
     fileLine="$$endloop playertotal$$";fileLines.Add(fileLine);
     fileLine="$$endloop totaltype$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"quicktotallist.html");
+    ExportTemplateFile(directory,fileLines,(char *)"quicktotallist.html");
     fileLines.Clear();
     fileLine="$$loop row as awarddef index as awarddefindex select * from awarddefinition$$";fileLines.Add(fileLine);
     fileLine="	$$pointsrecorded=\"0\"$$";fileLines.Add(fileLine);
@@ -61,12 +61,12 @@ void ExportTemplateQuick(wxString &directory)
     fileLine="		$$endloop awardpoints$$";fileLines.Add(fileLine);
     fileLine="	$$endif$$";fileLines.Add(fileLine);
     fileLine="$$endloop awarddef$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"quickawards.html");
+    ExportTemplateFile(directory,fileLines,(char *)"quickawards.html");
     fileLines.Clear();
     fileLine="$$loop row as player index as playerindex select * from view_player order by %%sortkey%% desc limit 1$$";fileLines.Add(fileLine);
     fileLine="$$MessageCentre(messagecentrekey,player.name,player.%%sortkey%%)$$";fileLines.Add(fileLine);
     fileLine="$$endloop$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"quickplayerlists.html");
+    ExportTemplateFile(directory,fileLines,(char *)"quickplayerlists.html");
     fileLines.Clear();
     fileLine="$$loop row as xptype index as xptypeindex select * from xp$$";fileLines.Add(fileLine);
     fileLine="$$updatestatus(\"xp %%xptype.id%%\")$$$$openfile xp_%%xptype.id%%.html$$";fileLines.Add(fileLine);
@@ -75,5 +75,5 @@ void ExportTemplateQuick(wxString &directory)
     fileLine="$$MessageCentre(messagecentrekey,xptotal.playername,formatfloat(\"%.3f\",xptotal.points))$$";fileLines.Add(fileLine);
     fileLine="$$endloop$$";fileLines.Add(fileLine);
     fileLine="$$endloop xptype$$";fileLines.Add(fileLine);
-    ExportTemplateFile(directory,fileLines,"quickxplists.html");
+    ExportTemplateFile(directory,fileLines,(char *)"quickxplists.html");
 }

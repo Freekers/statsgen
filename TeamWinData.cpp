@@ -34,7 +34,7 @@ wxString TeamWinData::SQLCreateTable()
 				"playerclass integer,"
 				"playerteam integer"
 			")",
-			SQLTableName().GetData());
+			STRING_TO_CHAR(SQLTableName()));
 	return SQL;
 }
 
@@ -50,7 +50,7 @@ bool TeamWinData::WriteToDatabase(int roundIndex,int itemIndex)
 		"(roundindex,teamwinidx,playerindex,playerclass,playerteam)"
 		"values"
 		"('%d','%d','%d','%d','%d')",
-		SQLTableName().GetData(),
+		STRING_TO_CHAR(SQLTableName()),
 		roundIndex,
 		itemIndex,
 		player.actualPlayerIndex,

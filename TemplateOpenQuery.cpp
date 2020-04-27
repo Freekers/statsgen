@@ -31,7 +31,7 @@ bool TemplateOpenQuery::Initiate(wxString &SQLIn,
 	if (dbHandle!=NULL)
 	{
 		status=sqlite3_prepare(dbHandle,
-					SQL.GetData(),
+					STRING_TO_CHAR(SQL),
 					-1,
 					&query,
 					&unusedSQL);
@@ -56,7 +56,7 @@ bool TemplateOpenQuery::Initiate(wxString &SQLIn,
 		else
 		{
 			retVal=false;
-			msg.Printf("Failed to prepare [%s]",SQL.GetData());
+			msg.Printf("Failed to prepare [%s]",STRING_TO_CHAR(SQL));
 			STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
 			progress->LogError(msg,SeverityError);
 			query=NULL;
@@ -64,7 +64,7 @@ bool TemplateOpenQuery::Initiate(wxString &SQLIn,
 	}
 	else
 	{
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"null db handle");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"null db handle");
 		retVal=false;
 		query=NULL;
 	}
@@ -112,22 +112,22 @@ bool TemplateOpenQuery::NextRow()
 				retVal=false;
 				break;
 			case SQLITE_BUSY:
-				STATSGEN_DEBUG(DEBUG_ALWAYS,"BUSY")
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"BUSY")
 				retVal=false;
 				break;
 			case SQLITE_ERROR:
-				STATSGEN_DEBUG(DEBUG_ALWAYS,"ERROR")
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"ERROR")
 				retVal=false;
 				break;
 			case SQLITE_MISUSE:
-				STATSGEN_DEBUG(DEBUG_ALWAYS,"MISUSE")
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"MISUSE")
 				retVal=false;
 				break;
 		}
 	}
 	else
 	{
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"Strange - query is null during nextrow")
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Strange - query is null during nextrow")
 		retVal=false;
 	}
 	STATSGEN_DEBUG_FUNCTION_END
@@ -147,11 +147,11 @@ wxString TemplateOpenQuery::RetrieveProperty(wxString &property)
 		if (property.IsNumber())
 		{
 			// property is a direct column access
-			columnIndex=atoi(property.GetData());
+			columnIndex=atoi(STRING_TO_CHAR(property));
 		}
 		else
 		{
-			columnIndex=columnNames.Index(property.GetData());
+			columnIndex=columnNames.Index(STRING_TO_CHAR(property));
 		}
 		if ((columnIndex>=0) && (columnIndex<columnValues.GetCount()))
 		{

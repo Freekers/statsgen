@@ -8,7 +8,7 @@
 class WebFile
 {
 	public:
-		WebFile(wxString &hostname,wxString &filename);
+		WebFile(wxString &hostname,wxString &filename,int port=80);
 		virtual ~WebFile();
 
 		bool Get(wxString &localFile);
@@ -16,6 +16,7 @@ class WebFile
 	private:
 		wxString hostname;
 		wxString filename;
+		int		mPort;
 };
 
 #endif

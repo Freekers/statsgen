@@ -33,10 +33,10 @@ void AliasListEntry::ReadFromFile(wxTextFile *fp,int index)
 void AliasListEntry::WriteToFile(FILE *fp)
 {
 	fprintf(fp,"%s,%s\n%s,%s\n",
-		primaryGUID.GetData(),
-		primaryName.GetData(),
-		aliasGUID.GetData(),
-		aliasName.GetData());
+		STRING_TO_CHAR(primaryGUID),
+		STRING_TO_CHAR(primaryName),
+		STRING_TO_CHAR(aliasGUID),
+		STRING_TO_CHAR(aliasName));
 }
 
 int AliasListEntry::UpdateInDatabase()
@@ -140,10 +140,10 @@ int AliasListEntry::UpdateInDatabase()
 				tableName=tablesNeedingUpdate.Item(tableIndex);
 				fieldName=fieldsNeedingUpdate.Item(tableIndex);
 				sql.Printf("update %s set %s=%d where %s=%d",
-						tableName.GetData(),
-						fieldName.GetData(),
+						STRING_TO_CHAR(tableName),
+						STRING_TO_CHAR(fieldName),
 						primaryPlayer.actualPlayerIndex,
-						fieldName.GetData(),
+						STRING_TO_CHAR(fieldName),
 						secondaryPlayer.actualPlayerIndex);
 				globalStatistics.statsgenDatabase.SimpleExecute(sql);
 			}
@@ -161,7 +161,7 @@ int AliasListEntry::UpdateInDatabase()
 			// The secondary name is in the database - but no primary
 			// so all we have to do is update the name
 			sql.Printf("update player set name='%s' where playerindex='%d'",
-					StatsgenDatabase::SafeForInsert(primaryName).GetData(),
+					STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(primaryName)),
 					secondaryPlayer.actualPlayerIndex);
 			globalStatistics.statsgenDatabase.SimpleExecute(sql);
 		}

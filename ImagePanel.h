@@ -25,19 +25,15 @@ class ImagePanel : public wxPanel
 				wxImage &imageIn);
 		void SetImage(wxImage &imageIn);
 		virtual ~ImagePanel();
-		wxString GetValue();
 		void OnPaint(wxPaintEvent &event);
 		void OnResize(wxSizeEvent &event);
-		void Maximise();
-
-		void DrawImage();
-		void Scale(float scaleFactor);
-		void Proportion(int maxWidth,int maxHeight);
+		void UpdateImageScale(wxDC &dc);
 		void Clear();
+
+		void Render(wxDC &dc);
 	private:
-		wxImage			image;
-		float			currentScale;
-		bool			painting;
+		wxImage			mImage;
+		float			mCurrentScale;
 		DECLARE_EVENT_TABLE()
 
 };

@@ -37,7 +37,7 @@ bool TemplateOpenFile::Open(wxString &filenameIn,char *mode)
 	filename=filenameIn;
 //	msg.Printf("Entering:Opening file [%s] in mode [%s]",filename.GetData(),mode);
 //	StatsgenDebug(msg);
-	fp=fopen(filename.GetData(),mode);
+	fp=fopen(STRING_TO_CHAR(filename),mode);
 	if (fp!=NULL)
 	{
 //		StatsgenDebug("Successfully opened");
@@ -57,7 +57,7 @@ bool TemplateOpenFile::Write(wxString &text)
 	if (fp!=NULL)
 	{
 		retVal=true;
-		fprintf(fp,"%s",text.GetData());
+		fprintf(fp,"%s",STRING_TO_CHAR(text));
 	}
 	return (retVal);
 }

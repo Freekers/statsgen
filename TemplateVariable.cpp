@@ -100,7 +100,7 @@ bool TemplateVariable::QueryNextRow(wxString &variableOrg)
 	}
 	else
 	{
-		msg.Printf("Could not find stored query [%s]",variable.GetData());
+		msg.Printf("Could not find stored query [%s]",STRING_TO_CHAR(variable));
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 		progress->LogError(msg,SeverityCaution);
 		retVal=false;
@@ -140,7 +140,7 @@ wxString TemplateVariable::SubstituteVariableValues(wxString &text)
 			charIndexLength=afterVarSymbols.Find("%%");
 			if (charIndexLength<0)
 			{
-				msg.Printf("Closing %% missing from [%s]",workingText.GetData());
+				msg.Printf("Closing %% missing from [%s]",STRING_TO_CHAR(workingText));
 				STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
 				progress->LogError(msg,SeverityError);
 				finished=true;
@@ -285,16 +285,16 @@ wxString TemplateVariable::ColouredText2HTML(wxString &colouredText)
 
 	retVal=colouredText;
 
-	configKey="/Colours/0";globalStatistics.configData.ReadTextValue(configKey,&font0,"000000");
-	configKey="/Colours/1";globalStatistics.configData.ReadTextValue(configKey,&font1,"FF0000");
-	configKey="/Colours/2";globalStatistics.configData.ReadTextValue(configKey,&font2,"00FF00");
-	configKey="/Colours/3";globalStatistics.configData.ReadTextValue(configKey,&font3,"FFFF00");
-	configKey="/Colours/4";globalStatistics.configData.ReadTextValue(configKey,&font4,"0000FF");
-	configKey="/Colours/5";globalStatistics.configData.ReadTextValue(configKey,&font5,"00FFFF");
-	configKey="/Colours/6";globalStatistics.configData.ReadTextValue(configKey,&font6,"FF00FF");
-	configKey="/Colours/7";globalStatistics.configData.ReadTextValue(configKey,&font7,"FFFFFF");
-	configKey="/Colours/8";globalStatistics.configData.ReadTextValue(configKey,&font8,"008000");
-	configKey="/Colours/9";globalStatistics.configData.ReadTextValue(configKey,&font9,"808080");
+	configKey="/Colours/0";globalStatistics.configData.ReadTextValue(configKey,&font0,(char *)"000000");
+	configKey="/Colours/1";globalStatistics.configData.ReadTextValue(configKey,&font1,(char *)"FF0000");
+	configKey="/Colours/2";globalStatistics.configData.ReadTextValue(configKey,&font2,(char *)"00FF00");
+	configKey="/Colours/3";globalStatistics.configData.ReadTextValue(configKey,&font3,(char *)"FFFF00");
+	configKey="/Colours/4";globalStatistics.configData.ReadTextValue(configKey,&font4,(char *)"0000FF");
+	configKey="/Colours/5";globalStatistics.configData.ReadTextValue(configKey,&font5,(char *)"00FFFF");
+	configKey="/Colours/6";globalStatistics.configData.ReadTextValue(configKey,&font6,(char *)"FF00FF");
+	configKey="/Colours/7";globalStatistics.configData.ReadTextValue(configKey,&font7,(char *)"FFFFFF");
+	configKey="/Colours/8";globalStatistics.configData.ReadTextValue(configKey,&font8,(char *)"008000");
+	configKey="/Colours/9";globalStatistics.configData.ReadTextValue(configKey,&font9,(char *)"808080");
 
 	// safetyfi - that's a good word isn't it - the html
 	retVal.Replace("&","&amp;");
@@ -303,21 +303,21 @@ wxString TemplateVariable::ColouredText2HTML(wxString &colouredText)
 	retVal.Replace(">","&gt;");
 
 	// Replace colours
-	replace.Printf("<font color=#%s>",font0.GetData());retVal.Replace("^0",replace.GetData());
-	replace.Printf("<font color=#%s>",font1.GetData());retVal.Replace("^1",replace.GetData());
-	replace.Printf("<font color=#%s>",font2.GetData());retVal.Replace("^2",replace.GetData());
-	replace.Printf("<font color=#%s>",font3.GetData());retVal.Replace("^3",replace.GetData());
-	replace.Printf("<font color=#%s>",font4.GetData());retVal.Replace("^4",replace.GetData());
-	replace.Printf("<font color=#%s>",font5.GetData());retVal.Replace("^5",replace.GetData());
-	replace.Printf("<font color=#%s>",font6.GetData());retVal.Replace("^6",replace.GetData());
-	replace.Printf("<font color=#%s>",font7.GetData());retVal.Replace("^7",replace.GetData());
-	replace.Printf("<font color=#%s>",font8.GetData());retVal.Replace("^8",replace.GetData());
-	replace.Printf("<font color=#%s>",font9.GetData());retVal.Replace("^9",replace.GetData());
+	replace.Printf("<font color=#%s>",STRING_TO_CHAR(font0));retVal.Replace("^0",STRING_TO_CHAR(replace));
+	replace.Printf("<font color=#%s>",STRING_TO_CHAR(font1));retVal.Replace("^1",STRING_TO_CHAR(replace));
+	replace.Printf("<font color=#%s>",STRING_TO_CHAR(font2));retVal.Replace("^2",STRING_TO_CHAR(replace));
+	replace.Printf("<font color=#%s>",STRING_TO_CHAR(font3));retVal.Replace("^3",STRING_TO_CHAR(replace));
+	replace.Printf("<font color=#%s>",STRING_TO_CHAR(font4));retVal.Replace("^4",STRING_TO_CHAR(replace));
+	replace.Printf("<font color=#%s>",STRING_TO_CHAR(font5));retVal.Replace("^5",STRING_TO_CHAR(replace));
+	replace.Printf("<font color=#%s>",STRING_TO_CHAR(font6));retVal.Replace("^6",STRING_TO_CHAR(replace));
+	replace.Printf("<font color=#%s>",STRING_TO_CHAR(font7));retVal.Replace("^7",STRING_TO_CHAR(replace));
+	replace.Printf("<font color=#%s>",STRING_TO_CHAR(font8));retVal.Replace("^8",STRING_TO_CHAR(replace));
+	replace.Printf("<font color=#%s>",STRING_TO_CHAR(font9));retVal.Replace("^9",STRING_TO_CHAR(replace));
 
 	// add in close fonts
 	retVal.Replace("<font ","</font><font ");
 	// Open white font at the beginning
-	replace.Printf("<font color=#%s>",font7.GetData());
+	replace.Printf("<font color=#%s>",STRING_TO_CHAR(font7));
 	retVal=replace+retVal;
 	// Add in closing font
 	retVal=retVal+"</font>";
@@ -400,7 +400,7 @@ wxString TemplateVariable::GetVariableValue(wxString &templateCode)
 				// functions are functioname([parameter],)
 				// We have found an open bracket - function name before it
 				templateCode=templateCode.AfterFirst('(');
-				STATSGEN_DEBUG(DEBUG_RARELY,"Extracting parameter list")
+				STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Extracting parameter list")
 				while ((templateCode.Length()>0) && 
 						(templateCode[0]!=')'))
 				{
@@ -428,7 +428,7 @@ wxString TemplateVariable::GetVariableValue(wxString &templateCode)
 						templateCode=templateCode.AfterFirst(',');
 					}
 				}
-				STATSGEN_DEBUG(DEBUG_RARELY,"Extracted parameter list")
+				STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Extracted parameter list")
 				// We have scanned all the template code now and are exiting
 				// parameter search, either because reached end of string or
 				// found a closing bracket
@@ -447,7 +447,7 @@ wxString TemplateVariable::GetVariableValue(wxString &templateCode)
 					else
 					{
 						msg.Printf("function name [%s()] has %d parameters, but expecting %d",
-								functionName.GetData(),
+								STRING_TO_CHAR(functionName),
 								parameterCount,
 								1);
 						STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
@@ -464,7 +464,7 @@ wxString TemplateVariable::GetVariableValue(wxString &templateCode)
 					else
 					{
 						msg.Printf("function name [%s()] has %d parameters, but expecting %d",
-								functionName.GetData(),
+								STRING_TO_CHAR(functionName),
 								parameterCount,
 								1);
 						STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
@@ -482,7 +482,7 @@ wxString TemplateVariable::GetVariableValue(wxString &templateCode)
 					else
 					{
 						msg.Printf("function name [%s()] has %d parameters, but expecting %d",
-								functionName.GetData(),
+								STRING_TO_CHAR(functionName),
 								parameterCount,
 								2);
 						STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
@@ -500,7 +500,7 @@ wxString TemplateVariable::GetVariableValue(wxString &templateCode)
 					else
 					{
 						msg.Printf("function name [%s()] has %d parameters, but expecting %d",
-								functionName.GetData(),
+								STRING_TO_CHAR(functionName),
 								parameterCount,
 								2);
 						STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
@@ -542,7 +542,7 @@ wxString TemplateVariable::GetVariableValue(wxString &templateCode)
 					else
 					{
 						msg.Printf("function name [%s()] has %d parameters, but expecting %d",
-									functionName.GetData(),
+									STRING_TO_CHAR(functionName),
 									parameterCount,
 									2);
 						STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
@@ -560,7 +560,7 @@ wxString TemplateVariable::GetVariableValue(wxString &templateCode)
 					else
 					{
 						msg.Printf("function name [%s()] has %d parameters, but expecting %d",
-									functionName.GetData(),
+									STRING_TO_CHAR(functionName),
 									parameterCount,
 									2);
 						STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
@@ -600,7 +600,7 @@ wxString TemplateVariable::GetVariableValue(wxString &templateCode)
 					else
 					{
 						msg.Printf("function name [%s()] has %d parameters, but expecting at least %d",
-									functionName.GetData(),
+									STRING_TO_CHAR(functionName),
 									parameterCount,
 									2);
 						STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
@@ -617,7 +617,7 @@ wxString TemplateVariable::GetVariableValue(wxString &templateCode)
 					else
 					{
 						msg.Printf("function name [%s()] has %d parameters, but expecting %d",
-									functionName.GetData(),
+									STRING_TO_CHAR(functionName),
 									parameterCount,
 									2);
 						STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
@@ -640,7 +640,7 @@ wxString TemplateVariable::GetVariableValue(wxString &templateCode)
 				wxString	rawVariable;
 
 				rawVariable=assignmentVar;
-				variable=GetLineToken(rawVariable,".",1,&tokenCount);
+				variable=GetLineToken(rawVariable,(char *)".",1,&tokenCount);
 				value="";
 				if (tokenCount!=1)
 				{
@@ -648,7 +648,7 @@ wxString TemplateVariable::GetVariableValue(wxString &templateCode)
 					openQuery=RetrieveQuery(variable);
 					if (openQuery!=NULL)
 					{
-						queryProperty=GetLineToken(rawVariable,".",2,&tokenCount);
+						queryProperty=GetLineToken(rawVariable,(char *)".",2,&tokenCount);
 						value=openQuery->RetrieveProperty(queryProperty);
 					}
 					else
@@ -739,10 +739,10 @@ wxString TemplateVariable::FormatDuration(wxString &format,wxString &duration)
 	long		seconds;
 	wxString	msg;
 
-	seconds=atol(duration.GetData());
+	seconds=atol(STRING_TO_CHAR(duration));
 	wxTimeSpan	timeSpan=wxTimeSpan::Seconds(seconds);
 
-	retVal=timeSpan.Format(format.GetData());
+	retVal=timeSpan.Format(STRING_TO_CHAR(format));
 
 	return (retVal);
 }
@@ -753,8 +753,8 @@ wxString TemplateVariable::FormatInteger(wxString &format,wxString &integerStr)
 	long		number;
 	wxString	msg;
 
-	number=atol(integerStr.GetData());
-	retVal.Printf(format.GetData(),number);
+	number=atol(STRING_TO_CHAR(integerStr));
+	retVal.Printf(STRING_TO_CHAR(format),number);
 
 	return (retVal);
 }
@@ -889,7 +889,7 @@ wxString TemplateVariable::ReadStatistic(wxString &variable)
 	wxString	queryProperty;
 	bool		retVal;
 
-	SQL.Printf("select * from miscellaneous where statistic='%s'",variable.GetData());
+	SQL.Printf("select * from miscellaneous where statistic='%s'",STRING_TO_CHAR(variable));
 	TemplateOpenQuery openQuery;
 	openQuery.variable="internal";
 	openQuery.Initiate(SQL, globalStatistics.statsgenDatabase.DBHandle());
@@ -909,10 +909,10 @@ wxString TemplateVariable::FormatDate(wxString &format,wxString &secondssince197
 	long		seconds;
 	wxString	msg;
 
-	seconds=atol(secondssince1970.GetData());
+	seconds=atol(STRING_TO_CHAR(secondssince1970));
 	wxDateTime	timeSpan=wxDateTime((time_t) seconds);
 
-	retVal=timeSpan.Format(format.GetData());
+	retVal=timeSpan.Format(STRING_TO_CHAR(format));
 
 	return (retVal);
 }
@@ -932,8 +932,8 @@ wxString TemplateVariable::MessageCentre(wxArrayString &parameters)
 
 	SafeString(key);
 	// Make sure a Format string has been stored
-	configKey.Printf("/MessageCentreFormats/%s",key.GetData());
-	globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+	configKey.Printf("/MessageCentreFormats/%s",STRING_TO_CHAR(key));
+	globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 
 	// Now write all the values associated with it
 	group="MessageCentreValues";
@@ -990,8 +990,8 @@ wxString TemplateVariable::FormatFloat(wxString &format,wxString &floatStr)
 	float		number;
 	wxString	msg;
 
-	number=atof(floatStr.GetData());
-	retVal.Printf(format.GetData(),number);
+	number=atof(STRING_TO_CHAR(floatStr));
+	retVal.Printf(STRING_TO_CHAR(format),number);
 
 	return (retVal);
 }
@@ -1041,7 +1041,7 @@ wxString TemplateVariable::ReadTemplateConfig(wxArrayString &parameters)
 			defaultValue=parameters.Item(1);
 			globalStatistics.configData.ReadTextValue(configKey,
 													&configValue,
-													(char *)defaultValue.GetData());
+													defaultValue);
 			if (parameterCount == 3)
 			{
 				variableHelp=parameters.Item(2);
@@ -1078,7 +1078,7 @@ wxString TemplateVariable::ReadConfig(wxArrayString &parameters)
 			defaultValue=parameters.Item(1);
 			globalStatistics.configData.ReadTextValue(configKey,
 													&configValue,
-													(char *)defaultValue.GetData());
+													defaultValue);
 			break;
 	}
 	
@@ -1147,23 +1147,23 @@ void TemplateVariable::ExecuteCustomProcedure(wxString &procedureName,TemplateVa
 	STATSGEN_DEBUG(DEBUG_RARELY,procedureName);
 	if (templateFile == NULL)
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Doh!, I haven't set the template file")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Doh!, I haven't set the template file")
 	}
 	else
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"template file set, trying to find procedure")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"template file set, trying to find procedure")
 		procedure = templateFile->FindCustomProcedure(procedureName);
 		if (procedure != NULL)
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"Found It");
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Found It");
 			oldProcedurePrefix=currentProcedurePrefix;
-			currentProcedurePrefix.Printf("procedure%s",procedureName.GetData());
+			currentProcedurePrefix.Printf("procedure%s",STRING_TO_CHAR(procedureName));
 			procedure->Execute(templateFile,*this,parameterValues);
 			currentProcedurePrefix=oldProcedurePrefix;
 		}
 		else
 		{
-			msg.Printf("trying to execute non-existant procedure [%s]",procedureName.GetData());
+			msg.Printf("trying to execute non-existant procedure [%s]",STRING_TO_CHAR(procedureName));
 			progress->LogError(msg,SeverityCaution);
 		}
 	}

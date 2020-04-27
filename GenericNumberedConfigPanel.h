@@ -29,7 +29,6 @@ class GenericNumberedConfigPanel : public wxPanel
 
 		void OnListItemSelected(wxCommandEvent &event);
 		void OnTextChange(wxCommandEvent &event);
-		void OnResize(wxSizeEvent &event);
 
 		void CreateDialog();
 		void SetConfigPanel(GenericConfigPanel *configPanel);
@@ -37,11 +36,11 @@ class GenericNumberedConfigPanel : public wxPanel
 	protected:
 
 	private:
-		wxComboBox		idList;
-		GenericConfigPanel * (*newPanelFunction)(wxWindow *parentID,wxString &listID);
-		GenericConfigPanel	*configPanel;
-		wxString	listGroup;
-		wxString	listGroupPrefix;
+		wxComboBox		mIDList;
+		GenericConfigPanel * (*mNewPanelFunction)(wxWindow *parentID,wxString &listID);
+		GenericConfigPanel	*mConfigPanel;
+		wxString	mListGroup;
+		wxString	mListGroupPrefix;
 		DECLARE_EVENT_TABLE()
 };
 

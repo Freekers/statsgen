@@ -47,7 +47,7 @@ void DropList::Load()
 	DropListEntry		dropListEntry;
 
 	status="Reading Drop List"; progress->SetStatus(status);
-	globalStatistics.configData.ReadTextValue(configKey,&configValue,"droplist.dat");
+	globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"droplist.dat");
 	if (wxFileExists(configValue))
 	{
 		retVal=fp.Open(configValue);
@@ -92,8 +92,8 @@ void DropList::Write()
 	wxString			configKey="/General/DropList";
 	wxString			configValue;
 
-	globalStatistics.configData.ReadTextValue(configKey,&configValue,"droplist.dat");
-	fp=fopen(configValue.GetData(),"w");
+	globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"droplist.dat");
+	fp=fopen(STRING_TO_CHAR(configValue),"w");
 	if (fp!=NULL)
 	{
 		dropCount=allowList.GetCount();

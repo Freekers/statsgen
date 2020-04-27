@@ -18,11 +18,11 @@ void Website::LoadConfig()
 	configBaseKey="/"+configGroup+"/";
 
 	configKey=configBaseKey+"FTPEnabled";
-	globalStatistics.configData.ReadTextValue(configKey,&configValue,"n");
+	globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"n");
 	FTPEnabled=(configValue.CmpNoCase("y")==0);
 
 	configKey=configBaseKey+"FTPRemoteDirectory";
-	globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+	globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 	FTPRemoteDirectory=configValue;
 }
 Website::Website()
@@ -36,6 +36,7 @@ Website::~Website()
 
 bool Website::UploadZipContents(wxString &localFile)
 {
+	STATSGEN_DEBUG_FUNCTION_START("Website","UploadZipContents")
 	bool				retVal;
 	wxString			imagename;
 	long				fileSize;
@@ -70,9 +71,9 @@ bool Website::UploadZipContents(wxString &localFile)
 		RemoteMachine		website(configGroup);
 
 		progress->Initiate(totalSize,
-							"kb",
+							(char *)"kb",
 							1024,
-							"kb",
+							(char *)"kb",
 							1024);
 		zipEntry=zipStream.GetNextEntry();
 		while (zipEntry!=NULL)
@@ -103,6 +104,7 @@ bool Website::UploadZipContents(wxString &localFile)
 		progress->Finalise();
 	}
 
+	STATSGEN_DEBUG_FUNCTION_END
 	return (true);
 }
 
@@ -134,9 +136,9 @@ bool Website::TransferFiles(wxArrayString &filelist)
 			totalFileSize+=fileSize;
 		}
 		progress->Initiate(totalFileSize,
-							"kb",
+							(char *)"kb",
 							1024,
-							"kb",
+							(char *)"kb",
 							1024);
 		for (fileIndex=0;fileIndex<fileCount;fileIndex++)
 		{
@@ -149,19 +151,19 @@ bool Website::TransferFiles(wxArrayString &filelist)
 			STATSGEN_DEBUG_CODE(msg.Printf("Transferring %d of %d [%s] to [%s]",
 						fileIndex+1,
 						fileCount,
-						localFilename.GetData(),
-						FTPRemoteDirectory.GetData());)
+						STRING_TO_CHAR(localFilename),
+						STRING_TO_CHAR(FTPRemoteDirectory));)
 			STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
 			allOK=remoteMachine.PutFile(FTPRemoteDirectory,localFilename);
 			if (allOK)
 			{
-				STATSGEN_DEBUG(DEBUG_RARELY,"File Transferred OK")
+				STATSGEN_DEBUG(DEBUG_RARELY,(char *)"File Transferred OK")
 			}
 			else
 			{
-				msg.Printf("Failed to transfer %s to website",localFilename.GetData());
+				msg.Printf("Failed to transfer %s to website",STRING_TO_CHAR(localFilename));
 				progress->LogError(msg,SeverityError);
-				STATSGEN_DEBUG(DEBUG_ALWAYS,"File Transferred FAIL")
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"File Transferred FAIL")
 			}
 		}
 	}
@@ -202,9 +204,9 @@ bool Website::UploadZipTemplateContents(wxString &localFile,wxString &templateFi
 		wxZipEntry			*zipEntry;
 
 		progress->Initiate(totalSize,
-							"kb",
+							(char *)"kb",
 							1024,
-							"kb",
+							(char *)"kb",
 							1024);
 		zipEntry=zipStream.GetNextEntry();
 		while (zipEntry!=NULL)

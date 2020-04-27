@@ -17,17 +17,17 @@ void Clan::ReadConfig()
 
 	baseGroup="Clan"+id;
 
-	configBase.Printf("/%s/",baseGroup.GetData());
+	configBase.Printf("/%s/",STRING_TO_CHAR(baseGroup));
 	configKey=configBase+"TagColoured";
-	globalStatistics.configData.ReadTextValue(configKey,&tag,"");
+	globalStatistics.configData.ReadTextValue(configKey,&tag,(char *)"");
 	configKey=configBase+"FullName";
-	globalStatistics.configData.ReadTextValue(configKey,&name,"");
+	globalStatistics.configData.ReadTextValue(configKey,&name,(char *)"");
 	configKey=configBase+"WebAddress";
-	globalStatistics.configData.ReadTextValue(configKey,&webAddress,"");
+	globalStatistics.configData.ReadTextValue(configKey,&webAddress,(char *)"");
 	configKey=configBase+"BannerAddress";
-	globalStatistics.configData.ReadTextValue(configKey,&banner,"");
+	globalStatistics.configData.ReadTextValue(configKey,&banner,(char *)"");
 	configKey=configBase+"RegExp";
-	globalStatistics.configData.ReadTextValue(configKey,&regExpString,"");
+	globalStatistics.configData.ReadTextValue(configKey,&regExpString,(char *)"");
 	regExp=new wxRegEx();
 	regExp->Compile(regExpString);
 }
@@ -66,11 +66,11 @@ wxString Clan::SQLCreateTable()
 				"%s,"
 				"%s"
 			")",
-			SQLTableName().GetData(),
-		StatsgenDatabase::StringFieldDefinition("tag","clantag",FIELD_WIDTH_CLAN_TAG).GetData(),
-		StatsgenDatabase::StringFieldDefinition("name","clanname",FIELD_WIDTH_CLAN_NAME).GetData(),
-		StatsgenDatabase::StringFieldDefinition("webaddress","clannweb",FIELD_WIDTH_CLAN_WEBADDRESS).GetData(),
-		StatsgenDatabase::StringFieldDefinition("banner","clanbanner",FIELD_WIDTH_CLAN_BANNER).GetData()
+			STRING_TO_CHAR(SQLTableName()),
+		STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("tag","clantag",FIELD_WIDTH_CLAN_TAG)),
+		STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("name","clanname",FIELD_WIDTH_CLAN_NAME)),
+		STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("webaddress","clannweb",FIELD_WIDTH_CLAN_WEBADDRESS)),
+		STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("banner","clanbanner",FIELD_WIDTH_CLAN_BANNER))
 );
 
 	return SQL;
@@ -84,12 +84,12 @@ bool Clan::WriteToDatabase(int itemIndex)
 	SQL.Printf("Insert into %s"
 				"(clanindex,tag,name,webaddress,banner)"
 				"values('%d','%s','%s','%s','%s')",
-				SQLTableName().GetData(),
+				STRING_TO_CHAR(SQLTableName()),
 				itemIndex,
-				tag.GetData(),
-				name.GetData(),
-				webAddress.GetData(),
-				banner.GetData());
+				STRING_TO_CHAR(tag),
+				STRING_TO_CHAR(name),
+				STRING_TO_CHAR(webAddress),
+				STRING_TO_CHAR(banner));
 	globalStatistics.statsgenDatabase.SimpleExecute(SQL);
 	return retVal;
 }

@@ -72,97 +72,122 @@ END_EVENT_TABLE()
 
 GUIWizardPageStatsgen::GUIWizardPageStatsgen(StatsgenWizard *wizardIn,wxString parentPageID,wxString thisPageID) : wxWizardPage(wizardIn)
 {
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageStatsgen","GUIWizardPageStatsgen")
 	wxFont		font;
-	previousPage	= NULL;
-	nextPage		= NULL;
-	helpTextCtrl	= NULL;
-	sectionTitle	= NULL;
-	installProgress		= NULL;
-	helpText		= "";
-	callBack		= NULL;
-	callBackObject	= NULL;
+	mPreviousPage	= NULL;
+	mNextPage		= NULL;
+	mHelpTextCtrl	= NULL;
+	mSectionTitle	= NULL;
+	mInstallProgress		= NULL;
+	mHelpText		= "";
+	mCallBack		= NULL;
+	mCallBackObject	= NULL;
 
-	wizard=wizardIn;
+	mWizard=wizardIn;
 
-	helpTextCtrl	= new wxRichTextCtrl(this);
-	sectionTitle	= new wxStaticText(this,-1,"");
-	font = sectionTitle->GetFont();
+	mHelpTextCtrl	= new wxRichTextCtrl(this);
+	mSectionTitle	= new wxStaticText(this,wxID_ANY,"");
+	font = mSectionTitle->GetFont();
 	font.SetPointSize(3 * font.GetPointSize());
 	font.SetWeight(wxFONTWEIGHT_BOLD);
 	
-	sectionTitle->SetFont(font);
+	mSectionTitle->SetFont(font);
 	
-	installProgress		= new wxGauge(this,-1,30);
-	helpTextCtrl->SetEditable(false);
-	pageID=parentPageID;
-	pageID+=thisPageID;
+	mInstallProgress		= new wxGauge(this,-1,30);
+	mHelpTextCtrl->SetEditable(false);
+	mPageID=parentPageID;
+	mPageID+=thisPageID;
+
+	mContentsSizer	= new wxBoxSizer(wxVERTICAL);
+	mMainSizer = new wxBoxSizer(wxVERTICAL);
+	mMainSizer->Add(mSectionTitle,0,wxEXPAND);
+	mMainSizer->Add(mContentsSizer,4,wxEXPAND);
+	mMainSizer->Add(mHelpTextCtrl,1,wxEXPAND);
+
+	mMainSizer->Add(mInstallProgress,0,wxEXPAND);
+
+	mMainSizer->SetSizeHints(this);
+	SetSizer(mMainSizer);
+
+	wxSizer *pageSizer;
+	//pageSizer = mWizard->GetPageAreaSizer();
+	//pageSizer->Add(this);
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 
 GUIWizardPageStatsgen::~GUIWizardPageStatsgen()
 {
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageStatsgen","~GUIWizardPageStatsgen")
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 wxString GUIWizardPageStatsgen::GetPageID()
 {
-	return (pageID);
+	return (mPageID);
 }
 
 void GUIWizardPageStatsgen::SetSectionTitle(const char *titleChars)
 {
-	sectionTitle->SetLabel(titleChars);
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageStatsgen","SetLabel")
+	mSectionTitle->SetLabel(titleChars);
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void GUIWizardPageStatsgen::SetCallBack(void(* callBackIn)(void *object),void *callBackObjectIn)
 {
-	callBack		= callBackIn;
-	callBackObject	= callBackObjectIn;
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageStatsgen","SetCallback")
+	mCallBack		= callBackIn;
+	mCallBackObject	= callBackObjectIn;
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 wxWizardPage *GUIWizardPageStatsgen::GetPrev() const
 {
-	return (previousPage);
+	return (mPreviousPage);
 }
 
 wxWizardPage *GUIWizardPageStatsgen::GetNext() const
 {
-	return (nextPage);
+	return (mNextPage);
 }
 
 void GUIWizardPageStatsgen::SetNextPage(wxWizardPage *page)
 {
-	nextPage		= page;
+	mNextPage		= page;
 }
 
 void GUIWizardPageStatsgen::SetPreviousPage(wxWizardPage *page)
 {
-	previousPage	= page;
+	mPreviousPage	= page;
 }
 
 void GUIWizardPageStatsgen::SetHelp(const char *helpTextIn)
 {
-	helpText = helpTextIn;
+	mHelpText = helpTextIn;
 	UpdateScreen();
 }
 
 void GUIWizardPageStatsgen::UpdateScreen()
 {
-	if (helpTextCtrl!=NULL)
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageStatsgen","UpdateScreen")
+	if (mHelpTextCtrl!=NULL)
 	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"creating controls");
 		wxString		workingString;
 		wxString		textSection;
 		wxString		codeSection;
 		bool			startSection;
 		char			code;
 
-		workingString	=helpText;
-		helpTextCtrl->Clear();
-		helpTextCtrl->BeginFontSize(15);
+		workingString	=mHelpText;
+		mHelpTextCtrl->Clear();
+		mHelpTextCtrl->BeginFontSize(15);
 
 		while (workingString.Length()>0)
 		{
 			textSection=workingString.BeforeFirst('[');
-			helpTextCtrl->AppendText(textSection);
+			mHelpTextCtrl->AppendText(textSection);
 
 			codeSection=workingString.AfterFirst('[');
 			if (codeSection.StartsWith("/"))
@@ -185,22 +210,22 @@ void GUIWizardPageStatsgen::UpdateScreen()
 				case 'B':
 					if (startSection)
 					{
-						helpTextCtrl->BeginBold();
+						mHelpTextCtrl->BeginBold();
 					}
 					else
 					{
-						helpTextCtrl->EndBold();
+						mHelpTextCtrl->EndBold();
 					}
 					break;
 				case 'i':
 				case 'I':
 					if (startSection)
 					{
-						helpTextCtrl->BeginItalic();
+						mHelpTextCtrl->BeginItalic();
 					}
 					else
 					{
-						helpTextCtrl->EndItalic();
+						mHelpTextCtrl->EndItalic();
 					}
 					break;
 			}
@@ -208,95 +233,20 @@ void GUIWizardPageStatsgen::UpdateScreen()
 		}
 		//helpTextCtrl->SetValue(helpText);
 	}
-}
-
-wxSize GUIWizardPageStatsgen::ResizeControl(int x,int y,int width,bool resize)
-{
-	wxSize	controlSize;
-
-	controlSize.SetWidth(width);
-	controlSize.SetHeight(0);
-
-	return (controlSize);
-}
-
-void GUIWizardPageStatsgen::Resize(int maxHeight)
-{
-	int		sectionTitleX;
-	int		sectionTitleY;
-	int		sectionTitleWidth;
-	int		sectionTitleHeight;
-
-	int		progressX;
-	int		progressY;
-	int		progressWidth;
-	int		progressHeight;
-	int		helpX;
-	int		helpY;
-	int		helpWidth;
-	int		helpHeight;
-	int		controlX;
-	int		controlY;
-	int		controlHeight;
-	wxSize	controlSize;
-	wxSize	pageSize;
-
-	int		width=700;
-	int		height;
-	wxString	msg;
-
-	if (helpTextCtrl!=NULL)
-	{
-		controlSize = ResizeControl(0,0,width,false);
-		controlHeight = controlSize.GetHeight();
-		if (controlSize.GetWidth()>width)
-		{
-			width=controlSize.GetWidth();
-		}
-		sectionTitleX		= 0;
-		sectionTitleY		= 0;
-		sectionTitleWidth	= width;
-		sectionTitleHeight	= 60;
-		progressX		= 0;
-		progressY		= sectionTitleY + sectionTitleHeight;
-		progressHeight	= 20;
-		progressWidth	= width;
-
-		controlX		= 0;
-		controlY		= progressY+progressHeight+5;
-
-		helpX			= 0;
-		helpY			= controlY + controlHeight;
-		helpWidth		= width;
-		helpHeight		= 100;
-
-		sectionTitle->SetSize(sectionTitleX,sectionTitleY,sectionTitleWidth,sectionTitleHeight);
-		installProgress->SetSize(progressX,progressY,progressWidth,progressHeight);
-		if (maxHeight>=0)
-		{
-			helpHeight = maxHeight - helpY;
-		}
-		helpTextCtrl->SetSize(helpX,helpY,helpWidth,helpHeight);
-
-		ResizeControl(controlX,controlY,width,true);
-
-		height = helpY + helpHeight;
-
-		SetSize(wxSize(width,height));
-	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void GUIWizardPageStatsgen::SetPageCounter(int pageIndexIn,int pageCountIn)
 {
-	pageIndex		= pageIndexIn;
-	wizardPageCount	= pageCountIn;
+	mPageIndex			= pageIndexIn;
+	mWizardPageCount	= pageCountIn;
 
-	installProgress->SetRange(wizardPageCount);
+	mInstallProgress->SetRange(mWizardPageCount);
 }
 
 void GUIWizardPageStatsgen::UpdateProgress()
 {
-	installProgress->SetValue(pageIndex+1);
+	mInstallProgress->SetValue(mPageIndex+1);
 }
 
 bool GUIWizardPageStatsgen::AutoAdvance()
@@ -306,9 +256,9 @@ bool GUIWizardPageStatsgen::AutoAdvance()
 
 void GUIWizardPageStatsgen::PageContentsChanged()
 {
-	if (wizard!=NULL)
+	if (mWizard!=NULL)
 	{
-		wizard->PageContentsChanged();
+		mWizard->PageContentsChanged();
 	}
 }
 
@@ -333,13 +283,16 @@ wxString GUIWizardPageNull::GetValue()
 
 GUIWizardPageConfig::GUIWizardPageConfig(StatsgenWizard *wizardIn,wxString parentPageID,wxString thisPageID) : GUIWizardPageStatsgen(wizardIn,parentPageID,thisPageID)
 {
-	titleCtrl		= NULL;
-	configKey		= "";
-	defaultValue	= "";
-	title			= "";
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageConfig","GUIWizardPageConfig")
+	mTitleCtrl		= NULL;
+	mConfigKey		= "";
+	mDefaultValue	= "";
+	mTitle			= "";
 	AllowCtrlUpdates();
 
-	titleCtrl		= new wxStaticText(this,-1,title);
+	mTitleCtrl		= new wxStaticText(this,wxID_ANY,mTitle);
+	mContentsSizer->Add(mTitleCtrl,0,wxEXPAND);
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 GUIWizardPageConfig::~GUIWizardPageConfig()
@@ -348,7 +301,7 @@ GUIWizardPageConfig::~GUIWizardPageConfig()
 
 bool GUIWizardPageConfig::ConfigReady()
 {
-	if (configKey.Length()>0)
+	if (mConfigKey.Length()>0)
 	{
 		return (true);
 	}
@@ -362,74 +315,85 @@ void GUIWizardPageConfig::SetDefault(const char *defaultValueIn)
 {
 	if (defaultValueIn==NULL)
 	{
-		defaultValue = "";
+		mDefaultValue = "";
 	}
 	else
 	{
-		defaultValue = defaultValueIn;
+		mDefaultValue = defaultValueIn;
 	}
 }
 
 void GUIWizardPageConfig::SetConfigKey(wxString &configKeyIn,const char *defaultValueIn)
 {
-	configKey = configKeyIn;
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageConfig","SetConfigKey")
+	mConfigKey = configKeyIn;
 	SetDefault(defaultValueIn);
 	UpdateScreen();
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void GUIWizardPageConfig::SetConfigTitle(const char *titleIn)
 {
-	title=titleIn;
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageConfig","SetConfigTitle")
+	mTitle=titleIn;
 	UpdateScreen();
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void GUIWizardPageConfig::VetoCtrlUpdates()
 {
-	vetoUpdates	=true;
+	mVetoUpdates	=true;
 }
 
 void GUIWizardPageConfig::AllowCtrlUpdates()
 {
-	vetoUpdates	=false;
+	mVetoUpdates	=false;
 }
 
 bool GUIWizardPageConfig::CtrlUpdatesAllowed()
 {
-	return (vetoUpdates);
+	return (mVetoUpdates);
 }
 
 void GUIWizardPageConfig::OnValueChanged(wxCommandEvent &event)
 {
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageConfig","OnValueChanged")
 	if (ScreenReady() && ConfigReady() && !CtrlUpdatesAllowed())
 	{
 		SetValueFromCtrl();
 		UpdateConfigFromValue();
 		PageContentsChanged();
 	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void GUIWizardPageConfig::UpdateConfigFromValue()
 {
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageConfig","UpdateConfigFromValue")
 	if (ConfigReady())
 	{
-		globalStatistics.configData.WriteTextValue(configKey,value);
-		if (callBack!=NULL)
+		globalStatistics.configData.WriteTextValue(mConfigKey,mValue);
+		if (mCallBack!=NULL)
 		{
-			callBack(callBackObject);
+			mCallBack(mCallBackObject);
 		}
 	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void GUIWizardPageConfig::UpdateValueFromConfig()
 {
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageConfig","UpdateValueFromConfig")
 	if (ConfigReady())
 	{
-		globalStatistics.configData.ReadTextValue(configKey,&value,(char *)defaultValue.GetData());
+		globalStatistics.configData.ReadTextValue(mConfigKey,&mValue,mDefaultValue);
 	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void GUIWizardPageConfig::UpdateCtrlFromValue()
 {
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageConfig","UpdateCtrlFromValue")
 	if (ScreenReady() && ConfigReady())
 	{
 		UpdateValueFromConfig();
@@ -437,138 +401,96 @@ void GUIWizardPageConfig::UpdateCtrlFromValue()
 		SetCtrlFromValue();
 		AllowCtrlUpdates();
 	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void GUIWizardPageConfig::UpdateScreen()
 {
-	if (titleCtrl!=NULL)
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageConfig","UpdateScreen")
+	if (mTitleCtrl!=NULL)
 	{
-		titleCtrl->SetLabel(title);
+		mTitleCtrl->SetLabel(mTitle);
 	}
 	UpdateCtrlFromValue();
 	GUIWizardPageStatsgen::UpdateScreen();
-}
-
-wxSize GUIWizardPageConfig::ResizeControl(int x,int y,int width,bool resize)
-{
-	int			titleX;
-	int			titleY;
-	int			titleWidth;
-	int			titleHeight;
-	wxSize		controlSize;
-
-	if (titleCtrl!=NULL)
-	{
-		titleX			=x;
-		titleY			=y;
-		titleWidth		=width;
-		titleHeight		=30;
-
-		controlSize.SetWidth(titleWidth);
-		controlSize.SetHeight(titleHeight);
-		if (resize)
-		{
-			titleCtrl->SetSize(titleX,titleY,titleWidth,titleHeight);
-		}
-	}
-
-	return (controlSize);
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 wxString GUIWizardPageConfig::GetValue()
 {
 	//UpdateValueFromConfig();
-	return (value);
+	return (mValue);
 }
 
 GUIWizardPageConfigText::GUIWizardPageConfigText(StatsgenWizard *wizardIn,wxString parentPageID,wxString thisPageID) : GUIWizardPageConfig(wizardIn,parentPageID,thisPageID)
 {
-	valueCtrl = FALSE;
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageConfigText","GUIWizardPageConfigText")
+	mValueCtrl = NULL;
 	CreateControl();
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 GUIWizardPageConfigText::~GUIWizardPageConfigText()
 {
-	valueCtrl = FALSE;
+	mValueCtrl = NULL;
 }
 void GUIWizardPageConfigText::CreateControl()
 {
-	valueCtrl		= new wxTextCtrl(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE);
-}
-
-wxSize GUIWizardPageConfigText::ResizeControl(int x,int y,int width,bool resize)
-{
-	wxSize		baseControlSize;
-	wxSize		controlSize;
-	int			baseX;
-	int			baseY;
-	int			baseWidth;
-	int			baseHeight;
-	int			valueX;
-	int			valueY;
-	int			valueWidth;
-	int			valueHeight;
-
-	baseX			= x;
-	baseY			= y;
-	baseControlSize = GUIWizardPageConfig::ResizeControl(baseX,baseY,width,resize);
-	baseWidth		= baseControlSize.GetWidth();
-	baseHeight		= baseControlSize.GetHeight();
-
-	valueX			= x;
-	valueY			= baseY + baseHeight;
-	valueWidth		= width;
-	valueHeight		= 30;
-
-	controlSize.SetWidth(width);
-	controlSize.SetHeight(baseHeight + valueHeight);
-
-	if (resize)
-	{
-		valueCtrl->SetSize(valueX,valueY,valueWidth,valueHeight);
-	}
-
-	return (controlSize);
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageConfigText","CreateControl")
+	mValueCtrl		= new wxTextCtrl(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE);
+	mContentsSizer->Add(mValueCtrl,0,wxEXPAND);
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void GUIWizardPageConfigText::SetCtrlFromValue()
 {
-	valueCtrl->SetValue(value);
+	mValueCtrl->SetValue(mValue);
 }
 
 bool GUIWizardPageConfigText::ScreenReady()
 {
-	return (valueCtrl!=NULL);
+	return (mValueCtrl!=NULL);
 }
 
 void GUIWizardPageConfigText::SetValueFromCtrl()
 {
-	value=valueCtrl->GetValue();
+	mValue=mValueCtrl->GetValue();
 }
 
 GUIWizardPageRemoteTest::GUIWizardPageRemoteTest(StatsgenWizard *wizardIn,wxString parentPageID,wxString thisPageID) : GUIWizardPageStatsgen(wizardIn,parentPageID,thisPageID)
 {
-	statusCtrl		= new wxStaticText(this,-1,"Test Not Run");
-	errorCtrl		= new wxRichTextCtrl(this,-1,"");
-	errorCtrl->SetEditable(false);
-	testButton		= new wxButton(this,WINDOW_ID_BUTTON_NEW,"Test Connection");
-	lastConnectionResult = false;
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageRemoteTest","GUIWizardPageRemoteTest")
+	wxSize	minSize;
+
+	mStatusCtrl		= new wxStaticText(this,wxID_ANY,"Test Not Run");
+	mErrorCtrl		= new wxRichTextCtrl(this,wxID_ANY,"");
+	mErrorCtrl->SetEditable(false);
+	mTestButton		= new wxButton(this,WINDOW_ID_BUTTON_NEW,"Test Connection");
+	mLastConnectionResult = false;
 	SetHelp("[b]Press the button[/b] to confirm FTP Access Details are correct");
+	mContentsSizer->Add(mStatusCtrl,0,wxEXPAND);
+	mContentsSizer->Add(mErrorCtrl,1,wxEXPAND|wxALL);
+	mContentsSizer->Add(mTestButton);
+
+	minSize = mErrorCtrl->GetSize();
+	minSize.SetHeight(100);
+	mErrorCtrl->SetMinSize(minSize);
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 GUIWizardPageRemoteTest::~GUIWizardPageRemoteTest()
 {
-	lastConnectionResult = false;
+	mLastConnectionResult = false;
 }
 
 void GUIWizardPageRemoteTest::SetGroupPrefix(wxString &groupPrefixIn)
 {
-	groupPrefix		= groupPrefixIn;
+	mGroupPrefix		= groupPrefixIn;
 }
 
 bool GUIWizardPageRemoteTest::TestResult()
 {
-	return (lastConnectionResult);
+	return (mLastConnectionResult);
 }
 
 wxString GUIWizardPageRemoteTest::GetValue()
@@ -589,112 +511,59 @@ wxString GUIWizardPageRemoteTest::GetValue()
 
 bool GUIWizardPageRemoteTest::PerformTest()
 {
-	RemoteMachine		remoteMachine(groupPrefix);
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageRemoteTest","PerformTest")
+	STATSGEN_DEBUG(DEBUG_ALWAYS,mGroupPrefix)
+	RemoteMachine		remoteMachine(mGroupPrefix);
 	RestartingFTP				ftpConnection;
 	
-	lastConnectionResult	=remoteMachine.Connect(ftpConnection);
+	mLastConnectionResult	=remoteMachine.Connect(ftpConnection);
 
-	if (lastConnectionResult)
+	if (mLastConnectionResult)
 	{
-		statusCtrl->SetLabel("Connection Successful");
-		errorCtrl->SetValue("");
+		mStatusCtrl->SetLabel("Connection Successful");
+		mErrorCtrl->SetValue("");
 	}
 	else
 	{
-		errorCtrl->SetValue(remoteMachine.GetLastErrorMessage());
-		statusCtrl->SetLabel("Failed to connect");
+		mErrorCtrl->SetValue(remoteMachine.GetLastErrorMessage());
+		mStatusCtrl->SetLabel("Failed to connect");
 	}
 
-	return (lastConnectionResult);
+	STATSGEN_DEBUG_FUNCTION_END
+	return (mLastConnectionResult);
 }
 
 void GUIWizardPageRemoteTest::OnButtonPressed(wxCommandEvent &event)
 {
 	PerformTest();
-	if (callBack!=NULL)
+	if (mCallBack!=NULL)
 	{
-		callBack(callBackObject);
+		mCallBack(mCallBackObject);
 	}
 	PageContentsChanged();
 }
 
-wxSize GUIWizardPageRemoteTest::ResizeControl(int x,int y,int width,bool resize)
-{
-	int			statusX;
-	int			statusY;
-	int			statusWidth;
-	int			statusHeight;
-
-	int			errorX;
-	int			errorY;
-	int			errorWidth;
-	int			errorHeight;
-
-	int			buttonX;
-	int			buttonY;
-	int			buttonWidth;
-	int			buttonHeight;
-	wxSize		objectSize;
-
-	wxSize		controlSize;
-
-	if (statusCtrl!=NULL)
-	{
-		objectSize		= testButton->GetSize();
-		buttonX			=x;
-		buttonY			=y;
-		buttonWidth		=objectSize.GetWidth();
-		buttonHeight	=objectSize.GetHeight();
-
-		if (buttonWidth > width)
-		{
-			width = buttonWidth;
-		}
-
-		statusX			=x;
-		statusY			=buttonY + buttonHeight;
-		statusWidth		=width;
-		statusHeight	=30;
-
-		errorX			=x;
-		errorY			=statusY + statusHeight;
-		errorWidth		=width;
-		errorHeight		=90;
-
-		if (resize)
-		{
-			testButton->SetSize(buttonX,buttonY,buttonWidth,buttonHeight);
-			statusCtrl->SetSize(statusX,statusY,statusWidth,statusHeight);
-			errorCtrl->SetSize(errorX,errorY,errorWidth,errorHeight);
-		}
-		controlSize.SetWidth(width);
-		controlSize.SetHeight(buttonHeight + statusHeight + errorHeight);
-	}
-
-	return (controlSize);
-}
-
 void GUIWizardPageRemoteTest::ResetTestResult()
 {
-	statusCtrl->SetLabel("Test Not Run");
-	errorCtrl->SetValue("");
-	lastConnectionResult = false;
+	mStatusCtrl->SetLabel("Test Not Run");
+	mErrorCtrl->SetValue("");
+	mLastConnectionResult = false;
 }
 
 
 GUIWizardPagesRemoteMachine::GUIWizardPagesRemoteMachine()
 {
-	pageHostname		= NULL;
-	pageEnabled			= NULL;
-	pageUsername		= NULL;
-	pagePassword		= NULL;
-	pageFTPPort			= NULL;
-	pagePassive			= NULL;
-	pageTest			= NULL;
-	groupPrefix			= "";
+	mPageHostname		= NULL;
+	mPageEnabled		= NULL;
+	mPageUsername		= NULL;
+	mPagePassword		= NULL;
+	mPageFTPPort		= NULL;
+	mPagePassive		= NULL;
+	mPageTest			= NULL;
+	mGroupPrefix		= "";
 
-	callBack			= NULL;
-	callBackObject		= NULL;
+	mCallBack			= NULL;
+	mCallBackObject		= NULL;
 }
 
 GUIWizardPagesRemoteMachine::~GUIWizardPagesRemoteMachine()
@@ -703,64 +572,64 @@ GUIWizardPagesRemoteMachine::~GUIWizardPagesRemoteMachine()
 
 void GUIWizardPagesRemoteMachine::SetCallBack(void(* callBackIn)(void *object),void *callBackObjectIn)
 {
-	callBack		= callBackIn;
-	callBackObject	= callBackObjectIn;
+	mCallBack		= callBackIn;
+	mCallBackObject	= callBackObjectIn;
 }
 
 void GUIWizardPagesRemoteMachine::SetSectionTitle(const char *titleChars)
 {
-	pageHostname->SetSectionTitle(titleChars);
-	pageEnabled->SetSectionTitle(titleChars);
-	pageUsername->SetSectionTitle(titleChars);
-	pagePassword->SetSectionTitle(titleChars);
-	pageFTPPort->SetSectionTitle(titleChars);
-	pagePassive->SetSectionTitle(titleChars);
-	pageTest->SetSectionTitle(titleChars);
+	mPageHostname->SetSectionTitle(titleChars);
+	mPageEnabled->SetSectionTitle(titleChars);
+	mPageUsername->SetSectionTitle(titleChars);
+	mPagePassword->SetSectionTitle(titleChars);
+	mPageFTPPort->SetSectionTitle(titleChars);
+	mPagePassive->SetSectionTitle(titleChars);
+	mPageTest->SetSectionTitle(titleChars);
 }
 
 bool GUIWizardPagesRemoteMachine::IsFTPEnabled()
 {
-	return (pageEnabled->GetValue().CmpNoCase("y")==0);
+	return (mPageEnabled->GetValue().CmpNoCase("y")==0);
 }
 
 void GUIWizardPagesRemoteMachine::UpdateConfigKeys()
 {
 	wxString		configKey;
 
-	if ((pageHostname != NULL) && (groupPrefix.length()>0))
+	if ((mPageHostname != NULL) && (mGroupPrefix.length()>0))
 	{
-		configKey.Printf("/%s/IPAddress",groupPrefix.GetData());
-		pageHostname->SetConfigKey(configKey);
+		configKey.Printf("/%s/IPAddress",STRING_TO_CHAR(mGroupPrefix));
+		mPageHostname->SetConfigKey(configKey);
 
-		configKey.Printf("/%s/FTPUsername",groupPrefix.GetData());
-		pageUsername->SetConfigKey(configKey);
+		configKey.Printf("/%s/FTPUsername",STRING_TO_CHAR(mGroupPrefix));
+		mPageUsername->SetConfigKey(configKey);
 
-		configKey.Printf("/%s/FTPPassword",groupPrefix.GetData());
-		pagePassword->SetConfigKey(configKey);
+		configKey.Printf("/%s/FTPPassword",STRING_TO_CHAR(mGroupPrefix));
+		mPagePassword->SetConfigKey(configKey);
 
-		configKey.Printf("/%s/FTPPort",groupPrefix.GetData());
-		pageFTPPort->SetConfigKey(configKey,"21");
+		configKey.Printf("/%s/FTPPort",STRING_TO_CHAR(mGroupPrefix));
+		mPageFTPPort->SetConfigKey(configKey,"21");
 
-		configKey.Printf("/%s/FTPPassive",groupPrefix.GetData());
-		pagePassive->SetConfigKey(configKey,"y");
+		configKey.Printf("/%s/FTPPassive",STRING_TO_CHAR(mGroupPrefix));
+		mPagePassive->SetConfigKey(configKey,"y");
 
-		configKey.Printf("/%s/FTPEnabled",groupPrefix.GetData());
-		pageEnabled->SetConfigKey(configKey,"y");
+		configKey.Printf("/%s/FTPEnabled",STRING_TO_CHAR(mGroupPrefix));
+		mPageEnabled->SetConfigKey(configKey,"y");
 
-		pageTest->SetGroupPrefix(groupPrefix);
+		mPageTest->SetGroupPrefix(mGroupPrefix);
 	}
 }
 
 void GUIWizardPagesRemoteMachine::SetGroupPrefix(wxString &groupPrefixIn)
 {
-	groupPrefix = groupPrefixIn;
+	mGroupPrefix = groupPrefixIn;
 
 	UpdateConfigKeys();
 }
 
 wxString GUIWizardPagesRemoteMachine::GetEnabledPageID()
 {
-	return (pageEnabled->GetPageID());
+	return (mPageEnabled->GetPageID());
 }
 
 void GUIWizardPagesRemoteMachine::CreateWizardPages(StatsgenWizard *wizardIn)
@@ -768,17 +637,17 @@ void GUIWizardPagesRemoteMachine::CreateWizardPages(StatsgenWizard *wizardIn)
 	wxString	ruleEnabled;
 	wxString	ruleTestPassed;
 
-	wizard=wizardIn;
-	pageHostname = new GUIWizardPageConfigText(wizard,pageID,_T("HOSTNAME"));
-	pageEnabled	 = new GUIWizardPageConfigBoolean(wizard,pageID,_T("FTPENABLED"));
-	pageUsername = new GUIWizardPageConfigText(wizard,pageID,_T("FTPUSERNAME"));
-	pagePassword = new GUIWizardPageConfigText(wizard,pageID,_T("FTPPASSWORD"));
-	pageFTPPort	 = new GUIWizardPageConfigText(wizard,pageID,_T("FTPPORT"));
-	pagePassive	 = new GUIWizardPageConfigBoolean(wizard,pageID,_T("FTPPASSIVE"));
-	pageTest	 = new GUIWizardPageRemoteTest(wizard,pageID,_T("TEST"));
+	mWizard=wizardIn;
+	mPageHostname	= new GUIWizardPageConfigText(mWizard,mPageID,_T("HOSTNAME"));
+	mPageEnabled	= new GUIWizardPageConfigBoolean(mWizard,mPageID,_T("FTPENABLED"));
+	mPageUsername	= new GUIWizardPageConfigText(mWizard,mPageID,_T("FTPUSERNAME"));
+	mPagePassword	= new GUIWizardPageConfigText(mWizard,mPageID,_T("FTPPASSWORD"));
+	mPageFTPPort	= new GUIWizardPageConfigText(mWizard,mPageID,_T("FTPPORT"));
+	mPagePassive	= new GUIWizardPageConfigBoolean(mWizard,mPageID,_T("FTPPASSIVE"));
+	mPageTest		= new GUIWizardPageRemoteTest(mWizard,mPageID,_T("TEST"));
 
-	pageHostname->SetConfigTitle("Hostname");
-	pageHostname->SetHelp(
+	mPageHostname->SetConfigTitle("Hostname");
+	mPageHostname->SetHelp(
 		"The [b]FTP Access hostname[/b], either in named form or in IP address form.\n"
 		"Do not prefix the address with [i]http://[/i] or [i]ftp://[/i]\n"
 		"Do not put the port number after the address.\n"
@@ -793,60 +662,48 @@ void GUIWizardPagesRemoteMachine::CreateWizardPages(StatsgenWizard *wizardIn)
 		"[i]192.168.0.1:28960[/i]\n"
 		);
 
-	pageEnabled->SetConfigTitle("Transfer Enabled?");
-	pageEnabled->SetHelp("Enable / Disable FTP Transfer to this remote machine");
-	pageEnabled->SetTrueFalseLabels("Yes", "No");
+	mPageEnabled->SetConfigTitle("Transfer Enabled?");
+	mPageEnabled->SetHelp("Enable / Disable FTP Transfer to this remote machine");
+	mPageEnabled->SetTrueFalseLabels("Yes", "No");
 
-	pageUsername->SetConfigTitle("FTP Username");
-	pageUsername->SetHelp("Enter the [b]FTP username[/b] used to access the hostname");
+	mPageUsername->SetConfigTitle("FTP Username");
+	mPageUsername->SetHelp("Enter the [b]FTP username[/b] used to access the hostname");
 
-	pagePassword->SetConfigTitle("FTP Password");
-	pagePassword->SetHelp("Enter the [b]FTP password[/b] used to access the hostname");
+	mPagePassword->SetConfigTitle("FTP Password");
+	mPagePassword->SetHelp("Enter the [b]FTP password[/b] used to access the hostname");
 
-	pageFTPPort->SetConfigTitle("FTP Port");
-	pageFTPPort->SetHelp(
+	mPageFTPPort->SetConfigTitle("FTP Port");
+	mPageFTPPort->SetHelp(
 			"Enter the [b]FTP port[/b] used to access the hostname\n"
 			"This is typically 21"
 						);
 
-	pagePassive->SetConfigTitle("FTP Passive Mode?");
-	pagePassive->SetHelp(
+	mPagePassive->SetConfigTitle("FTP Passive Mode?");
+	mPagePassive->SetHelp(
 			"Enter whether in passive mode.\n"
 			"This is typically On"
 						);
-	pagePassive->SetTrueFalseLabels("On", "Off");
+	mPagePassive->SetTrueFalseLabels("On", "Off");
 
 
-	pageHostname->SetCallBack(ConfigChangedCallBack,this);
-	pageEnabled->SetCallBack(ConfigChangedCallBack,this);
-	pageUsername->SetCallBack(ConfigChangedCallBack,this);
-	pagePassword->SetCallBack(ConfigChangedCallBack,this);
-	pageFTPPort->SetCallBack(ConfigChangedCallBack,this);
-	pagePassive->SetCallBack(ConfigChangedCallBack,this);
-	pageTest->SetCallBack(ConnectionTestCallBack,this);
+	mPageHostname->SetCallBack(ConfigChangedCallBack,this);
+	mPageEnabled->SetCallBack(ConfigChangedCallBack,this);
+	mPageUsername->SetCallBack(ConfigChangedCallBack,this);
+	mPagePassword->SetCallBack(ConfigChangedCallBack,this);
+	mPageFTPPort->SetCallBack(ConfigChangedCallBack,this);
+	mPagePassive->SetCallBack(ConfigChangedCallBack,this);
+	mPageTest->SetCallBack(ConnectionTestCallBack,this);
 
-	ruleEnabled.Printf("%s=\"Y\"",pageEnabled->GetPageID().GetData());
-	ruleTestPassed.Printf("%s=\"TRUE\"",pageTest->GetPageID().GetData());
+	ruleEnabled.Printf("%s=\"Y\"",STRING_TO_CHAR(mPageEnabled->GetPageID()));
+	ruleTestPassed.Printf("%s=\"TRUE\"",STRING_TO_CHAR(mPageTest->GetPageID()));
 
-	wizard->AddPageLink(pageHostname,	"",				"");
-	wizard->AddPageLink(pageEnabled,	"",				"");
-	wizard->AddPageLink(pageUsername,	ruleEnabled,	"");
-	wizard->AddPageLink(pagePassword,	ruleEnabled,	"");
-	wizard->AddPageLink(pageFTPPort,	ruleEnabled,	"");
-	wizard->AddPageLink(pagePassive,	ruleEnabled,	"");
-	wizard->AddPageLink(pageTest,		ruleEnabled,	ruleTestPassed);
-	ResizePages();
-}
-
-void GUIWizardPagesRemoteMachine::ResizePages()
-{
-	pageHostname->Resize();
-	pageEnabled->Resize();
-	pageUsername->Resize();
-	pagePassword->Resize();
-	pageFTPPort->Resize();
-	pagePassive->Resize();
-	pageTest->Resize();
+	mWizard->AddPageLink(mPageHostname,	"",				"");
+	mWizard->AddPageLink(mPageEnabled,	"",				"");
+	mWizard->AddPageLink(mPageUsername,	ruleEnabled,	"");
+	mWizard->AddPageLink(mPagePassword,	ruleEnabled,	"");
+	mWizard->AddPageLink(mPageFTPPort,	ruleEnabled,	"");
+	mWizard->AddPageLink(mPagePassive,	ruleEnabled,	"");
+	mWizard->AddPageLink(mPageTest,		ruleEnabled,	ruleTestPassed);
 }
 
 void GUIWizardPagesRemoteMachine::ConnectionTest()
@@ -864,9 +721,9 @@ void GUIWizardPagesRemoteMachine::ConnectionTestCallBack(void *object)
 }
 void GUIWizardPagesRemoteMachine::PopCallBack()
 {
-	if (callBack!=NULL)
+	if (mCallBack!=NULL)
 	{
-		callBack(callBackObject);
+		mCallBack(mCallBackObject);
 	}
 }
 
@@ -881,62 +738,28 @@ void GUIWizardPagesRemoteMachine::ConfigChangedCallBack(void *object)
 
 GUIWizardPageConfigBoolean::GUIWizardPageConfigBoolean(StatsgenWizard *wizardIn,wxString parentPageID,wxString thisPageID) : GUIWizardPageConfig(wizardIn,parentPageID,thisPageID)
 {
-	valueCtrl		= FALSE;
-	trueLabel		= "Yes";
-	falseLabel		= "No";
+	mValueCtrl		= FALSE;
+	mTrueLabel		= "Yes";
+	mFalseLabel		= "No";
 	CreateControl();
 }
 
 GUIWizardPageConfigBoolean::~GUIWizardPageConfigBoolean()
 {
-	valueCtrl = FALSE;
+	mValueCtrl = FALSE;
 }
 
 
 void GUIWizardPageConfigBoolean::SetTrueFalseLabels(const char *trueLabelIn, const char *falseLabelIn)
 {
-	trueLabel	= trueLabelIn;
-	falseLabel	= falseLabelIn;
+	mTrueLabel	= trueLabelIn;
+	mFalseLabel	= falseLabelIn;
 }
 
 void GUIWizardPageConfigBoolean::CreateControl()
 {
-	valueCtrl		= new wxCheckBox(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE,title);
-}
-
-wxSize GUIWizardPageConfigBoolean::ResizeControl(int x,int y,int width,bool resize)
-{
-	wxSize		baseControlSize;
-	wxSize		controlSize;
-	int			baseX;
-	int			baseY;
-	int			baseWidth;
-	int			baseHeight;
-	int			valueX;
-	int			valueY;
-	int			valueWidth;
-	int			valueHeight;
-
-	baseX			= x;
-	baseY			= y;
-	baseControlSize = GUIWizardPageConfig::ResizeControl(baseX,baseY,width,resize);
-	baseWidth		= baseControlSize.GetWidth();
-	baseHeight		= baseControlSize.GetHeight();
-
-	valueX			= x;
-	valueY			= baseY + baseHeight;
-	valueWidth		= width;
-	valueHeight		= 30;
-
-	controlSize.SetWidth(width);
-	controlSize.SetHeight(baseHeight + valueHeight);
-
-	if (resize)
-	{
-		valueCtrl->SetSize(valueX,valueY,valueWidth,valueHeight);
-	}
-
-	return (controlSize);
+	mValueCtrl		= new wxCheckBox(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE,mTitle);
+	mContentsSizer->Add(mValueCtrl,0,wxEXPAND);
 }
 
 void GUIWizardPageConfigBoolean::UpdateLabel()
@@ -944,66 +767,66 @@ void GUIWizardPageConfigBoolean::UpdateLabel()
 	bool		valueBool;
 	wxString	titleStr;
 
-	valueBool = (value.CmpNoCase("y")==0);
-	titleStr=title;
+	valueBool = (mValue.CmpNoCase("y")==0);
+	titleStr = mTitle;
 	titleStr+=" ";
 	if (valueBool)
 	{
-		titleStr+=trueLabel;
+		titleStr+=mTrueLabel;
 	}
 	else
 	{
-		titleStr+=falseLabel;
+		titleStr+=mFalseLabel;
 	}
-	valueCtrl->SetLabel(titleStr);
+	mValueCtrl->SetLabel(titleStr);
 }
 
 void GUIWizardPageConfigBoolean::SetCtrlFromValue()
 {
 	bool		valueBool;
 
-	valueBool = (value.CmpNoCase("y")==0);
-	valueCtrl->SetValue(valueBool);
+	valueBool = (mValue.CmpNoCase("y")==0);
+	mValueCtrl->SetValue(valueBool);
 	UpdateLabel();
 }
 
 bool GUIWizardPageConfigBoolean::ScreenReady()
 {
-	return (valueCtrl!=NULL);
+	return (mValueCtrl!=NULL);
 }
 
 void GUIWizardPageConfigBoolean::SetValueFromCtrl()
 {
-	if (valueCtrl->GetValue())
+	if (mValueCtrl->GetValue())
 	{
-		value="y";
+		mValue="y";
 	}
 	else
 	{
-		value="n";
+		mValue="n";
 	}
 	UpdateLabel();
 }
 
 GUIWizardPagesServer::GUIWizardPagesServer()
 {
-	pageServerType							= NULL;
-	pageLocalOrRemote						= NULL;
-	pageRCONPassword						= NULL;
-	pageRCONPort							= NULL;
-	pageMessagingEnabled					= NULL;
-	pageRemoteLatestFilename				= NULL;
-	pageRemoteLatestFilenameTest			= NULL;
-	pageRemoteLatestSecondaryFilename		= NULL;
-	pageRemoteLatestSecondaryFilenameTest	= NULL;
-	pageRemoteArchiveFilename				= NULL;
-	pageRemoteArchiveFilenameTest			= NULL;
-	pageLocalLatestFilename					= NULL;
-	pageLocalArchiveFilename				= NULL;
-	pageLocalLatestSecondaryFilename		= NULL;
-	groupPrefix								= "";
+	mPageServerType							= NULL;
+	mPageLocalOrRemote						= NULL;
+	mPageRCONPassword						= NULL;
+	mPageRCONPort							= NULL;
+	mPageMessagingEnabled					= NULL;
+	mPageRemoteLatestFilename				= NULL;
+	mPageRemoteLatestFilenameTest			= NULL;
+	mPageRemoteLatestSecondaryFilename		= NULL;
+	mPageRemoteLatestSecondaryFilenameTest	= NULL;
+	mPageRemoteArchiveFilename				= NULL;
+	mPageRemoteArchiveFilenameTest			= NULL;
+	mPageLocalLatestFilename				= NULL;
+	mPageLocalArchiveFilename				= NULL;
+	mPageLocalLatestSecondaryFilename		= NULL;
+	mGroupPrefix							= "";
 
-	logfileLimit					=0;
+	mLogfileLimit							= 0;
 
 }
 
@@ -1015,52 +838,52 @@ void GUIWizardPagesServer::UpdateConfigKeys()
 {
 	wxString		configKey;
 
-	if ((pageServerType != NULL) && (groupPrefix.length()>0))
+	if ((mPageServerType != NULL) && (mGroupPrefix.length()>0))
 	{
-		configKey.Printf("/%s/serverType",groupPrefix.GetData());
-		pageServerType->SetConfigKey(configKey,SERVER_TYPE_COD4);
+		configKey.Printf("/%s/serverType",STRING_TO_CHAR(mGroupPrefix));
+		mPageServerType->SetConfigKey(configKey,SERVER_TYPE_COD4);
 
-		configKey.Printf("/%s/localorremote",groupPrefix.GetData());
-		pageLocalOrRemote->SetConfigKey(configKey,WIZARD_CHOICE_HOMEPC);
+		configKey.Printf("/%s/localorremote",STRING_TO_CHAR(mGroupPrefix));
+		mPageLocalOrRemote->SetConfigKey(configKey,WIZARD_CHOICE_HOMEPC);
 
-		configKey.Printf("/%s/RCONPassword",groupPrefix.GetData());
-		pageRCONPassword->SetConfigKey(configKey);
+		configKey.Printf("/%s/RCONPassword",STRING_TO_CHAR(mGroupPrefix));
+		mPageRCONPassword->SetConfigKey(configKey);
 
-		configKey.Printf("/%s/gamePort",groupPrefix.GetData());
-		pageRCONPort->SetConfigKey(configKey);
+		configKey.Printf("/%s/gamePort",STRING_TO_CHAR(mGroupPrefix));
+		mPageRCONPort->SetConfigKey(configKey);
 
-		configKey.Printf("/%s/MessagingEnabled",groupPrefix.GetData());
-		pageMessagingEnabled->SetConfigKey(configKey,"n");
+		configKey.Printf("/%s/MessagingEnabled",STRING_TO_CHAR(mGroupPrefix));
+		mPageMessagingEnabled->SetConfigKey(configKey,"n");
 
-		configKey.Printf("/%s/FTPLatest",groupPrefix.GetData());
-		pageRemoteLatestFilename->SetConfigKey(configKey);
-		pageRemoteLatestFilenameTest->SetGroupPrefix(groupPrefix);
+		configKey.Printf("/%s/FTPLatest",STRING_TO_CHAR(mGroupPrefix));
+		mPageRemoteLatestFilename->SetConfigKey(configKey);
+		mPageRemoteLatestFilenameTest->SetGroupPrefix(mGroupPrefix);
 
-		configKey.Printf("/%s/FTPSecondaryLatest",groupPrefix.GetData());
-		pageRemoteLatestSecondaryFilename->SetConfigKey(configKey);
-		pageRemoteLatestSecondaryFilenameTest->SetGroupPrefix(groupPrefix);
+		configKey.Printf("/%s/FTPSecondaryLatest",STRING_TO_CHAR(mGroupPrefix));
+		mPageRemoteLatestSecondaryFilename->SetConfigKey(configKey);
+		mPageRemoteLatestSecondaryFilenameTest->SetGroupPrefix(mGroupPrefix);
 
-		configKey.Printf("/%s/FTPArchive",groupPrefix.GetData());
-		pageRemoteArchiveFilename->SetConfigKey(configKey);
-		pageRemoteArchiveFilenameTest->SetGroupPrefix(groupPrefix);
+		configKey.Printf("/%s/FTPArchive",STRING_TO_CHAR(mGroupPrefix));
+		mPageRemoteArchiveFilename->SetConfigKey(configKey);
+		mPageRemoteArchiveFilenameTest->SetGroupPrefix(mGroupPrefix);
 
-		configKey.Printf("/%s/latest",groupPrefix.GetData());
-		pageLocalLatestFilename->SetConfigKey(configKey);
+		configKey.Printf("/%s/latest",STRING_TO_CHAR(mGroupPrefix));
+		mPageLocalLatestFilename->SetConfigKey(configKey);
 
-		configKey.Printf("/%s/archive",groupPrefix.GetData());
-		pageLocalArchiveFilename->SetConfigKey(configKey);
+		configKey.Printf("/%s/archive",STRING_TO_CHAR(mGroupPrefix));
+		mPageLocalArchiveFilename->SetConfigKey(configKey);
 
-		configKey.Printf("/%s/secondarylatest",groupPrefix.GetData());
-		pageLocalLatestSecondaryFilename->SetConfigKey(configKey);
+		configKey.Printf("/%s/secondarylatest",STRING_TO_CHAR(mGroupPrefix));
+		mPageLocalLatestSecondaryFilename->SetConfigKey(configKey);
 
-		configKey.Printf("/%s/BanFile1Type",groupPrefix.GetData());
-		globalStatistics.configData.WriteTextValue(configKey,"COD");
+		configKey.Printf("/%s/BanFile1Type",STRING_TO_CHAR(mGroupPrefix));
+		globalStatistics.configData.WriteTextValue(configKey,(char *)"COD");
 
-		configKey.Printf("/%s/BanFile2Type",groupPrefix.GetData());
-		globalStatistics.configData.WriteTextValue(configKey,"PUNKBUSTER");
+		configKey.Printf("/%s/BanFile2Type",STRING_TO_CHAR(mGroupPrefix));
+		globalStatistics.configData.WriteTextValue(configKey,(char *)"PUNKBUSTER");
 
-		configKey.Printf("/%s/FTPBanFile2Directory",groupPrefix.GetData());
-		pagePBRemoteDirectory->SetConfigKey(configKey);
+		configKey.Printf("/%s/FTPBanFile2Directory",STRING_TO_CHAR(mGroupPrefix));
+		mPagePBRemoteDirectory->SetConfigKey(configKey);
 
 		SetTestParameters();
 		SetLogfileLimit();
@@ -1073,35 +896,35 @@ void GUIWizardPagesServer::SetTestParameters()
 	wxString	directory;
 	wxString	configKey;
 
-	if (groupPrefix.Length()>0)
+	if (mGroupPrefix.Length()>0)
 	{
-		pageRemoteLatestFilename->SplitValue(directory,file);
-		pageRemoteLatestFilenameTest->SetFile(directory,file);
+		mPageRemoteLatestFilename->SplitValue(directory,file);
+		mPageRemoteLatestFilenameTest->SetFile(directory,file);
 
-		pageRemoteLatestSecondaryFilename->SplitValue(directory,file);
-		pageRemoteLatestSecondaryFilenameTest->SetFile(directory,file);
+		mPageRemoteLatestSecondaryFilename->SplitValue(directory,file);
+		mPageRemoteLatestSecondaryFilenameTest->SetFile(directory,file);
 
-		directory=pageRemoteArchiveFilename->GetValue();
-		file=pageRemoteArchiveFilename->GetWildcard();
-		pageRemoteArchiveFilenameTest->SetFile(directory,file);
+		directory=mPageRemoteArchiveFilename->GetValue();
+		file=mPageRemoteArchiveFilename->GetWildcard();
+		mPageRemoteArchiveFilenameTest->SetFile(directory,file);
 
-		pagePBRemoteDirectoryTest->SetGroupPrefix(groupPrefix);
+		mPagePBRemoteDirectoryTest->SetGroupPrefix(mGroupPrefix);
 
-		configKey.Printf("/%s/RCONUsePunkBuster",groupPrefix.GetData());
-		if (pageLocalOrRemote->GetValue().Cmp(WIZARD_CHOICE_HOMEPC)==0)
+		configKey.Printf("/%s/RCONUsePunkBuster",STRING_TO_CHAR(mGroupPrefix));
+		if (mPageLocalOrRemote->GetValue().Cmp(WIZARD_CHOICE_HOMEPC)==0)
 		{
-			globalStatistics.configData.WriteTextValue(configKey,"Y");
+			globalStatistics.configData.WriteTextValue(configKey,(char *)"Y");
 		}
 		else
 		{
-			globalStatistics.configData.WriteTextValue(configKey,"N");
+			globalStatistics.configData.WriteTextValue(configKey,(char *)"N");
 		}
 	}
 }
 
 void GUIWizardPagesServer::SetLogfileLimit(int limit)
 {
-	logfileLimit=limit;
+	mLogfileLimit=limit;
 	SetLogfileLimit();
 }
 
@@ -1110,19 +933,19 @@ void GUIWizardPagesServer::SetLogfileLimit()
 	wxString	configKey;
 	wxString	configValue;
 
-	if (groupPrefix.Length()>0)
+	if (mGroupPrefix.Length()>0)
 	{
-		configKey.Printf("/%s/MaxLogfileSize",groupPrefix.GetData());
-		configValue.Printf("%d",logfileLimit);
+		configKey.Printf("/%s/MaxLogfileSize",STRING_TO_CHAR(mGroupPrefix));
+		configValue.Printf("%d",mLogfileLimit);
 		globalStatistics.configData.WriteTextValue(configKey,configValue);
 	}
 }
 
 void GUIWizardPagesServer::SetGroupPrefix(wxString &groupPrefixIn)
 {
-	groupPrefix = groupPrefixIn;
+	mGroupPrefix = groupPrefixIn;
 
-	remoteMachine.SetGroupPrefix(groupPrefix);
+	mRemoteMachine.SetGroupPrefix(mGroupPrefix);
 	UpdateConfigKeys();
 }
 
@@ -1149,7 +972,7 @@ void GUIWizardPagesServer::CreateWizardPages(StatsgenWizard *wizardIn)
 	wxString ruleHomePCNotMOHAA;
 	wxString ruleGameServerNotMOHAA;
 
-	wizard=wizardIn;
+	mWizard=wizardIn;
 
 	wxArrayString	localOrRemoteAnswers;
 	wxArrayString	localOrRemoteButtonTexts;
@@ -1232,166 +1055,166 @@ void GUIWizardPagesServer::CreateWizardPages(StatsgenWizard *wizardIn)
 	serverTypeButtonDescriptions.Add(SERVER_TYPE_NAME_MOHAA);
 	serverTypeButtonDescriptions.Add(SERVER_TYPE_NAME_QUAKEWARS);
 	serverTypeButtonDescriptions.Add(SERVER_TYPE_NAME_WOLFENSTEIN);
-	pageServerType					= new GUIWizardPageConfigChoice(wizard,
-											pageID,_T("SERVERTYPE"),
+	mPageServerType					= new GUIWizardPageConfigChoice(mWizard,
+											mPageID,_T("SERVERTYPE"),
 											serverTypeAnswers,
 											serverTypeButtonTexts,
 											serverTypeButtonDescriptions);
-	pageLocalOrRemote				= new GUIWizardPageConfigChoice(wizard,
-											pageID,_T("LOCALORREMOTE"),
+	mPageLocalOrRemote				= new GUIWizardPageConfigChoice(mWizard,
+											mPageID,_T("LOCALORREMOTE"),
 											localOrRemoteAnswers,
 											localOrRemoteButtonTexts,
 											localOrRemoteButtonDescriptions);
-	pageRCONPassword				= new GUIWizardPageConfigText(wizard,pageID,_T("RCONPASSWORD"));
-	pageRCONPort					= new GUIWizardPageConfigText(wizard,pageID,_T("RCONPORT"));
-	pagePBRemoteDirectory			= new GUIWizardPageConfigRemoteDirectory(wizard,pageID,_T("PBREMOTEDIRECTORY"));
-	pagePBRemoteDirectoryTest		= new GUIWizardPageRemoteDirectoryTest(wizard,pageID,_T("PBREMOTEDIRECTORYTEST"));
-	pageMessagingEnabled			= new GUIWizardPageConfigBoolean(wizard,pageID,_T("MESSAGINGENABLED"));
-	pageMessagingEnabled			= new GUIWizardPageConfigBoolean(wizard,pageID,_T("MESSAGINGENABLED"));
-	pageRemoteLatestFilename		= new GUIWizardPageConfigRemoteFile(wizard,pageID,_T("REMOTELATESTFILENAME"));
-	pageRemoteLatestFilenameTest	= new GUIWizardPageRemoteFileTest(wizard,pageID,_T("REMOTELATESTFILENAMETEST"));
-	pageRemoteLatestSecondaryFilename	= new GUIWizardPageConfigRemoteFile(wizard,pageID,_T("REMOTELATESTSECONDARYFILENAME"));
-	pageRemoteLatestSecondaryFilenameTest	= new GUIWizardPageRemoteFileTest(wizard,pageID,_T("REMOTELATESTSECONDARYFILENAMETEST"));
-	pageRemoteArchiveFilename		= new GUIWizardPageConfigRemoteWildcard(wizard,pageID,_T("REMOTEARCHIVEFILENAME"));
-	pageRemoteArchiveFilenameTest	= new GUIWizardPageRemoteFileTest(wizard,pageID,_T("REMOTEARCHIVEFILENAMETEST"));
-	pageLocalLatestFilename			= new GUIWizardPageConfigLocalFile(wizard,pageID,_T("LOCALLATESTFILENAME"));
-	pageLocalArchiveFilename		= new GUIWizardPageConfigLocalWildcard(wizard,pageID,_T("LOCALARCHIVEFILENAME"));
-	pageLocalLatestFilename			= new GUIWizardPageConfigLocalFile(wizard,pageID,_T("LOCALLATESTFILENAME"));
-	pageLocalArchiveFilename		= new GUIWizardPageConfigLocalWildcard(wizard,pageID,_T("LOCALARCHIVEFILENAME"));
-	pageLocalLatestSecondaryFilename= new GUIWizardPageConfigLocalFile(wizard,pageID,_T("LOCALLATESTSECONDARYFILENAME"));
+	mPageRCONPassword				= new GUIWizardPageConfigText(mWizard,mPageID,_T("RCONPASSWORD"));
+	mPageRCONPort					= new GUIWizardPageConfigText(mWizard,mPageID,_T("RCONPORT"));
+	mPagePBRemoteDirectory			= new GUIWizardPageConfigRemoteDirectory(mWizard,mPageID,_T("PBREMOTEDIRECTORY"));
+	mPagePBRemoteDirectoryTest		= new GUIWizardPageRemoteDirectoryTest(mWizard,mPageID,_T("PBREMOTEDIRECTORYTEST"));
+	mPageMessagingEnabled			= new GUIWizardPageConfigBoolean(mWizard,mPageID,_T("MESSAGINGENABLED"));
+	mPageMessagingEnabled			= new GUIWizardPageConfigBoolean(mWizard,mPageID,_T("MESSAGINGENABLED"));
+	mPageRemoteLatestFilename		= new GUIWizardPageConfigRemoteFile(mWizard,mPageID,_T("REMOTELATESTFILENAME"));
+	mPageRemoteLatestFilenameTest	= new GUIWizardPageRemoteFileTest(mWizard,mPageID,_T("REMOTELATESTFILENAMETEST"));
+	mPageRemoteLatestSecondaryFilename	= new GUIWizardPageConfigRemoteFile(mWizard,mPageID,_T("REMOTELATESTSECONDARYFILENAME"));
+	mPageRemoteLatestSecondaryFilenameTest	= new GUIWizardPageRemoteFileTest(mWizard,mPageID,_T("REMOTELATESTSECONDARYFILENAMETEST"));
+	mPageRemoteArchiveFilename		= new GUIWizardPageConfigRemoteWildcard(mWizard,mPageID,_T("REMOTEARCHIVEFILENAME"));
+	mPageRemoteArchiveFilenameTest	= new GUIWizardPageRemoteFileTest(mWizard,mPageID,_T("REMOTEARCHIVEFILENAMETEST"));
+	mPageLocalLatestFilename			= new GUIWizardPageConfigLocalFile(mWizard,mPageID,_T("LOCALLATESTFILENAME"));
+	mPageLocalArchiveFilename		= new GUIWizardPageConfigLocalWildcard(mWizard,mPageID,_T("LOCALARCHIVEFILENAME"));
+	mPageLocalLatestFilename			= new GUIWizardPageConfigLocalFile(mWizard,mPageID,_T("LOCALLATESTFILENAME"));
+	mPageLocalArchiveFilename		= new GUIWizardPageConfigLocalWildcard(mWizard,mPageID,_T("LOCALARCHIVEFILENAME"));
+	mPageLocalLatestSecondaryFilename= new GUIWizardPageConfigLocalFile(mWizard,mPageID,_T("LOCALLATESTSECONDARYFILENAME"));
 
-	pageLocalOrRemote->SetHelp(
+	mPageLocalOrRemote->SetHelp(
 				"Depending on where you are running statsgen dictates various"
 				" configurations.\nYou can run statsgen on the [b]game server[/b]"
 				" itself, or if that is not available you can run statsgen"
 				" from your [b]home pc[/b]."
 				);
-	pageLocalOrRemote->SetConfigTitle("Statsgen Location");
+	mPageLocalOrRemote->SetConfigTitle("Statsgen Location");
 
-	pageServerType->SetConfigTitle("Game Server Type");
-	pageServerType->SetHelp(
+	mPageServerType->SetConfigTitle("Game Server Type");
+	mPageServerType->SetHelp(
 		"What sort of Server is this\n"
 		);
 
-	pageRCONPassword->SetConfigTitle("Game Server RCON Password?");
-	pageRCONPassword->SetHelp("Enter the servers [b]RCON Password[/b].\n"
+	mPageRCONPassword->SetConfigTitle("Game Server RCON Password?");
+	mPageRCONPassword->SetHelp("Enter the servers [b]RCON Password[/b].\n"
 						"This is used to send messages to the game server.");
 
-	pagePBRemoteDirectory->SetConfigTitle("Punkbuster Remote Directory");
-	pagePBRemoteDirectory->SetHelp("Enter the location on your game server of the [b]Punkbuster Directory[/b]");
+	mPagePBRemoteDirectory->SetConfigTitle("Punkbuster Remote Directory");
+	mPagePBRemoteDirectory->SetHelp("Enter the location on your game server of the [b]Punkbuster Directory[/b]");
 
-	pagePBRemoteDirectoryTest->SetHelp("[b]Press the button[/b] to test the Punkbuster Directory");
+	mPagePBRemoteDirectoryTest->SetHelp("[b]Press the button[/b] to test the Punkbuster Directory");
 
-	pageRCONPort->SetConfigTitle("Game Server Port?");
-	pageRCONPort->SetHelp("Enter the Game Servers Port Number.\n"
+	mPageRCONPort->SetConfigTitle("Game Server Port?");
+	mPageRCONPort->SetHelp("Enter the Game Servers Port Number.\n"
 						"e.g.\n28960");
 
-	pageMessagingEnabled->SetConfigTitle("Game Server Messaging Enabled?");
-	pageMessagingEnabled->SetHelp("Do you want to send stats messages to this paticular game server?");
-	pageMessagingEnabled->SetTrueFalseLabels("Yes", "No");
+	mPageMessagingEnabled->SetConfigTitle("Game Server Messaging Enabled?");
+	mPageMessagingEnabled->SetHelp("Do you want to send stats messages to this paticular game server?");
+	mPageMessagingEnabled->SetTrueFalseLabels("Yes", "No");
 
-	pageRemoteLatestFilename->SetConfigTitle("Kills Logfile");
-	pageRemoteLatestFilename->SetHelp(
+	mPageRemoteLatestFilename->SetConfigTitle("Kills Logfile");
+	mPageRemoteLatestFilename->SetHelp(
 			"The logfile on the game server where the [b]kills[/b] are stored, typically on COD"
 			" games this is called [b]games_mp.log[/b]."
 						);
-	pageRemoteLatestFilenameTest->SetHelp(
+	mPageRemoteLatestFilenameTest->SetHelp(
 			"[b]Push the button[/b] to ensure Kills logfile can be accessed."
 						);
 
-	pageRemoteLatestSecondaryFilename->SetConfigTitle("QuakeWars Objective Logfile");
-	pageRemoteLatestSecondaryFilename->SetHelp(
+	mPageRemoteLatestSecondaryFilename->SetConfigTitle("QuakeWars Objective Logfile");
+	mPageRemoteLatestSecondaryFilename->SetHelp(
 			"The logfile on the game server where the [b]objectives[/b] are stored"
 						);
-	pageRemoteLatestSecondaryFilenameTest->SetHelp(
+	mPageRemoteLatestSecondaryFilenameTest->SetHelp(
 			"[b]Push the button[/b] to ensure objective logfile can be accessed.");
 
-	pageLocalLatestFilename->SetConfigTitle("Local Logfile Name");
-	pageLocalLatestFilename->SetHelp(
+	mPageLocalLatestFilename->SetConfigTitle("Local Logfile Name");
+	mPageLocalLatestFilename->SetHelp(
 			"The logfile on the game server where the [b]kills[/b] are stored, typically on COD"
 			" games this is called [b]games_mp.log[/b]."
 						);
 
-	pageLocalLatestSecondaryFilename->SetConfigTitle("Quakewars Objective Logfile Name");
-	pageLocalLatestSecondaryFilename->SetHelp(
+	mPageLocalLatestSecondaryFilename->SetConfigTitle("Quakewars Objective Logfile Name");
+	mPageLocalLatestSecondaryFilename->SetHelp(
 			"The logfile on the game server where the [b]objectives[/b] are stored"
 						);
-	pageLocalArchiveFilename->SetConfigTitle("Multiple Kill File Wildcard");
-	pageLocalArchiveFilename->SetHelp(archiveHelp);
-	pageRemoteArchiveFilename->SetConfigTitle("Multiple Kill File Wildcard");
-	pageRemoteArchiveFilename->SetHelp(archiveHelp);
-	pageRemoteArchiveFilenameTest->SetHelp("[b]Push the button[/b] to check that the logfiles are accessible");
+	mPageLocalArchiveFilename->SetConfigTitle("Multiple Kill File Wildcard");
+	mPageLocalArchiveFilename->SetHelp(archiveHelp);
+	mPageRemoteArchiveFilename->SetConfigTitle("Multiple Kill File Wildcard");
+	mPageRemoteArchiveFilename->SetHelp(archiveHelp);
+	mPageRemoteArchiveFilenameTest->SetHelp("[b]Push the button[/b] to check that the logfiles are accessible");
 
-	pageServerType->SetCallBack(ConfigChangedCallBack,this);
-	pageLocalOrRemote->SetCallBack(ConfigChangedCallBack,this);
-	pageRCONPassword->SetCallBack(ConfigChangedCallBack,this);
-	pagePBRemoteDirectory->SetCallBack(ConfigChangedCallBack,this);
-	pagePBRemoteDirectoryTest->SetCallBack(ConfigChangedCallBack,this);
-	pageRCONPort->SetCallBack(ConfigChangedCallBack,this);
-	pageMessagingEnabled->SetCallBack(ConfigChangedCallBack,this);
-	pageRemoteLatestFilename->SetCallBack(ConfigChangedCallBack,this);
-	pageRemoteLatestFilenameTest->SetCallBack(ConfigChangedCallBack,this);
-	pageRemoteLatestSecondaryFilename->SetCallBack(ConfigChangedCallBack,this);
-	pageRemoteLatestSecondaryFilenameTest->SetCallBack(ConfigChangedCallBack,this);
-	pageRemoteArchiveFilename->SetCallBack(ConfigChangedCallBack,this);
-	pageRemoteArchiveFilenameTest->SetCallBack(ConfigChangedCallBack,this);
-	pageLocalLatestFilename->SetCallBack(ConfigChangedCallBack,this);
-	pageLocalArchiveFilename->SetCallBack(ConfigChangedCallBack,this);
-	pageLocalLatestSecondaryFilename->SetCallBack(ConfigChangedCallBack,this);
+	mPageServerType->SetCallBack(ConfigChangedCallBack,this);
+	mPageLocalOrRemote->SetCallBack(ConfigChangedCallBack,this);
+	mPageRCONPassword->SetCallBack(ConfigChangedCallBack,this);
+	mPagePBRemoteDirectory->SetCallBack(ConfigChangedCallBack,this);
+	mPagePBRemoteDirectoryTest->SetCallBack(ConfigChangedCallBack,this);
+	mPageRCONPort->SetCallBack(ConfigChangedCallBack,this);
+	mPageMessagingEnabled->SetCallBack(ConfigChangedCallBack,this);
+	mPageRemoteLatestFilename->SetCallBack(ConfigChangedCallBack,this);
+	mPageRemoteLatestFilenameTest->SetCallBack(ConfigChangedCallBack,this);
+	mPageRemoteLatestSecondaryFilename->SetCallBack(ConfigChangedCallBack,this);
+	mPageRemoteLatestSecondaryFilenameTest->SetCallBack(ConfigChangedCallBack,this);
+	mPageRemoteArchiveFilename->SetCallBack(ConfigChangedCallBack,this);
+	mPageRemoteArchiveFilenameTest->SetCallBack(ConfigChangedCallBack,this);
+	mPageLocalLatestFilename->SetCallBack(ConfigChangedCallBack,this);
+	mPageLocalArchiveFilename->SetCallBack(ConfigChangedCallBack,this);
+	mPageLocalLatestSecondaryFilename->SetCallBack(ConfigChangedCallBack,this);
 
 
 
-	ruleServerTypeContinue.Printf("%s!\"\"",pageServerType->GetPageID().GetData());
-	ruleLocalOrRemoteContinue.Printf("%s!\"\"",pageLocalOrRemote->GetPageID().GetData());
-	ruleLocalOrRemoteHomePC.Printf("%s=\"%s\"",pageLocalOrRemote->GetPageID().GetData(),WIZARD_CHOICE_HOMEPC);
-	ruleLocalOrRemoteGameServer.Printf("%s=\"%s\"",pageLocalOrRemote->GetPageID().GetData(),WIZARD_CHOICE_GAMESERVER);
+	ruleServerTypeContinue.Printf("%s!\"\"",STRING_TO_CHAR(mPageServerType->GetPageID()));
+	ruleLocalOrRemoteContinue.Printf("%s!\"\"",STRING_TO_CHAR(mPageLocalOrRemote->GetPageID()));
+	ruleLocalOrRemoteHomePC.Printf("%s=\"%s\"",STRING_TO_CHAR(mPageLocalOrRemote->GetPageID()),WIZARD_CHOICE_HOMEPC);
+	ruleLocalOrRemoteGameServer.Printf("%s=\"%s\"",STRING_TO_CHAR(mPageLocalOrRemote->GetPageID()),WIZARD_CHOICE_GAMESERVER);
 
-	ruleRemoteLatestFilenameTestPassed.Printf("%s=\"TRUE\"",pageRemoteLatestFilenameTest->GetPageID().GetData());
-	ruleRemoteArchiveFilenameTestPassed.Printf("%s=\"TRUE\"",pageRemoteArchiveFilenameTest->GetPageID().GetData());
-	rulePunkbusterTestPassed.Printf("%s=\"TRUE\"",pagePBRemoteDirectoryTest->GetPageID().GetData());
+	ruleRemoteLatestFilenameTestPassed.Printf("%s=\"TRUE\"",STRING_TO_CHAR(mPageRemoteLatestFilenameTest->GetPageID()));
+	ruleRemoteArchiveFilenameTestPassed.Printf("%s=\"TRUE\"",STRING_TO_CHAR(mPageRemoteArchiveFilenameTest->GetPageID()));
+	rulePunkbusterTestPassed.Printf("%s=\"TRUE\"",STRING_TO_CHAR(mPagePBRemoteDirectoryTest->GetPageID()));
 
-	ruleQuakewars.Printf("%s=\"%s\"",pageServerType->GetPageID().GetData(),SERVER_TYPE_QUAKEWARS);
-	ruleQuakewarsHomePC.Printf("(%s)&(%s)",ruleLocalOrRemoteHomePC.GetData(),ruleQuakewars.GetData());
-	ruleQuakewarsGameServer.Printf("(%s)&(%s)",ruleLocalOrRemoteGameServer.GetData(),ruleQuakewars.GetData());
-	ruleMOHAA.Printf("%s=\"%s\"",pageServerType->GetPageID().GetData(),SERVER_TYPE_MOHAA);
-	ruleMOHAAHomePC.Printf("(%s)&(%s)",ruleLocalOrRemoteHomePC.GetData(),ruleMOHAA.GetData());
-	ruleMOHAAGameServer.Printf("(%s)&(%s)",ruleLocalOrRemoteGameServer.GetData(),ruleMOHAA.GetData());
+	ruleQuakewars.Printf("%s=\"%s\"",STRING_TO_CHAR(mPageServerType->GetPageID()),SERVER_TYPE_QUAKEWARS);
+	ruleQuakewarsHomePC.Printf("(%s)&(%s)",STRING_TO_CHAR(ruleLocalOrRemoteHomePC),STRING_TO_CHAR(ruleQuakewars));
+	ruleQuakewarsGameServer.Printf("(%s)&(%s)",STRING_TO_CHAR(ruleLocalOrRemoteGameServer),STRING_TO_CHAR(ruleQuakewars));
+	ruleMOHAA.Printf("%s=\"%s\"",STRING_TO_CHAR(mPageServerType->GetPageID()),SERVER_TYPE_MOHAA);
+	ruleMOHAAHomePC.Printf("(%s)&(%s)",STRING_TO_CHAR(ruleLocalOrRemoteHomePC),STRING_TO_CHAR(ruleMOHAA));
+	ruleMOHAAGameServer.Printf("(%s)&(%s)",STRING_TO_CHAR(ruleLocalOrRemoteGameServer),STRING_TO_CHAR(ruleMOHAA));
 	ruleMessagingServers.Printf("((%s=\"%s\")|(%s=\"%s\")|(%s=\"%s\")|(%s=\"%s\")|(%s=\"%s\"))",
-			pageServerType->GetPageID().GetData(),SERVER_TYPE_COD1,
-			pageServerType->GetPageID().GetData(),SERVER_TYPE_COD2,
-			pageServerType->GetPageID().GetData(),SERVER_TYPE_COD4,
-			pageServerType->GetPageID().GetData(),SERVER_TYPE_COD5,
-			pageServerType->GetPageID().GetData(),SERVER_TYPE_QUAKEWARS);
-	ruleMessagingEnabled.Printf("(%s=\"%s\")", pageMessagingEnabled->GetPageID().GetData(),"Y");
-	ruleMessaging.Printf("%s&%s",ruleMessagingServers.GetData(),ruleMessagingEnabled.GetData());
-	rulePunkbuster.Printf("(%s)&(%s)",ruleMessaging.GetData(),ruleLocalOrRemoteHomePC.GetData());
+			STRING_TO_CHAR(mPageServerType->GetPageID()),SERVER_TYPE_COD1,
+			STRING_TO_CHAR(mPageServerType->GetPageID()),SERVER_TYPE_COD2,
+			STRING_TO_CHAR(mPageServerType->GetPageID()),SERVER_TYPE_COD4,
+			STRING_TO_CHAR(mPageServerType->GetPageID()),SERVER_TYPE_COD5,
+			STRING_TO_CHAR(mPageServerType->GetPageID()),SERVER_TYPE_QUAKEWARS);
+	ruleMessagingEnabled.Printf("(%s=\"%s\")", STRING_TO_CHAR(mPageMessagingEnabled->GetPageID()),"Y");
+	ruleMessaging.Printf("%s&%s",STRING_TO_CHAR(ruleMessagingServers),STRING_TO_CHAR(ruleMessagingEnabled));
+	rulePunkbuster.Printf("(%s)&(%s)",STRING_TO_CHAR(ruleMessaging),STRING_TO_CHAR(ruleLocalOrRemoteHomePC));
 	ruleHomePCNotMOHAA.Printf("(%s)&(%s!\"%s\")",
-								ruleLocalOrRemoteHomePC.GetData(),
-								pageServerType->GetPageID().GetData(),
+								STRING_TO_CHAR(ruleLocalOrRemoteHomePC),
+								STRING_TO_CHAR(mPageServerType->GetPageID()),
 								SERVER_TYPE_MOHAA);
 	ruleGameServerNotMOHAA.Printf("(%s)&(%s!\"%s\")",
-								ruleLocalOrRemoteGameServer.GetData(),
-								pageServerType->GetPageID().GetData(),
+								STRING_TO_CHAR(ruleLocalOrRemoteGameServer),
+								STRING_TO_CHAR(mPageServerType->GetPageID()),
 								SERVER_TYPE_MOHAA);
 
-	wizard->AddPageLink(pageServerType,					""							,ruleServerTypeContinue);
-	wizard->AddPageLink(pageLocalOrRemote,				""							,ruleLocalOrRemoteContinue);
-	remoteMachine.SetPageID(pageID,"REMOTEMACHINE");
-	remoteMachine.CreateWizardPages(wizard);
-	wizard->AddPageLink(pageRCONPort,					""				,"");
-	wizard->AddPageLink(pageMessagingEnabled,			ruleMessagingServers		,"");
-	wizard->AddPageLink(pageRCONPassword,				ruleMessaging				,"");
-	wizard->AddPageLink(pagePBRemoteDirectory,			rulePunkbuster				,"");
-	wizard->AddPageLink(pagePBRemoteDirectoryTest,		rulePunkbuster				,rulePunkbusterTestPassed);
-	wizard->AddPageLink(pageRemoteLatestFilename,		ruleHomePCNotMOHAA		,"");
-	wizard->AddPageLink(pageRemoteLatestFilenameTest,	ruleHomePCNotMOHAA		,ruleRemoteLatestFilenameTestPassed);
-	wizard->AddPageLink(pageRemoteLatestSecondaryFilename,		ruleQuakewarsHomePC		,"");
-	wizard->AddPageLink(pageRemoteLatestSecondaryFilenameTest,	ruleQuakewarsHomePC		,ruleRemoteLatestFilenameTestPassed);
-	wizard->AddPageLink(pageRemoteArchiveFilename,		ruleMOHAAHomePC		,"");
-	wizard->AddPageLink(pageRemoteArchiveFilenameTest,	ruleMOHAAHomePC		,ruleRemoteArchiveFilenameTestPassed);
-	wizard->AddPageLink(pageLocalLatestFilename,		ruleGameServerNotMOHAA	,"");
-	wizard->AddPageLink(pageLocalArchiveFilename,		ruleMOHAAGameServer	,"");
-	wizard->AddPageLink(pageLocalLatestSecondaryFilename,		ruleQuakewarsGameServer	,"");
+	mWizard->AddPageLink(mPageServerType,						""						,ruleServerTypeContinue);
+	mWizard->AddPageLink(mPageLocalOrRemote,					""						,ruleLocalOrRemoteContinue);
+	mRemoteMachine.SetPageID(mPageID,"REMOTEMACHINE");
+	mRemoteMachine.CreateWizardPages(mWizard);
+	mWizard->AddPageLink(mPageRCONPort,							""						,"");
+	mWizard->AddPageLink(mPageMessagingEnabled,					ruleMessagingServers	,"");
+	mWizard->AddPageLink(mPageRCONPassword,						ruleMessaging			,"");
+	mWizard->AddPageLink(mPagePBRemoteDirectory,				rulePunkbuster			,"");
+	mWizard->AddPageLink(mPagePBRemoteDirectoryTest,			rulePunkbuster			,rulePunkbusterTestPassed);
+	mWizard->AddPageLink(mPageRemoteLatestFilename,				ruleHomePCNotMOHAA		,"");
+	mWizard->AddPageLink(mPageRemoteLatestFilenameTest,			ruleHomePCNotMOHAA		,ruleRemoteLatestFilenameTestPassed);
+	mWizard->AddPageLink(mPageRemoteLatestSecondaryFilename,	ruleQuakewarsHomePC		,"");
+	mWizard->AddPageLink(mPageRemoteLatestSecondaryFilenameTest,ruleQuakewarsHomePC		,ruleRemoteLatestFilenameTestPassed);
+	mWizard->AddPageLink(mPageRemoteArchiveFilename,			ruleMOHAAHomePC			,"");
+	mWizard->AddPageLink(mPageRemoteArchiveFilenameTest,		ruleMOHAAHomePC			,ruleRemoteArchiveFilenameTestPassed);
+	mWizard->AddPageLink(mPageLocalLatestFilename,				ruleGameServerNotMOHAA	,"");
+	mWizard->AddPageLink(mPageLocalArchiveFilename,				ruleMOHAAGameServer		,"");
+	mWizard->AddPageLink(mPageLocalLatestSecondaryFilename,		ruleQuakewarsGameServer	,"");
 
 	/*
 	wizard->AddPageLink(pageHostname,"","");
@@ -1405,48 +1228,27 @@ void GUIWizardPagesServer::CreateWizardPages(StatsgenWizard *wizardIn)
 	*/
 	SetSectionTitle(sectionTitle);
 
-	ResizePages();
 }
 
 void GUIWizardPagesServer::SetSectionTitle(const char *sectionTitle)
 {
-	pageServerType->SetSectionTitle(sectionTitle);
-	pageLocalOrRemote->SetSectionTitle(sectionTitle);
-	pageRCONPassword->SetSectionTitle(sectionTitle);
-	pageRCONPort->SetSectionTitle(sectionTitle);
-	pagePBRemoteDirectory->SetSectionTitle(sectionTitle);
-	pagePBRemoteDirectoryTest->SetSectionTitle(sectionTitle);
-	pageMessagingEnabled->SetSectionTitle(sectionTitle);
-	pageRemoteLatestFilename->SetSectionTitle(sectionTitle);
-	pageRemoteLatestFilenameTest->SetSectionTitle(sectionTitle);
-	pageRemoteLatestSecondaryFilename->SetSectionTitle(sectionTitle);
-	pageRemoteLatestSecondaryFilenameTest->SetSectionTitle(sectionTitle);
-	pageLocalLatestFilename->SetSectionTitle(sectionTitle);
-	pageLocalLatestSecondaryFilename->SetSectionTitle(sectionTitle);
-	pageRemoteArchiveFilename->SetSectionTitle(sectionTitle);
-	pageRemoteArchiveFilenameTest->SetSectionTitle(sectionTitle);
-	pageLocalArchiveFilename->SetSectionTitle(sectionTitle);
-	remoteMachine.SetSectionTitle(sectionTitle);
-}
-
-void GUIWizardPagesServer::ResizePages()
-{
-	pageServerType->Resize();
-	pageLocalOrRemote->Resize();
-	pageRCONPassword->Resize();
-	pageRCONPort->Resize();
-	pagePBRemoteDirectory->Resize();
-	pagePBRemoteDirectoryTest->Resize();
-	pageMessagingEnabled->Resize();
-	pageRemoteLatestFilename->Resize();
-	pageRemoteLatestFilenameTest->Resize();
-	pageRemoteLatestSecondaryFilename->Resize();
-	pageRemoteLatestSecondaryFilenameTest->Resize();
-	pageLocalLatestFilename->Resize();
-	pageLocalLatestSecondaryFilename->Resize();
-	pageRemoteArchiveFilename->Resize();
-	pageRemoteArchiveFilenameTest->Resize();
-	pageLocalArchiveFilename->Resize();
+	mPageServerType->SetSectionTitle(sectionTitle);
+	mPageLocalOrRemote->SetSectionTitle(sectionTitle);
+	mPageRCONPassword->SetSectionTitle(sectionTitle);
+	mPageRCONPort->SetSectionTitle(sectionTitle);
+	mPagePBRemoteDirectory->SetSectionTitle(sectionTitle);
+	mPagePBRemoteDirectoryTest->SetSectionTitle(sectionTitle);
+	mPageMessagingEnabled->SetSectionTitle(sectionTitle);
+	mPageRemoteLatestFilename->SetSectionTitle(sectionTitle);
+	mPageRemoteLatestFilenameTest->SetSectionTitle(sectionTitle);
+	mPageRemoteLatestSecondaryFilename->SetSectionTitle(sectionTitle);
+	mPageRemoteLatestSecondaryFilenameTest->SetSectionTitle(sectionTitle);
+	mPageLocalLatestFilename->SetSectionTitle(sectionTitle);
+	mPageLocalLatestSecondaryFilename->SetSectionTitle(sectionTitle);
+	mPageRemoteArchiveFilename->SetSectionTitle(sectionTitle);
+	mPageRemoteArchiveFilenameTest->SetSectionTitle(sectionTitle);
+	mPageLocalArchiveFilename->SetSectionTitle(sectionTitle);
+	mRemoteMachine.SetSectionTitle(sectionTitle);
 }
 
 void GUIWizardPagesServer::PrepareServerConfig()
@@ -1460,7 +1262,7 @@ void GUIWizardPagesServer::PrepareServerConfig()
 	wxString						banDirectoryName;
 	wxString						baseDirectoryName;
 
-	baseDirectory.AppendDir(groupPrefix);
+	baseDirectory.AppendDir(mGroupPrefix);
 	baseDirectory.MakeAbsolute();
 	logDirectory=baseDirectory;
 	archiveDirectory=baseDirectory;
@@ -1490,14 +1292,12 @@ void GUIWizardPagesServer::PrepareServerConfig()
 	banDirectoryName+=banDirectory.GetPathSeparator();
 	archiveDirectoryName+=archiveDirectory.GetPathSeparator();
 
-	pageLocalLatestFilename->SetDefault(logDirectoryName);
-	pageLocalLatestFilename->UpdateValueFromConfig();
-	pageLocalLatestSecondaryFilename->SetDefault(logDirectoryName);
-	pageLocalLatestSecondaryFilename->UpdateValueFromConfig();
-	pageLocalArchiveFilename->SetDefault(archiveDirectoryName);
-	pageLocalArchiveFilename->UpdateValueFromConfig();
-
-
+	mPageLocalLatestFilename->SetDefault(logDirectoryName);
+	mPageLocalLatestFilename->UpdateValueFromConfig();
+	mPageLocalLatestSecondaryFilename->SetDefault(logDirectoryName);
+	mPageLocalLatestSecondaryFilename->UpdateValueFromConfig();
+	mPageLocalArchiveFilename->SetDefault(archiveDirectoryName);
+	mPageLocalArchiveFilename->UpdateValueFromConfig();
 }
 
 void GUIWizardPagesServer::ConfigChangedCallBack(void *object)
@@ -1512,11 +1312,14 @@ GUIWizardPageChoice::GUIWizardPageChoice(StatsgenWizard *wizardIn,wxString paren
 						wxArrayString &buttonTextsIn,
 						wxArrayString &buttonDescriptionsIn) : GUIWizardPageStatsgen(wizardIn,parentPageID,thisPageID)
 {
-	selectionLabel		= NULL;
-	selectedChoice		= NULL;
-	choice				= "";
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageChoice","GUIWizardPageChoice")
+	mSelectionLabel		= NULL;
+	mSelectedChoice		= NULL;
+	mChoice				= "";
+	mChoiceSizer		= NULL;
 
 	UpdateChoices(answerCodesIn,buttonTextsIn,buttonDescriptionsIn);
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 GUIWizardPageChoice::~GUIWizardPageChoice()
@@ -1528,6 +1331,7 @@ void GUIWizardPageChoice::UpdateChoices(
 						wxArrayString &buttonTextsIn,
 						wxArrayString &buttonDescriptionsIn)
 {
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageChoice","UpdateChoices")
 	int				buttonCount;
 	int				buttonIndex;
 	wxButton		*button;
@@ -1538,50 +1342,88 @@ void GUIWizardPageChoice::UpdateChoices(
 	wxString		buttonText;
 	wxString		buttonDescription;
 
+	if (mChoiceSizer == NULL)
+	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Creating sizer")
+		mChoiceSizer = new wxBoxSizer(wxVERTICAL);
+		mContentsSizer->Add(mChoiceSizer,0,wxEXPAND);
+	}
+	else
+	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Clearing sizer")
+		mChoiceSizer->Clear();
+	}
 	// Remove existing stuff
-	buttonCount=buttons.GetCount();
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"deleting existing buttons")
+	buttonCount=mButtons.GetCount();
 	for (buttonIndex=0;buttonIndex<buttonCount;buttonIndex++)
 	{
-		button		= (wxButton *)buttons.Item(buttonIndex);
-		description	= (wxStaticText *)labels.Item(buttonIndex);
+		button		= (wxButton *)mButtons.Item(buttonIndex);
+		description	= (wxStaticText *)mLabels.Item(buttonIndex);
 		button->Destroy();
 		description->Destroy();
 	}
-	buttons.Clear();
-	labels.Clear();
+	mButtons.Clear();
+	mLabels.Clear();
 
 	// Create new buttons and labels
-	answerCodes 		= answerCodesIn;
-	buttonTexts			= buttonTextsIn;
-	buttonDescriptions	= buttonDescriptionsIn;
+	mAnswerCodes 		= answerCodesIn;
+	mButtonTexts			= buttonTextsIn;
+	mButtonDescriptions	= buttonDescriptionsIn;
 
-	answerCount = answerCodes.GetCount();
+	answerCount = mAnswerCodes.GetCount();
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"creating buttons")
+	wxBoxSizer		*choiceButtonsSizer;
+	choiceButtonsSizer = new wxBoxSizer(wxVERTICAL);
 	for (answerIndex = 0; answerIndex < answerCount; answerIndex++)
 	{
-		answerCode			= answerCodes.Item(answerIndex);
-		buttonText			= buttonTexts.Item(answerIndex);
-		buttonDescription	= buttonDescriptions.Item(answerIndex);
+		answerCode			= mAnswerCodes.Item(answerIndex);
+		buttonText			= mButtonTexts.Item(answerIndex);
+		buttonDescription	= mButtonDescriptions.Item(answerIndex);
 		button				= new wxButton(this,
 										WINDOW_ID_BUTTON_NEW,
 										buttonText);
-		description			= new wxStaticText(this, -1, buttonDescription);
-		buttons.Add(button);
-		labels.Add(description);
-	}
-	if (selectedChoice == NULL)
-	{
-		selectedChoice	= new wxStaticText(this, -1, "");
-		selectionLabel	= new wxStaticText(this,-1,"Current Selection: ");
-	}
-	SetSelection("Nothing");
-	if (answerCodes.GetCount()==1)
-	{
-		choice = buttonTexts.Item(0);
-		SetSelection(choice);
-		choice = answerCodes.Item(0);
-	}
-	Resize();
+		description			= new wxStaticText(this, wxID_ANY, buttonDescription);
+		mButtons.Add(button);
+		mLabels.Add(description);
 
+		wxBoxSizer			*buttonSizer;
+
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"creating button sizer")
+		buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+		buttonSizer->Add(button,1,wxEXPAND);
+		buttonSizer->Add(description,1,wxEXPAND);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"adding button sizer")
+		choiceButtonsSizer->Add(buttonSizer,0,wxEXPAND);
+	}
+	mChoiceSizer->Add(choiceButtonsSizer,0,wxEXPAND);
+	if (mSelectedChoice == NULL)
+	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"creating selected choice")
+		mSelectedChoice	= new wxStaticText(this, wxID_ANY, "");
+		mSelectionLabel	= new wxStaticText(this,wxID_ANY,"Current Selection: ");
+	}
+
+	SetSelection(WIZARD_SELECTION_NOTHING);
+	if (mAnswerCodes.GetCount()>0)
+	{
+		mChoice = mButtonTexts.Item(0);
+		SetSelection(mChoice);
+		mChoice = mAnswerCodes.Item(0);
+	}
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"creating selected sizer")
+	wxBoxSizer	*selectedSizer;
+	selectedSizer = new wxBoxSizer(wxHORIZONTAL);
+	selectedSizer->Add(mSelectionLabel,0,wxEXPAND);
+	selectedSizer->Add(mSelectedChoice,0,wxEXPAND);
+
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"adding selected sizer")
+	mChoiceSizer->Add(selectedSizer,0,wxEXPAND);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Fit")
+	Layout();
+	PostSizeEventToParent();
+
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void GUIWizardPageChoice::SetSelection(const char *selection)
@@ -1594,42 +1436,46 @@ void GUIWizardPageChoice::SetSelection(const char *selection)
 
 void GUIWizardPageChoice::SetSelection(wxString &selection)
 {
-	selectedChoice->SetLabel(selection);
+	mSelectedChoice->SetLabel(selection);
 }
 
 void GUIWizardPageChoice::OnButtonPressed(wxCommandEvent &event)
 {
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageChoice","OnButtonPressed")
 	int			answerCount;
 	int			answerIndex;
 	wxButton	*button=NULL;
 	wxString	selection;
 	
 
-	answerCount = buttons.GetCount();
+	answerCount = mButtons.GetCount();
 
-	choice = "";
+	mChoice = "";
 	for (answerIndex = 0; answerIndex < answerCount; answerIndex++)
 	{
-		button=(wxButton *)buttons.Item(answerIndex);
+		button=(wxButton *)mButtons.Item(answerIndex);
 		if (button == event.GetEventObject())
 		{
-			choice = answerCodes.Item(answerIndex);
-			selection = buttonTexts.Item(answerIndex);
+			mChoice = mAnswerCodes.Item(answerIndex);
+			selection = mButtonTexts.Item(answerIndex);
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Setting selection")
 			SetSelection(selection);
 			break;
 		}
 	}
-	if (callBack!=NULL)
+	if (mCallBack!=NULL)
 	{
-		callBack(callBackObject);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"calling callback")
+		mCallBack(mCallBackObject);
 	}
 	PageContentsChanged();
 
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 wxString GUIWizardPageChoice::GetChoice()
 {
-	return (choice);
+	return (mChoice);
 }
 
 wxString GUIWizardPageChoice::GetValue()
@@ -1644,243 +1490,72 @@ void GUIWizardPageChoice::SelectChoice(wxString &choiceIn)
 	wxButton	*button=NULL;
 	wxString	selection;
 
+	answerCount = mButtons.GetCount();
 	for (answerIndex = 0; answerIndex < answerCount; answerIndex++)
 	{
-		button=(wxButton *)buttons.Item(answerIndex);
-		choice = answerCodes.Item(answerIndex);
-		if (choice.CmpNoCase(choiceIn)==0)
+		button=(wxButton *)mButtons.Item(answerIndex);
+		mChoice = mAnswerCodes.Item(answerIndex);
+		if (mChoice.CmpNoCase(choiceIn)==0)
 		{
-			selection = buttonTexts.Item(answerIndex);
+			selection = mButtonTexts.Item(answerIndex);
 			SetSelection(selection);
 			break;
 		}
-		choice = "";
+		mChoice = "";
 	}
-	if (callBack!=NULL)
+	if (mCallBack!=NULL)
 	{
-		callBack(callBackObject);
+		mCallBack(mCallBackObject);
 	}
-}
-
-wxSize GUIWizardPageChoice::ResizeControl(int x,int y,int width,bool resize)
-{
-
-	int				selectionX;
-	int				selectionY;
-	int				selectionWidth;
-	int				selectionHeight;
-
-	int				labelX;
-	int				labelY;
-	int				labelWidth;
-	int				labelHeight;
-
-	int				buttonX;
-	int				buttonY;
-	int				buttonWidth;
-	int				buttonHeight;
-	wxSize			objectSize;
-	int				answerCount;
-	int				answerIndex;
-	wxButton		*button;
-	wxStaticText	*label;
-	int				maxButtonWidth;
-	int				currentY;
-	int				lineHeight;
-	int				selectionLabelX;
-	int				selectionLabelY;
-	int				selectionLabelWidth;
-	int				selectionLabelHeight;
-
-	wxSize		controlSize;
-
-	if (selectedChoice!=NULL)
-	{
-		answerCount = buttons.GetCount();
-
-		maxButtonWidth	= 0;
-
-		for (answerIndex = 0; answerIndex<answerCount; answerIndex++)
-		{
-			button			= (wxButton *)buttons.Item(answerIndex);
-			objectSize		= button->GetSize();
-			buttonWidth		= objectSize.GetWidth();
-			buttonHeight	= objectSize.GetHeight();
-			if (buttonWidth > maxButtonWidth)
-			{
-				maxButtonWidth = buttonWidth;
-			}
-		}
-		if (maxButtonWidth > width)
-		{
-			width = maxButtonWidth;
-		}
-		// Make the width at least 100 more than the button sizes
-		if ((width - maxButtonWidth) <= 100)
-		{
-			width = width + 100;
-		}
-
-		currentY = y;
-		for (answerIndex = 0; answerIndex<answerCount; answerIndex++)
-		{
-			button			= (wxButton *)buttons.Item(answerIndex);
-			objectSize		= button->GetSize();
-			buttonX			= x;
-			buttonY			= currentY;
-			buttonWidth		= maxButtonWidth;
-			buttonHeight	= objectSize.GetHeight();
-		
-			label			= (wxStaticText *)labels.Item(answerIndex);
-			labelX			= maxButtonWidth + 10;
-			labelY			= currentY;
-			labelWidth		= width - (maxButtonWidth + 10);
-			labelHeight		= 30;
-
-			if (labelHeight > buttonHeight)
-			{
-				lineHeight	= labelHeight;
-			}
-			else
-			{
-				lineHeight	= buttonHeight;
-			}
-
-			if (resize)
-			{
-				button->SetSize(buttonX,buttonY,buttonWidth,buttonHeight);
-				label->SetSize(labelX,labelY,labelWidth,labelHeight);
-			}
-			currentY+=lineHeight;
-			currentY+=10;
-		}
-
-		selectionLabelX			=x;
-		selectionLabelY			=currentY;
-		selectionLabelWidth		=100;
-		selectionLabelHeight	=30;
-
-		selectionX		=selectionLabelX + selectionLabelWidth;
-		selectionY		=currentY;
-		selectionHeight	=30;
-		selectionWidth	=width;
-
-		if (resize)
-		{
-			selectionLabel->SetSize(selectionLabelX,selectionLabelY,
-								selectionLabelWidth,selectionLabelHeight);
-			selectedChoice->SetSize(selectionX,selectionY,
-							selectionWidth,selectionHeight);
-
-		}
-
-		currentY+=selectionHeight;
-
-		controlSize.SetWidth(width);
-		controlSize.SetHeight(currentY - y);
-	}
-
-	return (controlSize);
 }
 
 GUIWizardPageConfigFile::GUIWizardPageConfigFile(StatsgenWizard *wizardIn,wxString parentPageID,wxString thisPageID) : GUIWizardPageConfig(wizardIn,parentPageID,thisPageID)
 {
-	valueCtrl		= FALSE;
-	browseButton	= FALSE;
+	mValueCtrl		= NULL;
+	mBrowseButton	= NULL;
 	CreateControl();
 }
 
 GUIWizardPageConfigFile::~GUIWizardPageConfigFile()
 {
-	valueCtrl		= FALSE;
-	browseButton	= FALSE;
+	mValueCtrl		= NULL;
+	mBrowseButton	= NULL;
 }
 
 void GUIWizardPageConfigFile::CreateControl()
 {
-	valueCtrl		= new wxTextCtrl(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE);
-	browseButton	= new wxButton(this,WINDOW_ID_BUTTON_NEW,"Browse For File");
-}
-
-wxSize GUIWizardPageConfigFile::ResizeControl(int x,int y,int width,bool resize)
-{
-	wxSize		baseControlSize;
-	wxSize		controlSize;
-	int			baseX;
-	int			baseY;
-	int			baseWidth;
-	int			baseHeight;
-	int			valueX;
-	int			valueY;
-	int			valueWidth;
-	int			valueHeight;
-	int			buttonX;
-	int			buttonY;
-	int			buttonWidth;
-	int			buttonHeight;
-	wxSize		objectSize;
-
-	objectSize		= browseButton->GetSize();
-	buttonWidth		= objectSize.GetWidth();
-	buttonHeight	= objectSize.GetHeight();
-
-	if (width < buttonWidth)
-	{
-		width = buttonWidth;
-	}
-
-	baseX			= x;
-	baseY			= y;
-	baseControlSize = GUIWizardPageConfig::ResizeControl(baseX,baseY,width,resize);
-	baseWidth		= baseControlSize.GetWidth();
-	baseHeight		= baseControlSize.GetHeight();
-
-	valueX			= x;
-	valueY			= baseY + baseHeight;
-	valueWidth		= width;
-	valueHeight		= 30;
-
-	buttonX			= x;
-	buttonY			= valueY + valueHeight;
-
-	controlSize.SetWidth(width);
-	controlSize.SetHeight(baseHeight + valueHeight + buttonHeight);
-
-	if (resize)
-	{
-		valueCtrl->SetSize(valueX,valueY,valueWidth,valueHeight);
-		browseButton->SetSize(buttonX,buttonY,buttonWidth,buttonHeight);
-	}
-
-	return (controlSize);
+	mValueCtrl		= new wxTextCtrl(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE);
+	mBrowseButton	= new wxButton(this,WINDOW_ID_BUTTON_NEW,"Browse For File");
+	mContentsSizer->Add(mBrowseButton);
+	mContentsSizer->Add(mValueCtrl,0,wxEXPAND);
 }
 
 void GUIWizardPageConfigFile::SetCtrlFromValue()
 {
-	valueCtrl->SetValue(value);
+	mValueCtrl->SetValue(mValue);
 }
 
 bool GUIWizardPageConfigFile::ScreenReady()
 {
-	return (valueCtrl!=NULL);
+	return (mValueCtrl!=NULL);
 }
 
 void GUIWizardPageConfigFile::SetValueFromCtrl()
 {
-	value = valueCtrl->GetValue();
+	mValue = mValueCtrl->GetValue();
 }
 
 void GUIWizardPageConfigFile::GetConfigKeys(wxString &configKeyDirectory,
 													wxString &configKeyFilename)
 {
-	configKeyDirectory	= configKey + "Directory";
-	configKeyFilename	= configKey + "Filename";
+	configKeyDirectory	= mConfigKey + "Directory";
+	configKeyFilename	= mConfigKey + "Filename";
 }
 
 void GUIWizardPageConfigFile::SplitValue(wxString &valueDirectory,
 													wxString &valueFilename)
 {
-	wxFileName	filename(value,wxPATH_UNIX);
+	wxFileName	filename(mValue,wxPATH_UNIX);
 
 	valueFilename	= filename.GetFullName();
 	valueDirectory	= filename.GetPath();
@@ -1894,7 +1569,7 @@ void GUIWizardPageConfigFile::OnButtonPressed(wxCommandEvent &event)
 	userFilename=RequestFileFromUser();
 	if (userFilename.Length()>0)
 	{
-		value=userFilename;
+		mValue=userFilename;
 		SetCtrlFromValue();
 	}
 	PageContentsChanged();
@@ -1908,12 +1583,12 @@ void GUIWizardPageConfigFile::UpdateConfigFromValue()
 	if (ConfigReady())
 	{
 		GetConfigKeys(configKeyDirectory,configKeyFilename);
-		SplitValue(directory,filename);
-		globalStatistics.configData.WriteTextValue(configKeyDirectory,directory);
-		globalStatistics.configData.WriteTextValue(configKeyFilename,filename);
-		if (callBack!=NULL)
+		SplitValue(mDirectory,mFilename);
+		globalStatistics.configData.WriteTextValue(configKeyDirectory,mDirectory);
+		globalStatistics.configData.WriteTextValue(configKeyFilename,mFilename);
+		if (mCallBack!=NULL)
 		{
-			callBack(callBackObject);
+			mCallBack(mCallBackObject);
 		}
 	}
 }
@@ -1926,15 +1601,15 @@ void GUIWizardPageConfigFile::UpdateValueFromConfig()
 	if (ConfigReady())
 	{
 		GetConfigKeys(configKeyDirectory,configKeyFilename);
-		globalStatistics.configData.ReadTextValue(configKeyDirectory,&directory);
-		globalStatistics.configData.ReadTextValue(configKeyFilename,&filename);
-		if ((directory.Length()==0)&&(filename.Length()==0)&&(defaultValue.Length()>0))
+		globalStatistics.configData.ReadTextValue(configKeyDirectory,&mDirectory);
+		globalStatistics.configData.ReadTextValue(configKeyFilename,&mFilename);
+		if ((mDirectory.Length()==0)&&(mFilename.Length()==0)&&(mDefaultValue.Length()>0))
 		{
-			wxFileName	defaultFilename(defaultValue);
-			directory=defaultFilename.GetPath();
-			filename=defaultFilename.GetFullName();
-			globalStatistics.configData.WriteTextValue(configKeyDirectory,directory);
-			globalStatistics.configData.WriteTextValue(configKeyFilename,filename);
+			wxFileName	defaultFilename(mDefaultValue);
+			mDirectory=defaultFilename.GetPath();
+			mFilename=defaultFilename.GetFullName();
+			globalStatistics.configData.WriteTextValue(configKeyDirectory,mDirectory);
+			globalStatistics.configData.WriteTextValue(configKeyFilename,mFilename);
 		}
 
 		CombineValue();
@@ -1962,10 +1637,10 @@ wxString GUIWizardPageConfigRemoteFile::RequestFileFromUser()
 
 	message="Select File";
 
-	groupPrefix = configKey.AfterFirst('/');
+	groupPrefix = mConfigKey.AfterFirst('/');
 	groupPrefix = groupPrefix.BeforeFirst('/');
 
-	GenericOKCancelDialog dialog(this,-1,
+	GenericOKCancelDialog dialog(this,wxID_ANY,
 							message,
 							wxDefaultPosition,
 							wxDefaultSize,
@@ -1977,19 +1652,17 @@ wxString GUIWizardPageConfigRemoteFile::RequestFileFromUser()
 							_T(""));
 	FTPBrowserPanel	*browserPanel=new FTPBrowserPanel(
 										groupPrefix,
-										directory,
+										mDirectory,
 										true);
 	browserPanel->Create(&dialog,
-						-1,
+						wxID_ANY,
 						wxDefaultPosition,
 						wxDefaultSize,
 						wxTAB_TRAVERSAL,
 						_T("panel"));
 	browserPanel->CreateScreen();
 	
-	dialog.SetPanel(browserPanel);
-	dialog.CreateDialog();
-	result=(dialog.ShowModal()==WINDOW_ID_BUTTON_SAVE);
+	result = dialog.DisplayDialog(browserPanel);
 	if (result)
 	{
 		userFilename=browserPanel->GetCurrentSelection();
@@ -2003,15 +1676,15 @@ wxString GUIWizardPageConfigRemoteFile::RequestFileFromUser()
 
 void GUIWizardPageConfigRemoteFile::CombineValue()
 {
-	value= directory;
-	value+="/";
-	value+=filename;
+	mValue= mDirectory;
+	mValue+="/";
+	mValue+=mFilename;
 }
 
 void GUIWizardPageConfigRemoteFile::SplitValue(wxString &valueDirectory,
 													wxString &valueFilename)
 {
-	wxFileName	filename(value,wxPATH_UNIX);
+	wxFileName	filename(mValue,wxPATH_UNIX);
 
 	valueFilename	= filename.GetFullName();
 	valueDirectory	= filename.GetPath();
@@ -2025,7 +1698,7 @@ GUIWizardPageConfigLocalFile::GUIWizardPageConfigLocalFile(StatsgenWizard *wizar
 void GUIWizardPageConfigLocalFile::SplitValue(wxString &valueDirectory,
 													wxString &valueFilename)
 {
-	wxFileName	filenameStr(value);
+	wxFileName	filenameStr(mValue);
 
 	valueFilename	= filenameStr.GetFullName();
 	valueDirectory	= filenameStr.GetPath();
@@ -2035,10 +1708,10 @@ void GUIWizardPageConfigLocalFile::CombineValue()
 {
 	wxFileName	filenameStr;
 
-	filenameStr.SetFullName(filename);
-	filenameStr.SetPath(directory);
+	filenameStr.SetFullName(mFilename);
+	filenameStr.SetPath(mDirectory);
 
-	value = filenameStr.GetFullPath();
+	mValue = filenameStr.GetFullPath();
 }
 
 wxString GUIWizardPageConfigLocalFile::RequestFileFromUser()
@@ -2049,7 +1722,7 @@ wxString GUIWizardPageConfigLocalFile::RequestFileFromUser()
 
 	message="Select File";
 
-	result=wxFileSelector(message,directory);
+	result=wxFileSelector(message,mDirectory);
 	if (result.Length()>0)
 	{
 		userFile=result;
@@ -2060,27 +1733,34 @@ wxString GUIWizardPageConfigLocalFile::RequestFileFromUser()
 
 GUIWizardPageRemoteFileTest::GUIWizardPageRemoteFileTest(StatsgenWizard *wizardIn,wxString parentPageID,wxString thisPageID) : GUIWizardPageStatsgen(wizardIn,parentPageID,thisPageID)
 {
-	statusCtrl		= new wxStaticText(this,-1,"Test Not Run");
-	errorCtrl		= new wxRichTextCtrl(this,-1,"");
-	errorCtrl->SetEditable(false);
-	testButton		= new wxButton(this,WINDOW_ID_BUTTON_NEW,"Test Remote File");
-	fileDirectory	= "";
-	lastResult = false;
+	wxSize		minSize;
+	mStatusCtrl		= new wxStaticText(this,wxID_ANY,"Test Not Run");
+	mErrorCtrl		= new wxRichTextCtrl(this,wxID_ANY,"");
+	mErrorCtrl->SetEditable(false);
+	mTestButton		= new wxButton(this,WINDOW_ID_BUTTON_NEW,"Test Remote File");
+	mFileDirectory	= "";
+	mLastResult = false;
+	mContentsSizer->Add(mStatusCtrl,0,wxEXPAND);
+	mContentsSizer->Add(mErrorCtrl,1,wxEXPAND|wxALL);
+	mContentsSizer->Add(mTestButton,0,wxEXPAND);
+	minSize = mErrorCtrl->GetSize();
+	minSize.SetHeight(100);
+	mErrorCtrl->SetMinSize(minSize);
 }
 
 GUIWizardPageRemoteFileTest::~GUIWizardPageRemoteFileTest()
 {
-	lastResult = false;
+	mLastResult = false;
 }
 
 void GUIWizardPageRemoteFileTest::SetGroupPrefix(wxString &groupPrefixIn)
 {
-	groupPrefix		= groupPrefixIn;
+	mGroupPrefix		= groupPrefixIn;
 }
 
 bool GUIWizardPageRemoteFileTest::TestResult()
 {
-	return (lastResult);
+	return (mLastResult);
 }
 
 wxString GUIWizardPageRemoteFileTest::GetValue()
@@ -2101,130 +1781,74 @@ wxString GUIWizardPageRemoteFileTest::GetValue()
 
 bool GUIWizardPageRemoteFileTest::PerformTest()
 {
-	RemoteMachine		remoteMachine(groupPrefix);
+	RemoteMachine		remoteMachine(mGroupPrefix);
 	RestartingFTP				ftpConnection;
 	wxString			msg;
 	int					fileCount;
 	wxString			filename;
 	
-	statusCtrl->SetLabel("Connecting To Remote Host");
-	errorCtrl->SetValue("");
-	lastResult	=remoteMachine.Connect(ftpConnection);
+	mStatusCtrl->SetLabel("Connecting To Remote Host");
+	mErrorCtrl->SetValue("");
+	mLastResult	=remoteMachine.Connect(ftpConnection);
 
-	if (lastResult)
+	if (mLastResult)
 	{
-		statusCtrl->SetLabel("Retrieving Directory Listing");
-		lastResult = remoteMachine.GetRemoteDirectoryListing(fileDirectory,fileName,filenameList);
+		mStatusCtrl->SetLabel("Retrieving Directory Listing");
+		mLastResult = remoteMachine.GetRemoteDirectoryListing(mFileDirectory,mFileName,mFilenameList);
 
-		if (lastResult)
+		if (mLastResult)
 		{
-			fileCount = filenameList.GetCount();
+			fileCount = mFilenameList.GetCount();
 			if (fileCount == 0)
 			{
-				statusCtrl->SetLabel("Retrieving Directory Listing: Failed");
-				errorCtrl->SetLabel("Directory listing received, but no files present");
-				lastResult = false;
+				mStatusCtrl->SetLabel("Retrieving Directory Listing: Failed");
+				mErrorCtrl->SetLabel("Directory listing received, but no files present");
+				mLastResult = false;
 			}
 			else
 			{
 				msg.Printf("Retrieving Directory Listing: OK - %d files located",fileCount);
-				statusCtrl->SetLabel(msg);
+				mStatusCtrl->SetLabel(msg);
 			}
 		}
 		else
 		{
-			statusCtrl->SetLabel("Retrieving Directory Listing: Failed");
-			errorCtrl->SetValue(remoteMachine.GetLastErrorMessage());
+			mStatusCtrl->SetLabel("Retrieving Directory Listing: Failed");
+			mErrorCtrl->SetValue(remoteMachine.GetLastErrorMessage());
 		}
 	}
 	else
 	{
-		statusCtrl->SetLabel("Connecting To Remote Host: Failed");
-		errorCtrl->SetValue(remoteMachine.GetLastErrorMessage());
+		mStatusCtrl->SetLabel("Connecting To Remote Host: Failed");
+		mErrorCtrl->SetValue(remoteMachine.GetLastErrorMessage());
 	}
 
-	return (lastResult);
+	return (mLastResult);
 }
 
 void GUIWizardPageRemoteFileTest::OnButtonPressed(wxCommandEvent &event)
 {
 	PerformTest();
-	if (callBack!=NULL)
+	if (mCallBack!=NULL)
 	{
-		callBack(callBackObject);
+		mCallBack(mCallBackObject);
 	}
 	PageContentsChanged();
 }
 
-wxSize GUIWizardPageRemoteFileTest::ResizeControl(int x,int y,int width,bool resize)
-{
-	int			statusX;
-	int			statusY;
-	int			statusWidth;
-	int			statusHeight;
-
-	int			errorX;
-	int			errorY;
-	int			errorWidth;
-	int			errorHeight;
-
-	int			buttonX;
-	int			buttonY;
-	int			buttonWidth;
-	int			buttonHeight;
-	wxSize		objectSize;
-
-	wxSize		controlSize;
-
-	if (statusCtrl!=NULL)
-	{
-		objectSize		= testButton->GetSize();
-		buttonX			=x;
-		buttonY			=y;
-		buttonWidth		=objectSize.GetWidth();
-		buttonHeight	=objectSize.GetHeight();
-
-		if (buttonWidth > width)
-		{
-			width = buttonWidth;
-		}
-
-		statusX			=x;
-		statusY			=buttonY + buttonHeight;
-		statusWidth		=width;
-		statusHeight	=30;
-
-		errorX			=x;
-		errorY			=statusY + statusHeight;
-		errorWidth		=width;
-		errorHeight		=90;
-
-		if (resize)
-		{
-			testButton->SetSize(buttonX,buttonY,buttonWidth,buttonHeight);
-			statusCtrl->SetSize(statusX,statusY,statusWidth,statusHeight);
-			errorCtrl->SetSize(errorX,errorY,errorWidth,errorHeight);
-		}
-		controlSize.SetWidth(width);
-		controlSize.SetHeight(buttonHeight + statusHeight + errorHeight);
-	}
-
-	return (controlSize);
-}
-
 void GUIWizardPageRemoteFileTest::ResetTestResult()
 {
-	statusCtrl->SetLabel("Test Not Run");
-	errorCtrl->SetValue("");
-	lastResult = false;
-	filenameList.Clear();
-	filesizeList.Clear();
+	mStatusCtrl->SetLabel("Test Not Run");
+	mErrorCtrl->SetValue("");
+	mLastResult = false;
+	mFilenameList.Clear();
+	mFilesizeList.Clear();
 }
 
 void GUIWizardPageRemoteFileTest::SetFile(wxString &fileDirectoryIn, wxString &fileNameIn)
 {
-	fileDirectory	= fileDirectoryIn;
-	fileName		= fileNameIn;
+	mFileDirectory	= fileDirectoryIn;
+	mFileName		= fileNameIn;
 }
 
 GUIWizardPageConfigChoice::GUIWizardPageConfigChoice(StatsgenWizard *wizardIn,
@@ -2234,21 +1858,26 @@ GUIWizardPageConfigChoice::GUIWizardPageConfigChoice(StatsgenWizard *wizardIn,
 						wxArrayString &buttonTextsIn,
 						wxArrayString &buttonDescriptionsIn) : GUIWizardPageConfig(wizardIn,parentPageID,thisPageID)
 {
-	valueCtrl			= FALSE;
-	answerCodes 		= answerCodesIn;
-	buttonTexts			= buttonTextsIn;
-	buttonDescriptions	= buttonDescriptionsIn;
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageConfigChoice","GUIWizardPageConfigChoice")
+	mValueCtrl			= NULL;
+	mSelectionLabel		= NULL;
+	mAnswerCodes 		= answerCodesIn;
+	mButtonTexts		= buttonTextsIn;
+	mButtonDescriptions	= buttonDescriptionsIn;
 
-	choice				= "";
+	mChoice				= "";
+	mChoiceSizer		= NULL;
 	CreateControl();
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 GUIWizardPageConfigChoice::~GUIWizardPageConfigChoice()
 {
-	valueCtrl = FALSE;
+	mValueCtrl = NULL;
 }
 void GUIWizardPageConfigChoice::CreateControl()
 {
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageConfigChoice","CreateControl")
 	int				answerCount;
 	int				answerIndex;
 	wxButton		*button;
@@ -2257,44 +1886,82 @@ void GUIWizardPageConfigChoice::CreateControl()
 	wxString		buttonText;
 	wxString		buttonDescription;
 
+	if (mChoiceSizer == NULL)
+	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Creating choice sizer")
+		mChoiceSizer = new wxBoxSizer(wxVERTICAL);
+		mContentsSizer->Add(mChoiceSizer,0,wxEXPAND);
+	}
+	else
+	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Clearing choice sizer")
+		mChoiceSizer->Clear();
+	}
+	answerCount = mAnswerCodes.GetCount();
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"adding buttons")
+	wxBoxSizer	*choiceButtonsSizer;
 
-	answerCount = answerCodes.GetCount();
+	choiceButtonsSizer = new wxBoxSizer(wxVERTICAL);
 	for (answerIndex = 0; answerIndex < answerCount; answerIndex++)
 	{
-		answerCode			= answerCodes.Item(answerIndex);
-		buttonText			= buttonTexts.Item(answerIndex);
-		buttonDescription	= buttonDescriptions.Item(answerIndex);
+		answerCode			= mAnswerCodes.Item(answerIndex);
+		buttonText			= mButtonTexts.Item(answerIndex);
+		buttonDescription	= mButtonDescriptions.Item(answerIndex);
 		button				= new wxButton(this,
 										WINDOW_ID_BUTTON_NEW,
 										buttonText);
-		description			= new wxStaticText(this, -1, buttonDescription);
-		buttons.Add(button);
-		labels.Add(description);
+		description			= new wxStaticText(this, wxID_ANY, buttonDescription);
+		mButtons.Add(button);
+		mLabels.Add(description);
+
+		wxBoxSizer			*buttonSizer;
+
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"creating button sizer")
+		buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+		buttonSizer->Add(button,1,wxEXPAND);
+		buttonSizer->Add(description,1,wxEXPAND);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"adding button sizer")
+		choiceButtonsSizer->Add(buttonSizer,0,wxEXPAND);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"added button sizer")
 	}
-	valueCtrl		= new wxTextCtrl(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE);
-	selectionLabel	= new wxStaticText(this,-1,"Current Selection: ");
-	SetSelection("Nothing");
-	if (answerCodes.GetCount()==1)
+	mChoiceSizer->Add(choiceButtonsSizer,0,wxEXPAND);
+	if (mValueCtrl == NULL)
 	{
-		choice = buttonTexts.Item(0);
-		SetSelection(choice);
-		choice = answerCodes.Item(0);
+		mValueCtrl		= new wxTextCtrl(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE);
+		mSelectionLabel	= new wxStaticText(this,wxID_ANY,"Current Selection: ");
 	}
+	SetSelection(WIZARD_SELECTION_NOTHING);
+	if (mAnswerCodes.GetCount()>0)
+	{
+		mChoice = mButtonTexts.Item(0);
+		SetSelection(mChoice);
+		mChoice = mAnswerCodes.Item(0);
+	}
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"creating selected sizer")
+	wxBoxSizer	*selectedSizer;
+	selectedSizer = new wxBoxSizer(wxHORIZONTAL);
+	selectedSizer->Add(mSelectionLabel,0,wxEXPAND);
+	selectedSizer->Add(mValueCtrl,0,wxEXPAND);
+
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"adding selected sizer")
+	mChoiceSizer->Add(selectedSizer,0,wxEXPAND);
+	Fit();
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void GUIWizardPageConfigChoice::SetCtrlFromValue()
 {
-	valueCtrl->SetValue(value);
+	mValueCtrl->SetValue(mValue);
 }
 
 bool GUIWizardPageConfigChoice::ScreenReady()
 {
-	return (valueCtrl!=NULL);
+	return (mValueCtrl!=NULL);
 }
 
 void GUIWizardPageConfigChoice::SetValueFromCtrl()
 {
-	value=valueCtrl->GetValue();
+	mValue=mValueCtrl->GetValue();
 }
 
 void GUIWizardPageConfigChoice::SetSelection(const char *selection)
@@ -2302,185 +1969,56 @@ void GUIWizardPageConfigChoice::SetSelection(const char *selection)
 	wxString	selectionStr;
 
 	selectionStr=selection;
+	SetSelection(selectionStr);
 }
 
 void GUIWizardPageConfigChoice::SetSelection(wxString &selection)
 {
-	valueCtrl->SetValue(selection);
+	mValueCtrl->SetValue(selection);
 }
 
 void GUIWizardPageConfigChoice::OnButtonPressed(wxCommandEvent &event)
 {
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageChoice","OnButtonPressed")
 	int			answerCount;
 	int			answerIndex;
 	wxButton	*button=NULL;
 	wxString	selection;
 	
 
-	answerCount = buttons.GetCount();
+	answerCount = mButtons.GetCount();
 
-	choice = "";
+	mChoice = "";
 	for (answerIndex = 0; answerIndex < answerCount; answerIndex++)
 	{
-		button=(wxButton *)buttons.Item(answerIndex);
+		button=(wxButton *)mButtons.Item(answerIndex);
 		if (button == event.GetEventObject())
 		{
-			choice = answerCodes.Item(answerIndex);
-			selection = buttonTexts.Item(answerIndex);
-			SetSelection(choice);
+			mChoice = mAnswerCodes.Item(answerIndex);
+			selection = mButtonTexts.Item(answerIndex);
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"setting selection")
+			SetSelection(mChoice);
 			break;
 		}
 	}
-	if (callBack!=NULL)
+	if (mCallBack!=NULL)
 	{
-		callBack(callBackObject);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"calling callback")
+		mCallBack(mCallBackObject);
 	}
 
 	PageContentsChanged();
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 wxString GUIWizardPageConfigChoice::GetChoice()
 {
-	return (choice);
-}
-
-wxSize GUIWizardPageConfigChoice::ResizeControl(int x,int y,int width,bool resize)
-{
-
-	int				selectionX;
-	int				selectionY;
-	int				selectionWidth;
-	int				selectionHeight;
-
-	int				labelX;
-	int				labelY;
-	int				labelWidth;
-	int				labelHeight;
-
-	int				buttonX;
-	int				buttonY;
-	int				buttonWidth;
-	int				buttonHeight;
-	wxSize			objectSize;
-	int				answerCount;
-	int				answerIndex;
-	wxButton		*button;
-	wxStaticText	*label;
-	int				maxButtonWidth;
-	int				currentY;
-	int				lineHeight;
-	int				baseX;
-	int				baseY;
-	int				baseHeight;
-	int				baseWidth;
-	wxSize			baseSize;
-	int				selectionLabelX;
-	int				selectionLabelY;
-	int				selectionLabelWidth;
-	int				selectionLabelHeight;
-
-	wxSize		controlSize;
-	wxSize		baseControlSize;
-
-	if (valueCtrl!=NULL)
-	{
-		answerCount = buttons.GetCount();
-
-		maxButtonWidth	= 0;
-
-		for (answerIndex = 0; answerIndex<answerCount; answerIndex++)
-		{
-			button			= (wxButton *)buttons.Item(answerIndex);
-			objectSize		= button->GetSize();
-			buttonWidth		= objectSize.GetWidth();
-			buttonHeight	= objectSize.GetHeight();
-			if (buttonWidth > maxButtonWidth)
-			{
-				maxButtonWidth = buttonWidth;
-			}
-		}
-		if (maxButtonWidth > width)
-		{
-			width = maxButtonWidth;
-		}
-		// Make the width at least 100 more than the button sizes
-		if ((width - maxButtonWidth) <= 100)
-		{
-			width = width + 100;
-		}
-
-		baseX			= x;
-		baseY			= y;
-		baseControlSize = GUIWizardPageConfig::ResizeControl(baseX,baseY,width,resize);
-		baseWidth		= baseControlSize.GetWidth();
-		baseHeight		= baseControlSize.GetHeight();
-
-		currentY = baseY + baseHeight;
-
-		for (answerIndex = 0; answerIndex<answerCount; answerIndex++)
-		{
-			button			= (wxButton *)buttons.Item(answerIndex);
-			objectSize		= button->GetSize();
-			buttonX			= x;
-			buttonY			= currentY;
-			buttonWidth		= maxButtonWidth;
-			buttonHeight	= objectSize.GetHeight();
-		
-			label			= (wxStaticText *)labels.Item(answerIndex);
-			labelX			= maxButtonWidth + 10;
-			labelY			= currentY;
-			labelWidth		= width - (maxButtonWidth + 10);
-			labelHeight		= 30;
-
-			if (labelHeight > buttonHeight)
-			{
-				lineHeight	= labelHeight;
-			}
-			else
-			{
-				lineHeight	= buttonHeight;
-			}
-
-			if (resize)
-			{
-				button->SetSize(buttonX,buttonY,buttonWidth,buttonHeight);
-				label->SetSize(labelX,labelY,labelWidth,labelHeight);
-			}
-			currentY+=lineHeight;
-			currentY+=10;
-		}
-
-		selectionLabelX			=x;
-		selectionLabelY			=currentY;
-		selectionLabelWidth		=100;
-		selectionLabelHeight	=30;
-
-		selectionX		=selectionLabelX + selectionLabelWidth;
-		selectionY		=currentY;
-		selectionHeight	=30;
-		selectionWidth	=width;
-
-		if (resize)
-		{
-			selectionLabel->SetSize(selectionLabelX,selectionLabelY,
-								selectionLabelWidth,selectionLabelHeight);
-			valueCtrl->SetSize(selectionX,selectionY,
-							selectionWidth,selectionHeight);
-
-		}
-
-		currentY+=selectionHeight;
-
-		controlSize.SetWidth(width);
-		controlSize.SetHeight(currentY - y);
-	}
-
-	return (controlSize);
+	return (mChoice);
 }
 
 GUIWizardPagesServers::GUIWizardPagesServers()
 {
-	pageDeleteEditNew			= NULL;
+	mPageDeleteEditNew			= NULL;
 
 }
 
@@ -2490,43 +2028,50 @@ GUIWizardPagesServers::~GUIWizardPagesServers()
 
 void GUIWizardPagesServers::SetLogfileLimit(int limit)
 {
-	pageServer.SetLogfileLimit(limit);
+	mPageServer.SetLogfileLimit(limit);
 }
 
 void GUIWizardPagesServers::SetLogfileLimit()
 {
-	pageServer.SetLogfileLimit();
+	mPageServer.SetLogfileLimit();
 }
 
 void GUIWizardPagesServers::SetDeleteEditNewChoices()
 {
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageChoice","SetDeleteEditNewChoices")
 	wxArrayString	deleteEditNewAnswers;
 	wxArrayString	deleteEditNewButtonTexts;
 	wxArrayString	deleteEditNewButtonDescriptions;
 	wxString		listGroup	="SERVERS";
 	wxArrayString	serverIDs;
 	int				serverCount;
+	wxString		initialChoice;
 
 	globalStatistics.configData.ReadList(listGroup,serverIDs);
 	serverCount=serverIDs.GetCount();
 
+	initialChoice = "New";
 	deleteEditNewAnswers.Add(WIZARD_CHOICE_NEW);
-	deleteEditNewButtonTexts.Add("New");
+	deleteEditNewButtonTexts.Add(initialChoice);
 	deleteEditNewButtonDescriptions.Add("Create New Server");
+
 	if (serverCount > 0)
 	{
+		initialChoice = "Edit";
 		deleteEditNewAnswers.Add(WIZARD_CHOICE_EDIT);
-		deleteEditNewButtonTexts.Add("Edit");
+		deleteEditNewButtonTexts.Add(initialChoice);
 		deleteEditNewButtonDescriptions.Add("Edit Existing Server");
 		deleteEditNewAnswers.Add(WIZARD_CHOICE_DELETE);
 		deleteEditNewButtonTexts.Add("Delete");
 		deleteEditNewButtonDescriptions.Add("Delete Existing Server");
 	}
 
-	pageDeleteEditNew->UpdateChoices(
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Updating Choices")
+	mPageDeleteEditNew->UpdateChoices(
 									deleteEditNewAnswers,
 									deleteEditNewButtonTexts,
 									deleteEditNewButtonDescriptions);
+	mPageDeleteEditNew->SetSelection(initialChoice);
 	/*
 	if (serverCount>0)
 	{
@@ -2534,7 +2079,7 @@ void GUIWizardPagesServers::SetDeleteEditNewChoices()
 	}
 	*/
 
-	pageDeleteEditNew->Resize();
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void GUIWizardPagesServers::CreateWizardPages(StatsgenWizard *wizardIn)
@@ -2552,59 +2097,54 @@ void GUIWizardPagesServers::CreateWizardPages(StatsgenWizard *wizardIn)
 	wxArrayString	serverButtonTexts;
 	wxArrayString	serverButtonDescriptions;
 
-	wizard = wizardIn;
+	mWizard = wizardIn;
 	
 	id="FINISHED";
 
-	pageDeleteEditNew			= new GUIWizardPageChoice(wizard,
-											pageID,_T("DELETEEDITNEW"),
+	mPageDeleteEditNew			= new GUIWizardPageChoice(mWizard,
+											mPageID,_T("DELETEEDITNEW"),
 											deleteEditNewAnswers,
 											deleteEditNewButtonTexts,
 											deleteEditNewButtonDescriptions);
-	pageServerSelection			= new GUIWizardPageChoice(wizard,
-											pageID,_T("SERVERSELECTION"),
+	mPageServerSelection			= new GUIWizardPageChoice(mWizard,
+											mPageID,_T("SERVERSELECTION"),
 											serverAnswers,
 											serverButtonTexts,
 											serverButtonDescriptions);
 	SetDeleteEditNewChoices();
 	SetServerChoices();
-	pageServerSelection->SetHelp("select a server to modify");
-	pageServerSelection->SetCallBack(ServerSelectedCallBack,this);
+	mPageServerSelection->SetHelp("select a server to modify");
+	mPageServerSelection->SetCallBack(ServerSelectedCallBack,this);
 
 
-	pageDeleteEditNew->SetHelp(
+	mPageDeleteEditNew->SetHelp(
 				"Do you want to create a [b]new[/b] server configuration, "
 				"[b]edit[/b] an existing one, or [b]delete[/b] an existing one.\n"
 				"\n"
 				"[b]Press the appropriate button[/b]."
+				"\n"
+				"Press Next button after making selection"
 				);
 
-	pageDeleteEditNew->SetCallBack(DeleteEditNewCallBack,this);
+	mPageDeleteEditNew->SetCallBack(DeleteEditNewCallBack,this);
 
 
-	pageServer.SetPageID(pageID,"SERVER");
+	mPageServer.SetPageID(mPageID,"SERVER");
 	ruleDeleteEditNewContinue.Printf("(%s=\"%s\")|(%s=\"%s\")",
-						pageDeleteEditNew->GetPageID().GetData(),
+						STRING_TO_CHAR(mPageDeleteEditNew->GetPageID()),
 						WIZARD_CHOICE_EDIT,
-						pageDeleteEditNew->GetPageID().GetData(),
+						STRING_TO_CHAR(mPageDeleteEditNew->GetPageID()),
 						WIZARD_CHOICE_NEW);
-	ruleServerSelection.Printf("%s=\"%s\"",pageDeleteEditNew->GetPageID().GetData(),WIZARD_CHOICE_EDIT);
-	ruleServerSelectionContinue.Printf("%s!\"\"",pageServerSelection->GetPageID().GetData());
+	ruleServerSelection.Printf("%s=\"%s\"",STRING_TO_CHAR(mPageDeleteEditNew->GetPageID()),WIZARD_CHOICE_EDIT);
+	ruleServerSelectionContinue.Printf("%s!\"\"",STRING_TO_CHAR(mPageServerSelection->GetPageID()));
 
-	wizard->AddPageLink(pageDeleteEditNew,	"",					ruleDeleteEditNewContinue);
-	wizard->AddPageLink(pageServerSelection,ruleServerSelection,ruleServerSelectionContinue);
-	pageServer.CreateWizardPages(wizard);
+	mWizard->AddPageLink(mPageDeleteEditNew,	"",					ruleDeleteEditNewContinue);
+	mWizard->AddPageLink(mPageServerSelection,ruleServerSelection,ruleServerSelectionContinue);
+	mPageServer.CreateWizardPages(mWizard);
 
-	pageDeleteEditNew->SetSectionTitle(sectionTitle);
-	pageServerSelection->SetSectionTitle(sectionTitle);
-	pageServer.SetSectionTitle(sectionTitle);
-	ResizePages();
-}
-
-void GUIWizardPagesServers::ResizePages()
-{
-	pageDeleteEditNew->Resize();
-	pageServerSelection->Resize();
+	mPageDeleteEditNew->SetSectionTitle(sectionTitle);
+	mPageServerSelection->SetSectionTitle(sectionTitle);
+	mPageServer.SetSectionTitle(sectionTitle);
 }
 
 void GUIWizardPagesServers::SetServerChoices()
@@ -2631,23 +2171,24 @@ void GUIWizardPagesServers::SetServerChoices()
 		serverButtonDescriptions.Add(serverID);
 	}
 
-	pageServerSelection->UpdateChoices(serverAnswers,
+	mPageServerSelection->UpdateChoices(serverAnswers,
 										serverButtonTexts,
 										serverButtonDescriptions);
 }
 
 wxString GUIWizardPagesServers::GetDeleteEditNewChoice()
 {
-	return (pageDeleteEditNew->GetChoice());
+	return (mPageDeleteEditNew->GetChoice());
 }
 
 void GUIWizardPagesServers::PrepareServerConfig()
 {
-	pageServer.PrepareServerConfig();
+	mPageServer.PrepareServerConfig();
 }
 
 void GUIWizardPagesServers::DeleteEditNewCallBack(void *object)
 {
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPagesServers","DeleteEditNewCallBack")
 	wxString		captionNew="Enter new ID for Server";
 	wxString		messageNew="New ID";
 	wxString		captionDelete="Select ID To Remove";
@@ -2667,6 +2208,7 @@ void GUIWizardPagesServers::DeleteEditNewCallBack(void *object)
 
 	if (deleteEditNewChoice.CmpNoCase(WIZARD_CHOICE_NEW)==0)
 	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"New Server")
 		chosen=wxGetTextFromUser(messageNew,captionNew);
 		SafeString(chosen);
 		if (chosen.Length()>0)
@@ -2688,11 +2230,13 @@ void GUIWizardPagesServers::DeleteEditNewCallBack(void *object)
 	else
 	if (deleteEditNewChoice.CmpNoCase(WIZARD_CHOICE_EDIT)==0)
 	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Edit Server")
 		serversWizard->SelectServer();
 	}
 	else
 	if (deleteEditNewChoice.CmpNoCase(WIZARD_CHOICE_DELETE)==0)
 	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Delete Server")
 		globalStatistics.configData.ReadList(listGroup,serverIDs);
 		serverID=wxGetSingleChoice(messageDelete,captionDelete,serverIDs);
 		if (serverID.Length()>0)
@@ -2705,6 +2249,7 @@ void GUIWizardPagesServers::DeleteEditNewCallBack(void *object)
 			serversWizard->SetServerChoices();
 		}
 	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void GUIWizardPagesServers::ServerSelectedCallBack(void *object)
@@ -2719,104 +2264,53 @@ void GUIWizardPagesServers::SelectServer()
 {
 	wxString	serverConfigPrefix;
 
-	serverConfigPrefix=pageServerSelection->GetChoice();
-	pageServer.SetGroupPrefix(serverConfigPrefix);
-	pageServer.SetLogfileLimit();
+	serverConfigPrefix=mPageServerSelection->GetChoice();
+	mPageServer.SetGroupPrefix(serverConfigPrefix);
+	mPageServer.SetLogfileLimit();
 }
 
 void GUIWizardPagesServers::SelectServer(wxString &choice)
 {
 	wxString	deleteEditNewChoice;
-	pageServerSelection->SelectChoice(choice);
+	mPageServerSelection->SelectChoice(choice);
 	deleteEditNewChoice=WIZARD_CHOICE_EDIT;
-	pageDeleteEditNew->SelectChoice(deleteEditNewChoice);
+	mPageDeleteEditNew->SelectChoice(deleteEditNewChoice);
 }
 
 GUIWizardPageConfigRemoteDirectory::GUIWizardPageConfigRemoteDirectory(StatsgenWizard *wizardIn,wxString parentPageID,wxString thisPageID) : GUIWizardPageConfig(wizardIn,parentPageID,thisPageID)
 {
-	valueCtrl		= FALSE;
-	browseButton	= FALSE;
+	mValueCtrl		= NULL;
+	mBrowseButton	= NULL;
 	CreateControl();
 }
 
 GUIWizardPageConfigRemoteDirectory::~GUIWizardPageConfigRemoteDirectory()
 {
-	valueCtrl		= FALSE;
-	browseButton	= FALSE;
+	mValueCtrl		= NULL;
+	mBrowseButton	= NULL;
 }
 
 void GUIWizardPageConfigRemoteDirectory::CreateControl()
 {
-	valueCtrl		= new wxTextCtrl(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE);
-	browseButton	= new wxButton(this,WINDOW_ID_BUTTON_NEW,"Browse For Directory");
-}
-
-wxSize GUIWizardPageConfigRemoteDirectory::ResizeControl(int x,int y,int width,bool resize)
-{
-	wxSize		baseControlSize;
-	wxSize		controlSize;
-	int			baseX;
-	int			baseY;
-	int			baseWidth;
-	int			baseHeight;
-	int			valueX;
-	int			valueY;
-	int			valueWidth;
-	int			valueHeight;
-	int			buttonX;
-	int			buttonY;
-	int			buttonWidth;
-	int			buttonHeight;
-	wxSize		objectSize;
-
-	objectSize		= browseButton->GetSize();
-	buttonWidth		= objectSize.GetWidth();
-	buttonHeight	= objectSize.GetHeight();
-
-	if (width < buttonWidth)
-	{
-		width = buttonWidth;
-	}
-
-	baseX			= x;
-	baseY			= y;
-	baseControlSize = GUIWizardPageConfig::ResizeControl(baseX,baseY,width,resize);
-	baseWidth		= baseControlSize.GetWidth();
-	baseHeight		= baseControlSize.GetHeight();
-
-	valueX			= x;
-	valueY			= baseY + baseHeight;
-	valueWidth		= width;
-	valueHeight		= 30;
-
-	buttonX			= x;
-	buttonY			= valueY + valueHeight;
-
-	controlSize.SetWidth(width);
-	controlSize.SetHeight(baseHeight + valueHeight + buttonHeight);
-
-	if (resize)
-	{
-		valueCtrl->SetSize(valueX,valueY,valueWidth,valueHeight);
-		browseButton->SetSize(buttonX,buttonY,buttonWidth,buttonHeight);
-	}
-
-	return (controlSize);
+	mValueCtrl		= new wxTextCtrl(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE);
+	mBrowseButton	= new wxButton(this,WINDOW_ID_BUTTON_NEW,"Browse For Directory");
+	mContentsSizer->Add(mBrowseButton);
+	mContentsSizer->Add(mValueCtrl,0,wxEXPAND);
 }
 
 void GUIWizardPageConfigRemoteDirectory::SetCtrlFromValue()
 {
-	valueCtrl->SetValue(value);
+	mValueCtrl->SetValue(mValue);
 }
 
 bool GUIWizardPageConfigRemoteDirectory::ScreenReady()
 {
-	return (valueCtrl!=NULL);
+	return (mValueCtrl!=NULL);
 }
 
 void GUIWizardPageConfigRemoteDirectory::SetValueFromCtrl()
 {
-	value = valueCtrl->GetValue();
+	mValue = mValueCtrl->GetValue();
 }
 
 void GUIWizardPageConfigRemoteDirectory::OnButtonPressed(wxCommandEvent &event)
@@ -2829,7 +2323,7 @@ void GUIWizardPageConfigRemoteDirectory::OnButtonPressed(wxCommandEvent &event)
 
 	groupPrefix = "WEBSITE";
 
-	GenericOKCancelDialog dialog(this,-1,
+	GenericOKCancelDialog dialog(this,wxID_ANY,
 							message,
 							wxDefaultPosition,
 							wxDefaultSize,
@@ -2841,22 +2335,20 @@ void GUIWizardPageConfigRemoteDirectory::OnButtonPressed(wxCommandEvent &event)
 							_T(""));
 	FTPBrowserPanel	*browserPanel=new FTPBrowserPanel(
 										groupPrefix,
-										value,
+										mValue,
 										false);
 	browserPanel->Create(&dialog,
-						-1,
+						wxID_ANY,
 						wxDefaultPosition,
 						wxDefaultSize,
 						wxTAB_TRAVERSAL,
 						_T("panel"));
 	browserPanel->CreateScreen();
 	
-	dialog.SetPanel(browserPanel);
-	dialog.CreateDialog();
-	result=(dialog.ShowModal()==WINDOW_ID_BUTTON_SAVE);
+	result = dialog.DisplayDialog(browserPanel);
 	if (result)
 	{
-		value=browserPanel->GetCurrentSelection();
+		mValue=browserPanel->GetCurrentSelection();
 		SetCtrlFromValue();
 	}
 	PageContentsChanged();
@@ -2866,10 +2358,10 @@ void GUIWizardPageConfigRemoteDirectory::UpdateConfigFromValue()
 {
 	if (ConfigReady())
 	{
-		globalStatistics.configData.WriteTextValue(configKey,value);
-		if (callBack!=NULL)
+		globalStatistics.configData.WriteTextValue(mConfigKey,mValue);
+		if (mCallBack!=NULL)
 		{
-			callBack(callBackObject);
+			mCallBack(mCallBackObject);
 		}
 	}
 }
@@ -2878,15 +2370,15 @@ void GUIWizardPageConfigRemoteDirectory::UpdateValueFromConfig()
 {
 	if (ConfigReady())
 	{
-		globalStatistics.configData.ReadTextValue(configKey,&value);
+		globalStatistics.configData.ReadTextValue(mConfigKey,&mValue);
 	}
 }
 
 GUIWizardPagesWebsite::GUIWizardPagesWebsite()
 {
-	pageRemoteDirectory			= NULL;
-	pageRemoteDirectoryTest		= NULL;
-	groupPrefix					= "WEBSITE";
+	mPageRemoteDirectory			= NULL;
+	mPageRemoteDirectoryTest		= NULL;
+	mGroupPrefix					= "WEBSITE";
 
 }
 
@@ -2898,77 +2390,70 @@ void GUIWizardPagesWebsite::UpdateConfigKeys()
 {
 	wxString		configKey;
 
-	if ((pageRemoteDirectory != NULL) && (groupPrefix.length()>0))
+	if ((mPageRemoteDirectory != NULL) && (mGroupPrefix.length()>0))
 	{
-		configKey.Printf("/%s/FTPRemoteDirectory",groupPrefix.GetData());
-		pageRemoteDirectory->SetConfigKey(configKey);
+		configKey.Printf("/%s/FTPRemoteDirectory",STRING_TO_CHAR(mGroupPrefix));
+		mPageRemoteDirectory->SetConfigKey(configKey);
 	}
 }
 
 void GUIWizardPagesWebsite::SetGroupPrefix()
 {
-	remoteMachine.SetGroupPrefix(groupPrefix);
-	pageRemoteDirectoryTest->SetGroupPrefix(groupPrefix);
+	mRemoteMachine.SetGroupPrefix(mGroupPrefix);
+	mPageRemoteDirectoryTest->SetGroupPrefix(mGroupPrefix);
 	UpdateConfigKeys();
 }
 
 void GUIWizardPagesWebsite::CreateWizardPages(StatsgenWizard *wizardIn)
 {
-	wizard = wizardIn;
+	mWizard = wizardIn;
 	wxString ruleTestPassed;
 	wxString ruleWebsiteEnabled;
 
 	const char *sectionTitle="Configure Website";
-	pageRemoteDirectory		= new GUIWizardPageConfigRemoteDirectory(wizard,pageID,_T("REMOTEDIRECTORY"));
-	pageRemoteDirectoryTest	= new GUIWizardPageRemoteDirectoryTest(wizard,pageID,_T("REMOTEDIRECTORYTEST"));
+	mPageRemoteDirectory		= new GUIWizardPageConfigRemoteDirectory(mWizard,mPageID,_T("REMOTEDIRECTORY"));
+	mPageRemoteDirectoryTest	= new GUIWizardPageRemoteDirectoryTest(mWizard,mPageID,_T("REMOTEDIRECTORYTEST"));
 
-	pageRemoteDirectory->SetConfigTitle("Website Directory");
-	pageRemoteDirectory->SetHelp(
+	mPageRemoteDirectory->SetConfigTitle("Website Directory");
+	mPageRemoteDirectory->SetHelp(
 			"The location on your web server where you want stats pages to be "
 			"uploaded too."
 						);
 
-	pageRemoteDirectoryTest->SetHelp(
+	mPageRemoteDirectoryTest->SetHelp(
 			"[b]Press the button[/b] to check the website directory is configured correctly."
 						);
 
 
-	pageRemoteDirectory->SetCallBack(ConfigChangedCallBack,this);
-	pageRemoteDirectoryTest->SetCallBack(ConfigChangedCallBack,this);
+	mPageRemoteDirectory->SetCallBack(ConfigChangedCallBack,this);
+	mPageRemoteDirectoryTest->SetCallBack(ConfigChangedCallBack,this);
 	
 
-	remoteMachine.SetPageID(pageID,"WEBSITE");
-	remoteMachine.CreateWizardPages(wizard);
+	mRemoteMachine.SetPageID(mPageID,"WEBSITE");
+	mRemoteMachine.CreateWizardPages(mWizard);
 
-	ruleTestPassed.Printf("%s=\"TRUE\"",pageRemoteDirectoryTest->GetPageID().GetData());
-	ruleWebsiteEnabled.Printf("%s=\"Y\"",remoteMachine.GetEnabledPageID().GetData());
+	ruleTestPassed.Printf("%s=\"TRUE\"",STRING_TO_CHAR(mPageRemoteDirectoryTest->GetPageID()));
+	ruleWebsiteEnabled.Printf("%s=\"Y\"",STRING_TO_CHAR(mRemoteMachine.GetEnabledPageID()));
 	//wxMessageBox(ruleWebsiteEnabled);
-	wizard->AddPageLink(pageRemoteDirectory,		ruleWebsiteEnabled,"");
-	wizard->AddPageLink(pageRemoteDirectoryTest,	ruleWebsiteEnabled,ruleTestPassed);
+	mWizard->AddPageLink(mPageRemoteDirectory,		ruleWebsiteEnabled,"");
+	mWizard->AddPageLink(mPageRemoteDirectoryTest,	ruleWebsiteEnabled,ruleTestPassed);
 
-	remoteMachine.SetCallBack(ConfigChangedCallBack,this);
+	mRemoteMachine.SetCallBack(ConfigChangedCallBack,this);
 	
-	pageRemoteDirectory->SetSectionTitle(sectionTitle);
-	pageRemoteDirectoryTest->SetSectionTitle(sectionTitle);
-	remoteMachine.SetSectionTitle(sectionTitle);
+	mPageRemoteDirectory->SetSectionTitle(sectionTitle);
+	mPageRemoteDirectoryTest->SetSectionTitle(sectionTitle);
+	mRemoteMachine.SetSectionTitle(sectionTitle);
 
 	SetGroupPrefix();
 
-	ResizePages();
-}
-
-void GUIWizardPagesWebsite::ResizePages()
-{
-	pageRemoteDirectory->Resize();
-	pageRemoteDirectoryTest->Resize();
 }
 
 void GUIWizardPagesWebsite::SetDirectory()
 {
 	wxString	directory;
 
-	directory=pageRemoteDirectory->GetValue();
-	pageRemoteDirectoryTest->SetDirectory(directory);
+	directory=mPageRemoteDirectory->GetValue();
+	mPageRemoteDirectoryTest->SetDirectory(directory);
 }
 
 void GUIWizardPagesWebsite::ConfigChangedCallBack(void *object)
@@ -2980,27 +2465,34 @@ void GUIWizardPagesWebsite::ConfigChangedCallBack(void *object)
 
 GUIWizardPageRemoteDirectoryTest::GUIWizardPageRemoteDirectoryTest(StatsgenWizard *wizardIn,wxString parentPageID,wxString thisPageID) : GUIWizardPageStatsgen(wizardIn,parentPageID,thisPageID)
 {
-	statusCtrl		= new wxStaticText(this,-1,"Test Not Run");
-	errorCtrl		= new wxRichTextCtrl(this,-1,"");
-	errorCtrl->SetEditable(false);
-	testButton		= new wxButton(this,WINDOW_ID_BUTTON_NEW,"Test Remote Directory");
-	fileDirectory	= "";
-	lastResult = false;
+	wxSize	minSize;
+	mStatusCtrl		= new wxStaticText(this,wxID_ANY,"Test Not Run");
+	mErrorCtrl		= new wxRichTextCtrl(this,wxID_ANY,"");
+	mErrorCtrl->SetEditable(false);
+	mTestButton		= new wxButton(this,WINDOW_ID_BUTTON_NEW,"Test Remote Directory");
+	mFileDirectory	= "";
+	mLastResult = false;
+	minSize = mErrorCtrl->GetSize();
+	minSize.SetHeight(100);
+	mErrorCtrl->SetMinSize(minSize);
+	mContentsSizer->Add(mStatusCtrl,0,wxEXPAND);
+	mContentsSizer->Add(mErrorCtrl,0,wxEXPAND);
+	mContentsSizer->Add(mTestButton);
 }
 
 GUIWizardPageRemoteDirectoryTest::~GUIWizardPageRemoteDirectoryTest()
 {
-	lastResult = false;
+	mLastResult = false;
 }
 
 void GUIWizardPageRemoteDirectoryTest::SetGroupPrefix(wxString &groupPrefixIn)
 {
-	groupPrefix		= groupPrefixIn;
+	mGroupPrefix		= groupPrefixIn;
 }
 
 bool GUIWizardPageRemoteDirectoryTest::TestResult()
 {
-	return (lastResult);
+	return (mLastResult);
 }
 
 wxString GUIWizardPageRemoteDirectoryTest::GetValue()
@@ -3021,119 +2513,63 @@ wxString GUIWizardPageRemoteDirectoryTest::GetValue()
 
 bool GUIWizardPageRemoteDirectoryTest::PerformTest()
 {
-	RemoteMachine		remoteMachine(groupPrefix);
+	RemoteMachine		remoteMachine(mGroupPrefix);
 	RestartingFTP				ftpConnection;
 	wxString			msg;
 	int					fileCount;
 	wxString			filename="*.*";
 	wxArrayString		filenameList;
 	
-	statusCtrl->SetLabel("Connecting To Remote Host");
-	errorCtrl->SetValue("");
-	lastResult	=remoteMachine.Connect(ftpConnection);
+	mStatusCtrl->SetLabel("Connecting To Remote Host");
+	mErrorCtrl->SetValue("");
+	mLastResult	=remoteMachine.Connect(ftpConnection);
 
-	if (lastResult)
+	if (mLastResult)
 	{
-		statusCtrl->SetLabel("Retrieving Directory Listing");
-		lastResult = remoteMachine.GetRemoteDirectoryListing(fileDirectory,filename,filenameList);
+		mStatusCtrl->SetLabel("Retrieving Directory Listing");
+		mLastResult = remoteMachine.GetRemoteDirectoryListing(mFileDirectory,filename,filenameList);
 		fileCount=filenameList.GetCount();
 
-		if (lastResult)
+		if (mLastResult)
 		{
 			msg.Printf("Retrieving Directory Listing: OK - %d files located",fileCount);
-			statusCtrl->SetLabel(msg);
+			mStatusCtrl->SetLabel(msg);
 		}
 		else
 		{
-			statusCtrl->SetLabel("Retrieving Directory Listing: Failed");
-			errorCtrl->SetValue(remoteMachine.GetLastErrorMessage());
+			mStatusCtrl->SetLabel("Retrieving Directory Listing: Failed");
+			mErrorCtrl->SetValue(remoteMachine.GetLastErrorMessage());
 		}
 	}
 	else
 	{
-		statusCtrl->SetLabel("Connecting To Remote Host: Failed");
-		errorCtrl->SetValue(remoteMachine.GetLastErrorMessage());
+		mStatusCtrl->SetLabel("Connecting To Remote Host: Failed");
+		mErrorCtrl->SetValue(remoteMachine.GetLastErrorMessage());
 	}
 
-	return (lastResult);
+	return (mLastResult);
 }
 
 void GUIWizardPageRemoteDirectoryTest::OnButtonPressed(wxCommandEvent &event)
 {
 	PerformTest();
-	if (callBack!=NULL)
+	if (mCallBack!=NULL)
 	{
-		callBack(callBackObject);
+		mCallBack(mCallBackObject);
 	}
 	PageContentsChanged();
 }
 
-wxSize GUIWizardPageRemoteDirectoryTest::ResizeControl(int x,int y,int width,bool resize)
-{
-	int			statusX;
-	int			statusY;
-	int			statusWidth;
-	int			statusHeight;
-
-	int			errorX;
-	int			errorY;
-	int			errorWidth;
-	int			errorHeight;
-
-	int			buttonX;
-	int			buttonY;
-	int			buttonWidth;
-	int			buttonHeight;
-	wxSize		objectSize;
-
-	wxSize		controlSize;
-
-	if (statusCtrl!=NULL)
-	{
-		objectSize		= testButton->GetSize();
-		buttonX			=x;
-		buttonY			=y;
-		buttonWidth		=objectSize.GetWidth();
-		buttonHeight	=objectSize.GetHeight();
-
-		if (buttonWidth > width)
-		{
-			width = buttonWidth;
-		}
-
-		statusX			=x;
-		statusY			=buttonY + buttonHeight;
-		statusWidth		=width;
-		statusHeight	=30;
-
-		errorX			=x;
-		errorY			=statusY + statusHeight;
-		errorWidth		=width;
-		errorHeight		=90;
-
-		if (resize)
-		{
-			testButton->SetSize(buttonX,buttonY,buttonWidth,buttonHeight);
-			statusCtrl->SetSize(statusX,statusY,statusWidth,statusHeight);
-			errorCtrl->SetSize(errorX,errorY,errorWidth,errorHeight);
-		}
-		controlSize.SetWidth(width);
-		controlSize.SetHeight(buttonHeight + statusHeight + errorHeight);
-	}
-
-	return (controlSize);
-}
-
 void GUIWizardPageRemoteDirectoryTest::ResetTestResult()
 {
-	statusCtrl->SetLabel("Test Not Run");
-	errorCtrl->SetValue("");
-	lastResult = false;
+	mStatusCtrl->SetLabel("Test Not Run");
+	mErrorCtrl->SetValue("");
+	mLastResult = false;
 }
 
 void GUIWizardPageRemoteDirectoryTest::SetDirectory(wxString &fileDirectoryIn)
 {
-	fileDirectory	= fileDirectoryIn;
+	mFileDirectory	= fileDirectoryIn;
 }
 
 GUIWizardPagesFullConfig::GUIWizardPagesFullConfig()
@@ -3146,21 +2582,25 @@ GUIWizardPagesFullConfig::~GUIWizardPagesFullConfig()
 
 void GUIWizardPagesFullConfig::CreateWizardPages(StatsgenWizard *wizardIn)
 {
-	wizard = wizardIn;
-	pageServers.SetPageID("FULLCONFIG","SERVERS");
-	pageServers.CreateWizardPages(wizard);
-	pageWebsite.SetPageID("FULLCONFIG","WEBSITE");
-	pageWebsite.CreateWizardPages(wizard);
+	mWizard = wizardIn;
+	mPageServers.SetPageID("FULLCONFIG","SERVERS");
+	mPageServers.CreateWizardPages(mWizard);
+	mPageWebsite.SetPageID("FULLCONFIG","WEBSITE");
+	mPageWebsite.CreateWizardPages(mWizard);
 }
 
 StatsgenWizard::StatsgenWizard(wxWindow *parent,
 					int id,
-					wxString &title,
+					wxString title,
 					const wxBitmap &bitmap,
 					const wxPoint &pos,
-					long style): wxWizard(parent,WINDOW_ID_WIZARD,title,bitmap,pos,style)
+					long style): wxWizard(parent,WINDOW_ID_WIZARD,title,bitmap,pos,
+							style|
+							wxRESIZE_BORDER|
+							wxMAXIMIZE_BOX|
+							wxMINIMIZE_BOX)
 {
-	initialised		= false;
+	mInitialised		= false;
 }
 void StatsgenWizard::OnWizardFinish(wxWizardEvent &event)
 {
@@ -3181,24 +2621,18 @@ void StatsgenWizard::OnWizardPageChanged(wxWizardEvent &event)
 	if (IsShown())
 	{
 		UpdatePageLinks(false);
-		if (!initialised)
+		if (!mInitialised)
 		{
-			initialised=true;
-			ResizePages();
+			mInitialised=true;
 		}
 	}
 	page->UpdateProgress();
 }
 
-void StatsgenWizard::ResizePages()
-{
-	pageLinks.ResizePages();
-}
-
 void StatsgenWizard::SetInitialPageLinks()
 {
 	UpdatePageLinks(true);
-	pageLinks.SetPageCounters();
+	mPageLinks.SetPageCounters();
 }
 
 void StatsgenWizard::PageContentsChanged()
@@ -3213,26 +2647,26 @@ void StatsgenWizard::AddPageLink(GUIWizardPageStatsgen *page,
 								const char *allowRule,
 								const char *continueRule)
 {
-	pageLinks.AddPageLink(page,allowRule,continueRule);
+	mPageLinks.AddPageLink(page,allowRule,continueRule);
 }
 
 void StatsgenWizard::UpdatePageLinks(bool fullList)
 {
-	pageLinks.SetPageLinks(fullList);
+	mPageLinks.SetPageLinks(fullList);
 }
 
 GUIWizardPageStatsgen *StatsgenWizard::GetFirstPage()
 {
 	GUIWizardPageStatsgen *page = NULL;
 
-	page = pageLinks.GetFirstPage();
+	page = mPageLinks.GetFirstPage();
 
 	return (page);
 }
 
 GUIWizardPages::GUIWizardPages()
 {
-	pageID						= "";
+	mPageID						= "";
 }
 
 GUIWizardPages::~GUIWizardPages()
@@ -3241,152 +2675,71 @@ GUIWizardPages::~GUIWizardPages()
 
 void GUIWizardPages::SetPageID(wxString parentID,wxString pageIDIn)
 {
-	pageID=parentID+pageIDIn;
+	mPageID=parentID+pageIDIn;
 }
 
 GUIWizardPageConfigWildcard::GUIWizardPageConfigWildcard(StatsgenWizard *wizard,wxString parentPageID,wxString thisPageID) : GUIWizardPageConfig(wizard,parentPageID,thisPageID)
 {
-	valueCtrl		= FALSE;
-	directoryLabel	= FALSE;
-	wildcardLabel	= FALSE;
-	wildcardCtrl	= FALSE;
-	browseButton	= FALSE;
+	mValueCtrl		= NULL;
+	mDirectoryLabel	= NULL;
+	mWildcardLabel	= NULL;
+	mWildcardCtrl	= NULL;
+	mBrowseButton	= NULL;
 	CreateControl();
 }
 
 GUIWizardPageConfigWildcard::~GUIWizardPageConfigWildcard()
 {
-	valueCtrl		= FALSE;
-	wildcardCtrl	= FALSE;
-	browseButton	= FALSE;
+	mValueCtrl		= NULL;
+	mWildcardCtrl	= NULL;
+	mBrowseButton	= NULL;
 }
 
 void GUIWizardPageConfigWildcard::CreateControl()
 {
-	valueCtrl		= new wxTextCtrl(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE);
-	wildcardCtrl	= new wxTextCtrl(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE);
-	wildcardLabel	= new wxStaticText(this,-1,"Wildcard");
-	directoryLabel	= new wxStaticText(this,-1,"Directory");
-	browseButton	= new wxButton(this,WINDOW_ID_BUTTON_NEW,"Browse For Directory");
+	mValueCtrl		= new wxTextCtrl(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE);
+	mWildcardCtrl	= new wxTextCtrl(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE);
+	mWildcardLabel	= new wxStaticText(this,wxID_ANY,"Wildcard");
+	mDirectoryLabel	= new wxStaticText(this,wxID_ANY,"Directory");
+	mBrowseButton	= new wxButton(this,WINDOW_ID_BUTTON_NEW,"Browse For Directory");
+
+	mContentsSizer->Add(mBrowseButton);
+	mContentsSizer->Add(mValueCtrl,0,wxEXPAND);
+	mContentsSizer->Add(mWildcardLabel,0,wxEXPAND);
+	mContentsSizer->Add(mWildcardCtrl,0,wxEXPAND);
+	mContentsSizer->Add(mDirectoryLabel,0,wxEXPAND);
 }
 
 wxString GUIWizardPageConfigWildcard::GetWildcard()
 {
-	return (wildcardValue);
-}
-
-wxSize GUIWizardPageConfigWildcard::ResizeControl(int x,int y,int width,bool resize)
-{
-	wxSize		baseControlSize;
-	wxSize		controlSize;
-	int			baseX;
-	int			baseY;
-	int			baseWidth;
-	int			baseHeight;
-	int			valueX;
-	int			valueY;
-	int			valueWidth;
-	int			valueHeight;
-	int			wildcardX;
-	int			wildcardY;
-	int			wildcardWidth;
-	int			wildcardHeight;
-	int			buttonX;
-	int			buttonY;
-	int			buttonWidth;
-	int			buttonHeight;
-	int			directoryLabelX;
-	int			directoryLabelY;
-	int			directoryLabelWidth;
-	int			directoryLabelHeight;
-	int			wildcardLabelX;
-	int			wildcardLabelY;
-	int			wildcardLabelWidth;
-	int			wildcardLabelHeight;
-	wxSize		objectSize;
-
-	objectSize		= browseButton->GetSize();
-
-	buttonWidth		= objectSize.GetWidth();
-	buttonHeight	= objectSize.GetHeight();
-
-	if (width < buttonWidth)
-	{
-		width = buttonWidth;
-	}
-
-
-	baseX			= x;
-	baseY			= y;
-	baseControlSize = GUIWizardPageConfig::ResizeControl(baseX,baseY,width,resize);
-	baseWidth		= baseControlSize.GetWidth();
-	baseHeight		= baseControlSize.GetHeight();
-
-	objectSize				=directoryLabel->GetSize();
-	directoryLabelWidth		=objectSize.GetWidth();
-	directoryLabelX			= x;
-	directoryLabelY			= baseY + baseHeight;
-	directoryLabelHeight	= 30;
-
-	valueX			= directoryLabelX + directoryLabelWidth + 5;
-	valueY			= baseY + baseHeight;
-	valueWidth		= width - (5 + directoryLabelWidth);
-	valueHeight		= 30;
-
-	objectSize				=wildcardLabel->GetSize();
-	wildcardLabelWidth		=objectSize.GetWidth();
-	wildcardLabelX			= x;
-	wildcardLabelY			= valueY + valueHeight;
-	wildcardLabelHeight		= 30;
-
-	wildcardX			= wildcardLabelX + wildcardLabelWidth + 5;
-	wildcardY			= valueY + valueHeight;
-	wildcardWidth		= width - (5 + wildcardLabelWidth);
-	wildcardHeight		= 30;
-
-	buttonX			= x;
-	buttonY			= wildcardY + wildcardHeight;
-
-	controlSize.SetWidth(width);
-	controlSize.SetHeight(baseHeight + valueHeight + wildcardHeight + buttonHeight);
-
-	if (resize)
-	{
-		valueCtrl->SetSize(valueX,valueY,valueWidth,valueHeight);
-		wildcardCtrl->SetSize(wildcardX,wildcardY,wildcardWidth,wildcardHeight);
-		browseButton->SetSize(buttonX,buttonY,buttonWidth,buttonHeight);
-		directoryLabel->SetSize(directoryLabelX,directoryLabelY,directoryLabelWidth,directoryLabelHeight);
-		wildcardLabel->SetSize(wildcardLabelX,wildcardLabelY,wildcardLabelWidth,wildcardLabelHeight);
-	}
-
-	return (controlSize);
+	return (mWildcardValue);
 }
 
 void GUIWizardPageConfigWildcard::SetCtrlFromValue()
 {
 	VetoCtrlUpdates();
-	wildcardCtrl->SetValue(wildcardValue);
-	valueCtrl->SetValue(value);
+	mWildcardCtrl->SetValue(mWildcardValue);
+	mValueCtrl->SetValue(mValue);
 	AllowCtrlUpdates();
 	UpdateConfigFromValue();
 }
 
 bool GUIWizardPageConfigWildcard::ScreenReady()
 {
-	return (valueCtrl!=NULL);
+	return (mValueCtrl!=NULL);
 }
 
 void GUIWizardPageConfigWildcard::SetValueFromCtrl()
 {
-	value = valueCtrl->GetValue();
-	wildcardValue = wildcardCtrl->GetValue();
+	mValue = mValueCtrl->GetValue();
+	mWildcardValue = mWildcardCtrl->GetValue();
 }
 
 void GUIWizardPageConfigWildcard::GetConfigKeys(wxString &configKeyDirectory,
 													wxString &configKeyFilename)
 {
-	configKeyDirectory	= configKey + "Directory";
-	configKeyFilename	= configKey + "Wildcard";
+	configKeyDirectory	= mConfigKey + "Directory";
+	configKeyFilename	= mConfigKey + "Wildcard";
 }
 
 void GUIWizardPageConfigWildcard::OnButtonPressed(wxCommandEvent &event)
@@ -3396,7 +2749,7 @@ void GUIWizardPageConfigWildcard::OnButtonPressed(wxCommandEvent &event)
 	userDirectory = GetDirectoryFromUser();
 	if (userDirectory.Length()>0)
 	{
-		value=userDirectory;
+		mValue=userDirectory;
 		SetCtrlFromValue();
 	}
 }
@@ -3409,11 +2762,11 @@ void GUIWizardPageConfigWildcard::UpdateConfigFromValue()
 	if (ConfigReady())
 	{
 		GetConfigKeys(configKeyDirectory,configKeyFilename);
-		globalStatistics.configData.WriteTextValue(configKeyDirectory,value);
-		globalStatistics.configData.WriteTextValue(configKeyFilename,wildcardValue);
-		if (callBack!=NULL)
+		globalStatistics.configData.WriteTextValue(configKeyDirectory,mValue);
+		globalStatistics.configData.WriteTextValue(configKeyFilename,mWildcardValue);
+		if (mCallBack!=NULL)
 		{
-			callBack(callBackObject);
+			mCallBack(mCallBackObject);
 		}
 	}
 }
@@ -3427,11 +2780,11 @@ void GUIWizardPageConfigWildcard::UpdateValueFromConfig()
 	if (ConfigReady())
 	{
 		GetConfigKeys(configKeyDirectory,configKeyFilename);
-		globalStatistics.configData.ReadTextValue(configKeyDirectory,&value);
-		globalStatistics.configData.ReadTextValue(configKeyFilename,&wildcardValue);
-		if (value.Length()==0)
+		globalStatistics.configData.ReadTextValue(configKeyDirectory,&mValue);
+		globalStatistics.configData.ReadTextValue(configKeyFilename,&mWildcardValue);
+		if (mValue.Length()==0)
 		{
-			globalStatistics.configData.WriteTextValue(configKeyDirectory,defaultValue);
+			globalStatistics.configData.WriteTextValue(configKeyDirectory,mDefaultValue);
 		}
 	}
 }
@@ -3451,7 +2804,7 @@ wxString GUIWizardPageConfigLocalWildcard::GetDirectoryFromUser()
 	wxString	userSelection;
 
 	message="Select Directory";
-	userSelection=wxDirSelector(message,value);
+	userSelection=wxDirSelector(message,mValue);
 
 	return (userSelection);
 }
@@ -3473,10 +2826,10 @@ wxString GUIWizardPageConfigRemoteWildcard::GetDirectoryFromUser()
 
 	message="Select Directory";
 
-	groupPrefix = configKey.AfterFirst('/');
+	groupPrefix = mConfigKey.AfterFirst('/');
 	groupPrefix = groupPrefix.BeforeFirst('/');
 
-	GenericOKCancelDialog dialog(this,-1,
+	GenericOKCancelDialog dialog(this,wxID_ANY,
 							message,
 							wxDefaultPosition,
 							wxDefaultSize,
@@ -3488,19 +2841,17 @@ wxString GUIWizardPageConfigRemoteWildcard::GetDirectoryFromUser()
 							_T(""));
 	FTPBrowserPanel	*browserPanel=new FTPBrowserPanel(
 										groupPrefix,
-										value,
+										mValue,
 										false);
 	browserPanel->Create(&dialog,
-						-1,
+						wxID_ANY,
 						wxDefaultPosition,
 						wxDefaultSize,
 						wxTAB_TRAVERSAL,
 						_T("panel"));
 	browserPanel->CreateScreen();
 	
-	dialog.SetPanel(browserPanel);
-	dialog.CreateDialog();
-	result=(dialog.ShowModal()==WINDOW_ID_BUTTON_SAVE);
+	result = dialog.DisplayDialog(browserPanel);
 	userDirectory="";
 	if (result)
 	{
@@ -3508,33 +2859,6 @@ wxString GUIWizardPageConfigRemoteWildcard::GetDirectoryFromUser()
 	}
 
 	return (userDirectory);
-}
-
-void GUIPageLinks::ResizePages()
-{
-	int						pageCount;
-	int						pageIndex;
-	GUIWizardPageStatsgen	*page;
-	int						maxHeight=0;
-	wxSize					pageSize;
-	int						pageHeight=0;
-
-	pageCount=guiPages.GetCount();
-	for (pageIndex=0;pageIndex<pageCount;pageIndex++)
-	{
-		page=(GUIWizardPageStatsgen *)guiPages.Item(pageIndex);
-		pageSize=page->GetSize();
-		pageHeight=pageSize.GetHeight();
-		if (pageHeight>maxHeight)
-		{
-			maxHeight=pageHeight;
-		}
-	}
-	for (pageIndex=0;pageIndex<pageCount;pageIndex++)
-	{
-		page=(GUIWizardPageStatsgen *)guiPages.Item(pageIndex);
-		page->Resize(maxHeight);
-	}
 }
 
 void GUIPageLinks::SetPageCounters()
@@ -3744,7 +3068,7 @@ bool GUIPageLinks::EvaluateRuleSub(wxString &rule)
 			case 0:
 				// End of ID Char
 				value1=GetValue(id);
-msg.Printf("rulechar found[%c], ID=[%s] value=[%s]",ruleChar,id.GetData(),value1.GetData());if (debugOn) wxMessageBox(msg);
+msg.Printf("rulechar found[%c], ID=[%s] value=[%s]",ruleChar,STRING_TO_CHAR(id),STRING_TO_CHAR(value1));if (debugOn) wxMessageBox(msg);
 				if (id.Length()>0)
 				{
 					PushValue(valueQueue,value1);
@@ -3753,32 +3077,32 @@ msg.Printf("rulechar found[%c], ID=[%s] value=[%s]",ruleChar,id.GetData(),value1
 				{
 					value2=PopValue(valueQueue);
 					value1=PopValue(valueQueue);
-msg.Printf("2 on stack:value1=[%s],value2=[%s] operatorChar=[%c]",value1.GetData(),value2.GetData(),operatorChar);if (debugOn) wxMessageBox(msg);
+msg.Printf("2 on stack:value1=[%s],value2=[%s] operatorChar=[%c]",STRING_TO_CHAR(value1),STRING_TO_CHAR(value2),operatorChar);if (debugOn) wxMessageBox(msg);
 					switch (operatorChar)
 					{
 						case '&':
-msg.Printf("& val1=[%s] val2=[%s]",value1.GetData(),value2.GetData()); if (debugOn) wxMessageBox(msg);
+msg.Printf("& val1=[%s] val2=[%s]",STRING_TO_CHAR(value1),STRING_TO_CHAR(value2)); if (debugOn) wxMessageBox(msg);
 							value1=Bool2Value((Value2Bool(value1) && Value2Bool(value2)));
 							PushValue(valueQueue,value1);
-msg.Printf("& result value1=[%s]",value1.GetData());if (debugOn) wxMessageBox(msg);
+msg.Printf("& result value1=[%s]",STRING_TO_CHAR(value1));if (debugOn) wxMessageBox(msg);
 							break;
 						case '!':
-msg.Printf("! val1=[%s] val2=[%s]",value1.GetData(),value2.GetData()); if (debugOn) wxMessageBox(msg);
+msg.Printf("! val1=[%s] val2=[%s]",STRING_TO_CHAR(value1),STRING_TO_CHAR(value2)); if (debugOn) wxMessageBox(msg);
 							value1=Bool2Value(value1.CmpNoCase(value2)!=0);
 							PushValue(valueQueue,value1);
-msg.Printf("! result value1=[%s]",value1.GetData());if (debugOn) wxMessageBox(msg);
+msg.Printf("! result value1=[%s]",STRING_TO_CHAR(value1));if (debugOn) wxMessageBox(msg);
 							break;
 						case '=':
-msg.Printf("= val1=[%s] val2=[%s]",value1.GetData(),value2.GetData()); if (debugOn) wxMessageBox(msg);
+msg.Printf("= val1=[%s] val2=[%s]",STRING_TO_CHAR(value1),STRING_TO_CHAR(value2)); if (debugOn) wxMessageBox(msg);
 							value1=Bool2Value(value1.CmpNoCase(value2)==0);
 							PushValue(valueQueue,value1);
-msg.Printf("= result value1=[%s]",value1.GetData());if (debugOn) wxMessageBox(msg);
+msg.Printf("= result value1=[%s]",STRING_TO_CHAR(value1));if (debugOn) wxMessageBox(msg);
 							break;
 						case '|':
-msg.Printf("| val1=[%s] val2=[%s]",value1.GetData(),value2.GetData()); if (debugOn) wxMessageBox(msg);
+msg.Printf("| val1=[%s] val2=[%s]",STRING_TO_CHAR(value1),STRING_TO_CHAR(value2)); if (debugOn) wxMessageBox(msg);
 							value1=Bool2Value((Value2Bool(value1) || Value2Bool(value2)));
 							PushValue(valueQueue,value1);
-msg.Printf("| result value1=[%s]",value1.GetData());if (debugOn) wxMessageBox(msg);
+msg.Printf("| result value1=[%s]",STRING_TO_CHAR(value1));if (debugOn) wxMessageBox(msg);
 							break;
 					}
 				}
@@ -3793,12 +3117,12 @@ msg.Printf("| result value1=[%s]",value1.GetData());if (debugOn) wxMessageBox(ms
 					case '(':
 						value1=Bool2Value(EvaluateRuleSub(rule));
 						PushValue(valueQueue,value1);
-msg.Printf("( result value1=[%s]",value1.GetData());if (debugOn) wxMessageBox(msg);
+msg.Printf("( result value1=[%s]",STRING_TO_CHAR(value1));if (debugOn) wxMessageBox(msg);
 						break;
 					case ')':
 					case 0:
 						value1=PopValue(valueQueue);
-msg.Printf(")/Null value1=[%s]",value1.GetData());if (debugOn) wxMessageBox(msg);
+msg.Printf(")/Null value1=[%s]",STRING_TO_CHAR(value1));if (debugOn) wxMessageBox(msg);
 						return (Value2Bool(value1));
 						break;
 				}
@@ -3810,7 +3134,7 @@ msg.Printf(")/Null value1=[%s]",value1.GetData());if (debugOn) wxMessageBox(msg)
 	}
 
 	value1=PopValue(valueQueue);
-msg.Printf("final value1=[%s]",value1.GetData());if (debugOn) wxMessageBox(msg);
+msg.Printf("final value1=[%s]",STRING_TO_CHAR(value1));if (debugOn) wxMessageBox(msg);
 	return (Value2Bool(value1));
 }
 
@@ -3913,46 +3237,58 @@ void GUIWizardPagesFirstConfig::CreateWizardPages(StatsgenWizard *wizardIn)
 	wxString		rule;
 	const char	*titleChars="Test Run";
 
-	wizard = wizardIn;
-	pageServers.SetPageID("FULLCONFIG","SERVERS");
-	pageServers.CreateWizardPages(wizard);
+	mWizard = wizardIn;
+	mPageServers.SetPageID("FULLCONFIG","SERVERS");
+	mPageServers.CreateWizardPages(mWizard);
 
-	pageWebsite.SetPageID("FULLCONFIG","WEBSITE");
-	pageWebsite.CreateWizardPages(wizard);
+	mPageWebsite.SetPageID("FULLCONFIG","WEBSITE");
+	mPageWebsite.CreateWizardPages(mWizard);
 
-	pageMessaging.SetPageID("FULLCONFIG","MESSAGING");
-	pageMessaging.CreateWizardPages(wizard);
+	mPageMessaging.SetPageID("FULLCONFIG","MESSAGING");
+	mPageMessaging.CreateWizardPages(mWizard);
 
-	pageTestRun = new GUIWizardPageRun(wizard,pageID,_T("TESTRUN"));
-	pageTestRun->SetSectionTitle(titleChars);
-	pageTestRun->SetHelp("[b]Press the button[/b] to perform an initial test run of the stats.\n"
+	mPageTestRun = new GUIWizardPageRun(mWizard,mPageID,_T("TESTRUN"));
+	mPageTestRun->SetSectionTitle(titleChars);
+	mPageTestRun->SetHelp("[b]Press the button[/b] to perform an initial test run of the stats.\n"
 						"Once the run has completed a small amount of the stats pages will be "
 						"uploaded to your website in the directory you have configured.\n"
 						"\nYou will be missing images and style settings so the pages may look "
 						"a little rubbish at the moment - the image pack and style uploads "
 						"are in the next step");
 
-	rule.Printf("%s=\"TRUE\"",pageTestRun->GetPageID().GetData());
-	wizard->AddPageLink(pageTestRun,		"",	rule);
-	pageImagePacks.SetPageID("FULLCONFIG","IMAGEPACKS");
-	pageImagePacks.CreateWizardPages(wizard);
+	rule.Printf("%s=\"TRUE\"",STRING_TO_CHAR(mPageTestRun->GetPageID()));
+	mWizard->AddPageLink(mPageTestRun,		"",	rule);
+	mPageImagePacks.SetPageID("FULLCONFIG","IMAGEPACKS");
+	mPageImagePacks.CreateWizardPages(mWizard);
 }
 
 GUIWizardPageRun::GUIWizardPageRun(StatsgenWizard *wizardIn,wxString parentPageID,wxString thisPageID) : GUIWizardPageStatsgen(wizardIn,parentPageID,thisPageID)
 {
-	statusCtrl		= new wxStaticText(this,-1,"Test Not Run");
-	errorCtrl		= new wxRichTextCtrl(this,-1,"");
-	errorCtrl->SetEditable(false);
-	testButton		= new wxButton(this,WINDOW_ID_BUTTON_NEW,"Test Stats Run");
-	SetHelp("[b]Press the button[/b] to perform a stats run");
-	progressPanel=new ProgressPanel;
-	progressPanel->Create(this,-1,wxDefaultPosition,wxDefaultSize,
-			wxRAISED_BORDER);
-	progressPanel->EnableTimeToGo();
-	progressPanel->counterEnabled=true;
+	wxSize		minSize;
 
+	mStatusCtrl		= new wxStaticText(this,wxID_ANY,"Test Not Run");
+	mErrorCtrl		= new wxRichTextCtrl(this,wxID_ANY,"");
+	mErrorCtrl->SetEditable(false);
+	mTestButton		= new wxButton(this,WINDOW_ID_BUTTON_NEW,"Test Stats Run");
+	SetHelp("[b]Press the button[/b] to perform a stats run");
+	minSize = mErrorCtrl->GetSize();
+	minSize.SetHeight(100);
+	mErrorCtrl->SetMinSize(minSize);
+
+	mProgressPanel=new ProgressPanel;
+	mProgressPanel->Create(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,
+			wxRAISED_BORDER);
+	mProgressPanel->CreateScreen();
+	mProgressPanel->EnableTimeToGo();
+	mProgressPanel->EnableCounter();
+
+	mContentsSizer->Add(mStatusCtrl,0,wxEXPAND);
+	mContentsSizer->Add(mErrorCtrl,1,wxEXPAND|wxALL);
+	mContentsSizer->Add(mTestButton);
+	mContentsSizer->Add(mProgressPanel,0,wxEXPAND);
 	progress->SetClone(NULL);
-	runSuccessful = false;
+
+	mRunSuccessful = false;
 }
 
 GUIWizardPageRun::~GUIWizardPageRun()
@@ -3962,7 +3298,7 @@ GUIWizardPageRun::~GUIWizardPageRun()
 
 bool GUIWizardPageRun::TestResult()
 {
-	return (runSuccessful);
+	return (mRunSuccessful);
 }
 
 wxString GUIWizardPageRun::GetValue()
@@ -4013,7 +3349,7 @@ void GUIWizardPageRun::SetTestParameters(bool testRun)
 		{
 			logfileLimit=0;
 		}
-		configKey.Printf("/%s/MaxLogfileSize",serverConfigPrefix.GetData());
+		configKey.Printf("/%s/MaxLogfileSize",STRING_TO_CHAR(serverConfigPrefix));
 		configValue.Printf("%d",logfileLimit);
 		globalStatistics.configData.WriteTextValue(configKey,configValue);
 
@@ -4076,7 +3412,7 @@ void GUIWizardPageRun::SetTestParameters(bool testRun)
 
 void GUIWizardPageRun::SetSelection(const char *selection)
 {
-	statusCtrl->SetLabel(selection);
+	mStatusCtrl->SetLabel(selection);
 }
 
 bool GUIWizardPageRun::PerformTest()
@@ -4086,34 +3422,35 @@ bool GUIWizardPageRun::PerformTest()
 	SetSelection("Test Running");
 
 	progress->EventUpdating(false);
-	progressPanel->EventUpdating(false);
-	progressPanel->ClearErrors();
+	mProgressPanel->EventUpdating(false);
+	mProgressPanel->ClearErrors();
 
 	{
 		wxBusyCursor	cursor;
-		wizard->Enable(false);
+		mWizard->Enable(false);
 
-		progress->SetClone(progressPanel);
+		progress->SetClone(mProgressPanel);
 		globalStatistics.statsgenDatabase.OpenDB();
 		globalStatistics.statsgenDatabase.Zap();
 		globalStatistics.ReadServersFromConfig();
 		globalStatistics.FlagStartOfRun();
 
-		progressPanel->ClearErrors();
+		mProgressPanel->ClearErrors();
 
 		globalStatistics.ProduceStatsInitiate();
 		globalStatistics.ProduceStatsDownload();
 		globalStatistics.ProduceStatsProcess();
 		globalStatistics.ProduceStatsTransfer();
 		globalStatistics.ProduceStatsFinalise();
-		wizard->Enable(true);
+		mWizard->Enable(true);
 		globalStatistics.statsgenDatabase.OpenDB();
 		globalStatistics.statsgenDatabase.Zap();
 	}
 	SetSelection("Test Completed");
-	progress->EventUpdating(true);
+	//progress->EventUpdating(true);
+	progress->EventUpdating(false);
 
-	runSuccessful = 
+	mRunSuccessful = 
 		(wxYES == wxMessageBox(
 				_T("Your initial stats run is now complete and the pages "
 					"have been uploaded to your website, check your website "
@@ -4131,112 +3468,58 @@ bool GUIWizardPageRun::PerformTest()
 
 	SetTestParameters(false);
 
-	return (runSuccessful);
+	return (mRunSuccessful);
 }
 
 void GUIWizardPageRun::OnButtonPressed(wxCommandEvent &event)
 {
 	PerformTest();
-	if (callBack!=NULL)
+	if (mCallBack!=NULL)
 	{
-		callBack(callBackObject);
+		mCallBack(mCallBackObject);
 	}
 	PageContentsChanged();
 }
 
-wxSize GUIWizardPageRun::ResizeControl(int x,int y,int width,bool resize)
-{
-	int			statusX;
-	int			statusY;
-	int			statusWidth;
-	int			statusHeight;
-
-	int			errorX;
-	int			errorY;
-	int			errorWidth;
-	int			errorHeight;
-
-	int			buttonX;
-	int			buttonY;
-	int			buttonWidth;
-	int			buttonHeight;
-
-	int			progressX;
-	int			progressY;
-	int			progressWidth;
-	int			progressHeight;
-	wxSize		objectSize;
-
-	wxSize		controlSize;
-
-	if (statusCtrl!=NULL)
-	{
-		objectSize		= testButton->GetSize();
-		buttonX			=x;
-		buttonY			=y;
-		buttonWidth		=objectSize.GetWidth();
-		buttonHeight	=objectSize.GetHeight();
-
-		if (buttonWidth > width)
-		{
-			width = buttonWidth;
-		}
-
-		progressX		=x;
-		progressY		=buttonY + buttonHeight;
-		progressWidth	=width;
-		progressHeight	=30;
-
-		statusX			=x;
-		statusY			=progressY + progressHeight;
-		statusWidth		=width;
-		statusHeight	=30;
-
-		errorX			=x;
-		errorY			=statusY + statusHeight;
-		errorWidth		=width;
-		errorHeight		=90;
-
-		if (resize)
-		{
-			testButton->SetSize(buttonX,buttonY,buttonWidth,buttonHeight);
-			statusCtrl->SetSize(statusX,statusY,statusWidth,statusHeight);
-			errorCtrl->SetSize(errorX,errorY,errorWidth,errorHeight);
-			progressPanel->SetSize(progressX,progressY,progressWidth,progressHeight);
-		}
-		controlSize.SetWidth(width);
-		controlSize.SetHeight(buttonHeight + progressHeight + statusHeight + errorHeight);
-	}
-
-	return (controlSize);
-}
-
 void GUIWizardPageRun::ResetTestResult()
 {
-	statusCtrl->SetLabel("Test Not Run");
-	errorCtrl->SetValue("");
+	mStatusCtrl->SetLabel("Test Not Run");
+	mErrorCtrl->SetValue("");
 }
 
 GUIWizardPageImagePacks::GUIWizardPageImagePacks(StatsgenWizard *wizardIn,wxString parentPageID,wxString thisPageID) : GUIWizardPageStatsgen(wizardIn,parentPageID,thisPageID)
 {
-	imagesCtrl		= new wxScrolledWindow(this,
-							-1,
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageImagePacks","GUIWizardPageImagePacks")
+/*
+	mImagesCtrl		= new wxScrolledWindow(this,
+							wxID_ANY,
 							wxDefaultPosition,
 							wxDefaultSize,
 							wxVSCROLL);
-	testButton		= new wxButton(this,WINDOW_ID_BUTTON_NEW,"Upload Image Packs");
+*/
+	mTestButton		= new wxButton(this,WINDOW_ID_BUTTON_NEW,"Upload Image Packs");
 	SetHelp("[b]Press the button[/b] to perform a stats run");
-	progressPanel=new ProgressPanel;
-	progressPanel->Create(this,-1,wxDefaultPosition,wxDefaultSize,
+	mProgressPanel=new ProgressPanel;
+	mProgressPanel->Create(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,
 			wxRAISED_BORDER);
+	mProgressPanel->CreateScreen();
+	mProgressPanel->EnableTimeToGo();
+	mProgressPanel->EnableCounter();
 	progress->SetClone(NULL);
-	statsgenSite.GetImagePackList(fileDescriptions,filePaths,serverTypes,upgradeFiles,thumbnails);
+	mStatsgenSite.GetImagePackList(mFileDescriptions,mFilePaths,mServerTypes,mUpgradeFiles,mThumbnails);
+	mContentsSizer->Add(mTestButton);
+	mContentsSizer->Add(mProgressPanel,1,wxEXPAND);
+/*
+	mContentsSizer->Add(mImagesCtrl,1,wxEXPAND);
+*/
 	CreateImagePackPanels();
 	SelectImagePackPanels();
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void GUIWizardPageImagePacks::CreateImagePackPanels()
 {
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageImagePacks","CreateImagePackPanels")
 	int				imagePackCount;
 	int				imagePackIndex;
 	ImagePackPanel	*imagePackPanel;
@@ -4246,44 +3529,78 @@ void GUIWizardPageImagePacks::CreateImagePackPanels()
 	wxString		thumbnail;
 	wxString		upgradeFile;
 	wxString		msg;
+	wxSize			labelSize;
+	wxSize			maxSize;
 
-	imagePackCount=fileDescriptions.GetCount();
+	imagePackCount=mFileDescriptions.GetCount();
+	msg.Printf("Image Pack Count:%d",imagePackCount);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 	for (imagePackIndex=0;imagePackIndex<imagePackCount;imagePackIndex++)
 	{
-		fileDescription=fileDescriptions.Item(imagePackIndex);
-		filePath=filePaths.Item(imagePackIndex);
-		serverType=serverTypes.Item(imagePackIndex);
-		thumbnail=thumbnails.Item(imagePackIndex);
-		upgradeFile=upgradeFiles.Item(imagePackIndex);
-		imagePackPanel=new ImagePackPanel(imagesCtrl,
+		fileDescription=mFileDescriptions.Item(imagePackIndex);
+		filePath=mFilePaths.Item(imagePackIndex);
+		serverType=mServerTypes.Item(imagePackIndex);
+		thumbnail=mThumbnails.Item(imagePackIndex);
+		upgradeFile=mUpgradeFiles.Item(imagePackIndex);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"fileDescription");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,fileDescription);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"filePath");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,filePath);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"serverType");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,serverType);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"thumbnail");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,thumbnail);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"upgradeFile");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,upgradeFile);
+		//imagePackPanel=new ImagePackPanel(mImagesCtrl,
+		imagePackPanel=new ImagePackPanel(this,
 										fileDescription,
 										filePath,
 										serverType,
 										upgradeFile,
 										thumbnail);
-		imagePackPanels.Add(imagePackPanel);
+		mImagePackPanels.Add(imagePackPanel);
+		mContentsSizer->Add(imagePackPanel,1,wxEXPAND|wxALL);
+		labelSize=imagePackPanel->GetLabelSize();
+		if (maxSize.GetWidth()<labelSize.GetWidth())
+		{
+			maxSize.SetWidth(labelSize.GetWidth());
+		}
+		if (maxSize.GetHeight()<labelSize.GetHeight())
+		{
+			maxSize.SetHeight(labelSize.GetHeight());
+		}
 	}
+	for (imagePackIndex=0;imagePackIndex<imagePackCount;imagePackIndex++)
+	{
+		imagePackPanel=(ImagePackPanel *)mImagePackPanels.Item(imagePackIndex);
+		imagePackPanel->SetMinLabelSize(maxSize);
+	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void GUIWizardPageImagePacks::SelectImagePackPanel(wxString &serverType)
 {
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageImagePacks","SelectImagePackPanel")
 	int				imagePackCount;
 	int				imagePackIndex;
 	ImagePackPanel	*imagePackPanel;
 
-	imagePackCount=imagePackPanels.GetCount();
+	imagePackCount=mImagePackPanels.GetCount();
 	for (imagePackIndex=0;imagePackIndex<imagePackCount;imagePackIndex++)
 	{
-		imagePackPanel=(ImagePackPanel *)imagePackPanels.Item(imagePackIndex);
+		imagePackPanel=(ImagePackPanel *)mImagePackPanels.Item(imagePackIndex);
 		if (serverType.CmpNoCase(imagePackPanel->GetServerType())==0)
 		{
 			imagePackPanel->SelectForUpload();
 		}
 	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void GUIWizardPageImagePacks::SelectImagePackPanels()
 {
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageImagePacks","SelectImagePackPanels")
 	wxString		listGroup	="SERVERS";
 	wxString		listPrefix	="Server";
 	wxString		groupPrefix;
@@ -4300,12 +3617,13 @@ void GUIWizardPageImagePacks::SelectImagePackPanels()
 	{
 		serverID=serverIDs.Item(serverIndex);
 		groupPrefix=listPrefix+serverID;
-		configKey.Printf("/%s/serverType",groupPrefix.GetData());
+		configKey.Printf("/%s/serverType",STRING_TO_CHAR(groupPrefix));
 		globalStatistics.configData.ReadTextValue(configKey,&serverType);
 		SelectImagePackPanel(serverType);
 	}
 	serverType="MANDATORY";
 	SelectImagePackPanel(serverType);
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 GUIWizardPageImagePacks::~GUIWizardPageImagePacks()
@@ -4322,6 +3640,7 @@ wxString GUIWizardPageImagePacks::GetValue()
 
 void GUIWizardPageImagePacks::OnButtonPressed(wxCommandEvent &event)
 {
+	STATSGEN_DEBUG_FUNCTION_START("GUIWizardPageImagePacks","OnButtonPressed")
 	int				imagePackCount;
 	int				imagePackIndex;
 	ImagePackPanel	*imagePackPanel;
@@ -4334,133 +3653,54 @@ void GUIWizardPageImagePacks::OnButtonPressed(wxCommandEvent &event)
 	wxString		configKey="/General/LocalOutput";
 
 	globalStatistics.configData.ReadTextValue(configKey,&localOutputFolder);
-	progress->SetClone(progressPanel);
-	imagePackCount=imagePackPanels.GetCount();
-	wizard->Enable(false);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"setting clone")
+	progress->SetClone(mProgressPanel);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"set clone")
+	imagePackCount=mImagePackPanels.GetCount();
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"disable wizard")
+	mWizard->Enable(false);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"ask if storing locally")
 	storeLocally=(
 		wxMessageBox("Store Image Packs Locally?","Confirm",wxYES_NO)==wxYES);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Stepping through image packs")
 	for (imagePackIndex=0;imagePackIndex<imagePackCount;imagePackIndex++)
 	{
-		imagePackPanel=(ImagePackPanel *)imagePackPanels.Item(imagePackIndex);
+		imagePackPanel=(ImagePackPanel *)mImagePackPanels.Item(imagePackIndex);
 		if (imagePackPanel->Selected())
 		{
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"this image pack is selected")
 			progress->ChoosePanel(WINDOW_ID_PROGRESS_PANEL_WEBSITE);
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"chosen the panel")
 			filePath=imagePackPanel->GetFilePath();
+			STATSGEN_DEBUG(DEBUG_ALWAYS,filePath);
 			fileDescription=imagePackPanel->GetDescription();
+			STATSGEN_DEBUG(DEBUG_ALWAYS,fileDescription);
 			upgradeFile=imagePackPanel->GetUpgradeFile();
-			statsgenSite.UploadImagePack(fileDescription,filePath,storeLocally,localOutputFolder,upgradeFile);
+			STATSGEN_DEBUG(DEBUG_ALWAYS,upgradeFile);
+			mStatsgenSite.UploadImagePack(fileDescription,filePath,storeLocally,localOutputFolder,upgradeFile);
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"uploaded the image pack")
 			progress->Finalise();
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"finalised")
 		}
 	}
-	wizard->Enable(true);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"enable the wizard")
+	mWizard->Enable(true);
 
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"set clone to null")
 	progress->SetClone(NULL);
-	if (callBack!=NULL)
+	if (mCallBack!=NULL)
 	{
-		callBack(callBackObject);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"perform callback")
+		mCallBack(mCallBackObject);
 	}
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"say that page contents have changed")
 	PageContentsChanged();
-}
-
-void GUIWizardPageImagePacks::ResizeImagePackPanels()
-{
-	int				imagePackCount;
-	int				imagePackIndex;
-	ImagePackPanel	*imagePackPanel;
-	int				x;
-	int				y;
-	wxSize			imagePackSize;
-	wxString		msg;
-	int				scrollRate=10;
-	int				width=100;
-
-	imagePackCount=imagePackPanels.GetCount();
-	x=0;
-	y=0;
-	for (imagePackIndex=0;imagePackIndex<imagePackCount;imagePackIndex++)
-	{
-		imagePackPanel=(ImagePackPanel *)imagePackPanels.Item(imagePackIndex);
-		imagePackSize=imagePackPanel->ResizeControl(
-						x,y,
-						imagePackSize.GetWidth(),
-						imagePackSize.GetHeight(),
-						false);
-		imagePackPanel->ResizeControl(x,y,
-						imagePackSize.GetWidth(),
-						imagePackSize.GetHeight(),
-						true);
-		y+=imagePackSize.GetHeight();
-		y+=5;
-		width=imagePackSize.GetWidth();
-		scrollRate=imagePackSize.GetHeight();
-	}
-	imagesCtrl->SetScrollbars(1,1,width,y);
-	imagesCtrl->SetScrollRate(10,10);
-	imagesCtrl->SetVirtualSize(width,y);
-}
-
-wxSize GUIWizardPageImagePacks::ResizeControl(int x,int y,int width,bool resize)
-{
-	int			imagesX;
-	int			imagesY;
-	int			imagesWidth;
-	int			imagesHeight;
-
-	int			buttonX;
-	int			buttonY;
-	int			buttonWidth;
-	int			buttonHeight;
-
-	int			progressX;
-	int			progressY;
-	int			progressWidth;
-	int			progressHeight;
-	wxSize		objectSize;
-
-	wxSize		controlSize;
-
-	if (imagesCtrl!=NULL)
-	{
-		width			=650;
-
-		imagesX			=x;
-		imagesY			=y;
-		imagesWidth		=width;
-		imagesHeight	=300;
-
-		objectSize		= testButton->GetSize();
-		buttonX			=x;
-		buttonY			=imagesY+imagesHeight;
-		buttonWidth		=objectSize.GetWidth();
-		buttonHeight	=objectSize.GetHeight();
-
-		if (buttonWidth > width)
-		{
-			width = buttonWidth;
-		}
-
-		progressX		=x;
-		progressY		=buttonY + buttonHeight;
-		progressWidth	=width;
-		progressHeight	=30;
-
-		if (resize)
-		{
-			testButton->SetSize(buttonX,buttonY,buttonWidth,buttonHeight);
-			ResizeImagePackPanels();
-			imagesCtrl->SetSize(imagesX,imagesY,imagesWidth,imagesHeight);
-			progressPanel->SetSize(progressX,progressY,progressWidth,progressHeight);
-		}
-		controlSize.SetWidth(width);
-		controlSize.SetHeight(buttonHeight + progressHeight + imagesHeight);
-	}
-
-	return (controlSize);
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 GUIWizardPagesImagePacks::GUIWizardPagesImagePacks()
 {
-	pageImagePacks			= NULL;
+	mPageImagePacks			= NULL;
 }
 
 GUIWizardPagesImagePacks::~GUIWizardPagesImagePacks()
@@ -4469,28 +3709,22 @@ GUIWizardPagesImagePacks::~GUIWizardPagesImagePacks()
 
 void GUIWizardPagesImagePacks::CreateWizardPages(StatsgenWizard *wizardIn)
 {
-	wizard = wizardIn;
+	mWizard = wizardIn;
 
 	const char *sectionTitle="Image Packs";
-	pageImagePacks		= new GUIWizardPageImagePacks(wizard,pageID,_T("IMAGEPACKS"));
+	mPageImagePacks		= new GUIWizardPageImagePacks(mWizard,mPageID,_T("IMAGEPACKS"));
 
-	pageImagePacks->SetHelp(
+	mPageImagePacks->SetHelp(
 			"[b]Place a check[/b] in the appropriate image packs and then [b]press "
 			"the Upload button[/b] to download them from the statsgen website and "
 			"then upload them to your website"
 						);
 
 
-	wizard->AddPageLink(pageImagePacks,		"","");
+	mWizard->AddPageLink(mPageImagePacks,		"","");
 	
-	pageImagePacks->SetSectionTitle(sectionTitle);
+	mPageImagePacks->SetSectionTitle(sectionTitle);
 
-	ResizePages();
-}
-
-void GUIWizardPagesImagePacks::ResizePages()
-{
-	pageImagePacks->Resize();
 }
 
 ImagePackPanel::ImagePackPanel(wxWindow *parent,
@@ -4500,42 +3734,57 @@ ImagePackPanel::ImagePackPanel(wxWindow *parent,
 									wxString &upgradeFileIn,
 									wxString &thumbnailIn) : wxPanel(parent,-1)
 {
+	STATSGEN_DEBUG_FUNCTION_START("ImagePackPanel","ImagePackPanel")
 	wxString		label="";
 	wxString		localimage="thumbnail.";
 
-	fileDescription	=fileDescriptionIn;
-	filePath		=filePathIn;
-	serverType		=serverTypeIn;
-	thumbnail		=thumbnailIn;
-	upgradeFile		=upgradeFileIn;
+	mFileDescription	=fileDescriptionIn;
+	mFilePath		=filePathIn;
+	mServerType		=serverTypeIn;
+	mThumbnail		=thumbnailIn;
+	mUpgradeFile		=upgradeFileIn;
 
-	if (thumbnail.EndsWith("jpg"))
+	if (mThumbnail.EndsWith("jpg"))
 	{
 		localimage+="jpg";
 	}
-	if (thumbnail.EndsWith("gif"))
+	if (mThumbnail.EndsWith("gif"))
 	{
 		localimage+="gif";
 	}
-	checkCtrl		=new wxCheckBox(this,-1,label);
-	descriptionCtrl	=new wxStaticText(this,-1,fileDescription);
-	if (thumbnail.Length()>0)
+	mCheckCtrl		=new wxCheckBox(this,wxID_ANY,label);
+	mDescriptionCtrl	=new wxStaticText(this,wxID_ANY,mFileDescription);
+	if (mThumbnail.Length()>0)
 	{
 		StatsgenWeb		statsgenSite;
 		WebFile			*webFile;
-
-		webFile=statsgenSite.GetWebFile(thumbnail);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"thumbnail");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,mThumbnail);
+		webFile=statsgenSite.GetWebFile(mThumbnail);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"got web file");
 		webFile->Get(localimage);
-		thumbnailImage.LoadFile(localimage);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"localimage");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,localimage);
+		mThumbnailImage.LoadFile(localimage);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"loaded localimage");
 
 		delete(webFile);
 	}
-	thumbnailPanel	=new ImagePanel(this,-1,
+	mThumbnailPanel	=new ImagePanel(this,wxID_ANY,
 								wxDefaultPosition,
 								wxDefaultSize,
 								0,
 								_T(""));
-	thumbnailPanel->SetImage(thumbnailImage);
+	mThumbnailPanel->SetImage(mThumbnailImage);
+
+	mMainSizer = new wxBoxSizer(wxHORIZONTAL);
+	mMainSizer->Add(mCheckCtrl);
+	mMainSizer->Add(mDescriptionCtrl,0,wxEXPAND);
+	mMainSizer->Add(mThumbnailPanel,1,wxEXPAND|wxALL);
+
+	mMainSizer->SetSizeHints(this);
+	SetSizer(mMainSizer);
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 ImagePackPanel::~ImagePackPanel()
@@ -4544,112 +3793,42 @@ ImagePackPanel::~ImagePackPanel()
 
 wxString ImagePackPanel::GetServerType()
 {
-	return (serverType);
+	return (mServerType);
 }
 wxString ImagePackPanel::GetDescription()
 {
-	return (fileDescription);
+	return (mFileDescription);
 }
 wxString ImagePackPanel::GetFilePath()
 {
-	return (filePath);
+	return (mFilePath);
 }
 wxString ImagePackPanel::GetUpgradeFile()
 {
-	return (upgradeFile);
+	return (mUpgradeFile);
 }
 bool ImagePackPanel::Selected()
 {
-	return (checkCtrl->GetValue());
+	return (mCheckCtrl->GetValue());
 }
 void ImagePackPanel::SelectForUpload()
 {
-	checkCtrl->SetValue(true);
+	mCheckCtrl->SetValue(true);
 }
 
-wxSize ImagePackPanel::ResizeControl(int x,int y,int width,int height,bool resize)
+wxSize ImagePackPanel::GetLabelSize()
 {
-	wxSize		panelSize;
-	wxSize		objectSize;
-
-	int		panelX;
-	int		panelY;
-	int		panelWidth;
-	int		panelHeight;
-
-	int		checkX;
-	int		checkY;
-	int		checkWidth;
-	int		checkHeight;
-
-	int		thumbX;
-	int		thumbY;
-	int		thumbWidth;
-	int		thumbHeight;
-
-	int		descriptionX;
-	int		descriptionY;
-	int		descriptionWidth;
-	int		descriptionHeight;
-	int		minImageWidth=325;
-
-	objectSize			=checkCtrl->GetSize();
-	checkX				=0;
-	checkY				=0;
-	checkWidth			=objectSize.GetWidth();
-	checkHeight			=objectSize.GetHeight();
-
-	thumbX				=checkX+5+checkWidth;
-	thumbY				=0;
-	thumbWidth			=thumbnailImage.GetWidth();
-	thumbHeight			=thumbnailImage.GetHeight();
-
-	if (thumbWidth<minImageWidth)
-	{
-		thumbWidth=minImageWidth;
-	}
-
-
-	objectSize			=descriptionCtrl->GetSize();
-	descriptionX		=thumbX+5+thumbWidth;
-	descriptionY		=0;
-	descriptionWidth	=objectSize.GetWidth();
-	descriptionHeight	=objectSize.GetHeight();
-
-	panelX				=x;
-	panelY				=y;
-	panelWidth			=descriptionX+descriptionWidth;
-	if (checkHeight>descriptionHeight)
-	{
-		panelHeight		=checkHeight;
-	}
-	else
-	{
-		panelHeight		=descriptionHeight;
-	}
-	if (thumbHeight>panelHeight)
-	{
-		panelHeight=thumbHeight;
-	}
-	panelSize.SetWidth(panelWidth);
-	panelSize.SetHeight(panelHeight);
-
-	if (resize)
-	{
-		checkCtrl->SetSize(checkX,checkY,checkWidth,checkHeight);
-		descriptionCtrl->SetSize(descriptionX,descriptionY,descriptionWidth,descriptionHeight);
-		thumbnailPanel->SetSize(thumbX,thumbY,thumbWidth,thumbHeight);
-		SetSize(panelX,panelY,panelWidth,panelHeight);
-	}
-
-	return (panelSize);
+	return (mDescriptionCtrl->GetSize());
 }
-
+void ImagePackPanel::SetMinLabelSize(wxSize size)
+{
+	mDescriptionCtrl->SetMinSize(size);
+}
 GUIWizardPagesMessaging::GUIWizardPagesMessaging()
 {
-	pageMessagingEnabled					= NULL;
-	pageMessagingFrequency					= NULL;
-	pageMessagingPort						= NULL;
+	mPageMessagingEnabled					= NULL;
+	mPageMessagingFrequency					= NULL;
+	mPageMessagingPort						= NULL;
 }
 
 GUIWizardPagesMessaging::~GUIWizardPagesMessaging()
@@ -4661,22 +3840,22 @@ void GUIWizardPagesMessaging::UpdateConfigKeys()
 	wxString		configKey;
 	wxString		configValue;
 
-	if (pageMessagingEnabled != NULL)
+	if (mPageMessagingEnabled != NULL)
 	{
 		configKey="/RCONSettings/Enabled";
-		pageMessagingEnabled->SetConfigKey(configKey,"Y");
+		mPageMessagingEnabled->SetConfigKey(configKey,"Y");
 
 		configKey="/RCONSettings/MessageIntervalTimer";
-		pageMessagingFrequency->SetConfigKey(configKey,"60");
+		mPageMessagingFrequency->SetConfigKey(configKey,"60");
 
 		configKey="/RCONSettings/ClientPort";
-		pageMessagingPort->SetConfigKey(configKey,"8000");
+		mPageMessagingPort->SetConfigKey(configKey,"8000");
 
 		configKey="/RCONSettings/CustomMessageInterval";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"0");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"0");
 
 		configKey="/RCONSettings/MessagePrefix";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"^7");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"^7");
 	}
 }
 
@@ -4685,27 +3864,27 @@ void GUIWizardPagesMessaging::CreateWizardPages(StatsgenWizard *wizardIn)
 	const char *sectionTitle="Configure Messaging";
 	wxString ruleMessagingEnabled;
 
-	wizard=wizardIn;
+	mWizard=wizardIn;
 
-	pageMessagingEnabled			= new GUIWizardPageConfigBoolean(wizard,pageID,_T("ENABLED"));
-	pageMessagingFrequency			= new GUIWizardPageConfigText(wizard,pageID,_T("FREQUENCY"));
-	pageMessagingPort				= new GUIWizardPageConfigText(wizard,pageID,_T("PORT"));
+	mPageMessagingEnabled			= new GUIWizardPageConfigBoolean(mWizard,mPageID,_T("ENABLED"));
+	mPageMessagingFrequency			= new GUIWizardPageConfigText(mWizard,mPageID,_T("FREQUENCY"));
+	mPageMessagingPort				= new GUIWizardPageConfigText(mWizard,mPageID,_T("PORT"));
 
-	pageMessagingEnabled->SetConfigTitle("Enable Messaging");
-	pageMessagingEnabled->SetHelp(
+	mPageMessagingEnabled->SetConfigTitle("Enable Messaging");
+	mPageMessagingEnabled->SetHelp(
 		"Global Messaging Enabled / Disabled\n"
 		"This switches on / off messaging for the entire system, irrespective "
 		"of any individual server settings"
 		);
-	pageMessagingEnabled->SetTrueFalseLabels("Yes", "No");
+	mPageMessagingEnabled->SetTrueFalseLabels("Yes", "No");
 
-	pageMessagingFrequency->SetConfigTitle("Message Frequency");
-	pageMessagingFrequency->SetHelp(
+	mPageMessagingFrequency->SetConfigTitle("Message Frequency");
+	mPageMessagingFrequency->SetHelp(
 		"How often messages should be sent to the server, in seconds"
 		);
 
-	pageMessagingPort->SetConfigTitle("Messaging Client Port");
-	pageMessagingPort->SetHelp(
+	mPageMessagingPort->SetConfigTitle("Messaging Client Port");
+	mPageMessagingPort->SetHelp(
 		"This is the local port used during communications with the game "
 		"servers.\n"
 		"You should have a [b]different value[/b] for this for every instance of "
@@ -4714,34 +3893,26 @@ void GUIWizardPagesMessaging::CreateWizardPages(StatsgenWizard *wizardIn)
 		"\nGood values are 8000, 8001, 8002"
 		);
 
-	pageMessagingEnabled->SetCallBack(ConfigChangedCallBack,this);
-	pageMessagingFrequency->SetCallBack(ConfigChangedCallBack,this);
-	pageMessagingPort->SetCallBack(ConfigChangedCallBack,this);
+	mPageMessagingEnabled->SetCallBack(ConfigChangedCallBack,this);
+	mPageMessagingFrequency->SetCallBack(ConfigChangedCallBack,this);
+	mPageMessagingPort->SetCallBack(ConfigChangedCallBack,this);
 
-	ruleMessagingEnabled.Printf("(%s=\"%s\")", pageMessagingEnabled->GetPageID().GetData(),"Y");
+	ruleMessagingEnabled.Printf("(%s=\"%s\")", STRING_TO_CHAR(mPageMessagingEnabled->GetPageID()),"Y");
 
-	wizard->AddPageLink(pageMessagingEnabled,		""		,"");
-	wizard->AddPageLink(pageMessagingFrequency,		ruleMessagingEnabled	,"");
-	wizard->AddPageLink(pageMessagingPort,			ruleMessagingEnabled	,"");
+	mWizard->AddPageLink(mPageMessagingEnabled,		""		,"");
+	mWizard->AddPageLink(mPageMessagingFrequency,		ruleMessagingEnabled	,"");
+	mWizard->AddPageLink(mPageMessagingPort,			ruleMessagingEnabled	,"");
 	SetSectionTitle(sectionTitle);
 
 	UpdateConfigKeys();
 
-	ResizePages();
 }
 
 void GUIWizardPagesMessaging::SetSectionTitle(const char *sectionTitle)
 {
-	pageMessagingEnabled->SetSectionTitle(sectionTitle);
-	pageMessagingFrequency->SetSectionTitle(sectionTitle);
-	pageMessagingPort->SetSectionTitle(sectionTitle);
-}
-
-void GUIWizardPagesMessaging::ResizePages()
-{
-	pageMessagingEnabled->Resize();
-	pageMessagingFrequency->Resize();
-	pageMessagingPort->Resize();
+	mPageMessagingEnabled->SetSectionTitle(sectionTitle);
+	mPageMessagingFrequency->SetSectionTitle(sectionTitle);
+	mPageMessagingPort->SetSectionTitle(sectionTitle);
 }
 
 void GUIWizardPagesMessaging::ConfigChangedCallBack(void *object)
@@ -4752,18 +3923,24 @@ void GUIWizardPagesMessaging::ConfigChangedCallBack(void *object)
 
 GUIWizardPageTemplatePacks::GUIWizardPageTemplatePacks(StatsgenWizard *wizardIn,wxString parentPageID,wxString thisPageID) : GUIWizardPageStatsgen(wizardIn,parentPageID,thisPageID)
 {
-	imagesCtrl		= new wxScrolledWindow(this,
-							-1,
+/*
+	mImagesCtrl		= new wxScrolledWindow(this,
+							wxID_ANY,
 							wxDefaultPosition,
 							wxDefaultSize,
 							wxVSCROLL);
-	testButton		= new wxButton(this,WINDOW_ID_BUTTON_NEW,"Upload Template Packs");
+*/
+	mTestButton		= new wxButton(this,WINDOW_ID_BUTTON_NEW,"Upload Template Packs");
 	SetHelp("[b]Press the button[/b] to perform a stats run");
-	progressPanel=new ProgressPanel;
-	progressPanel->Create(this,-1,wxDefaultPosition,wxDefaultSize,
+	mProgressPanel=new ProgressPanel;
+	mProgressPanel->Create(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,
 			wxRAISED_BORDER);
+	mProgressPanel->CreateScreen();
 	progress->SetClone(NULL);
-	statsgenSite.GetTemplateList(fileDescriptions,filePaths,serverTypes,secondFilePaths,templateFilenames,upgradePaths,thumbnails);
+	mStatsgenSite.GetTemplateList(mFileDescriptions,mFilePaths,mServerTypes,mSecondFilePaths,mTemplateFilenames,mUpgradePaths,mThumbnails);
+
+	mContentsSizer->Add(mTestButton);
+	mContentsSizer->Add(mProgressPanel,1,wxEXPAND);
 	CreateTemplatePackPanels();
 	SelectTemplatePackPanels();
 }
@@ -4781,18 +3958,21 @@ void GUIWizardPageTemplatePacks::CreateTemplatePackPanels()
 	wxString		upgradePath;
 	wxString		thumbnail;
 	wxString		msg;
+	wxSize			labelSize;
+	wxSize			maxSize;
 
-	imagePackCount=fileDescriptions.GetCount();
+	imagePackCount=mFileDescriptions.GetCount();
 	for (imagePackIndex=0;imagePackIndex<imagePackCount;imagePackIndex++)
 	{
-		fileDescription=fileDescriptions.Item(imagePackIndex);
-		filePath=filePaths.Item(imagePackIndex);
-		serverType=serverTypes.Item(imagePackIndex);
-		thumbnail=thumbnails.Item(imagePackIndex);
-		templateFilename=templateFilenames.Item(imagePackIndex);
-		secondFilePath=secondFilePaths.Item(imagePackIndex);
-		upgradePath=upgradePaths.Item(imagePackIndex);
-		imagePackPanel=new TemplatePackPanel(imagesCtrl,
+		fileDescription=mFileDescriptions.Item(imagePackIndex);
+		filePath=mFilePaths.Item(imagePackIndex);
+		serverType=mServerTypes.Item(imagePackIndex);
+		thumbnail=mThumbnails.Item(imagePackIndex);
+		templateFilename=mTemplateFilenames.Item(imagePackIndex);
+		secondFilePath=mSecondFilePaths.Item(imagePackIndex);
+		upgradePath=mUpgradePaths.Item(imagePackIndex);
+		//imagePackPanel=new TemplatePackPanel(mImagesCtrl,
+		imagePackPanel=new TemplatePackPanel(this,
 										fileDescription,
 										filePath,
 										serverType,
@@ -4800,7 +3980,22 @@ void GUIWizardPageTemplatePacks::CreateTemplatePackPanels()
 										upgradePath,
 										templateFilename,
 										thumbnail);
-		templatePackPanels.Add(imagePackPanel);
+		mTemplatePackPanels.Add(imagePackPanel);
+		mContentsSizer->Add(imagePackPanel,1,wxEXPAND|wxALL);
+		labelSize=imagePackPanel->GetLabelSize();
+		if (maxSize.GetWidth()<labelSize.GetWidth())
+		{
+			maxSize.SetWidth(labelSize.GetWidth());
+		}
+		if (maxSize.GetHeight()<labelSize.GetHeight())
+		{
+			maxSize.SetHeight(labelSize.GetHeight());
+		}
+	}
+	for (imagePackIndex=0;imagePackIndex<imagePackCount;imagePackIndex++)
+	{
+		imagePackPanel=(TemplatePackPanel *)mTemplatePackPanels.Item(imagePackIndex);
+		imagePackPanel->SetMinLabelSize(maxSize);
 	}
 }
 
@@ -4836,12 +4031,12 @@ void GUIWizardPageTemplatePacks::OnButtonPressed(wxCommandEvent &event)
 	wxString		fileDescription;
 	wxBusyCursor	busy;
 
-	progress->SetClone(progressPanel);
-	imagePackCount=templatePackPanels.GetCount();
-	wizard->Enable(false);
+	progress->SetClone(mProgressPanel);
+	imagePackCount=mTemplatePackPanels.GetCount();
+	mWizard->Enable(false);
 	for (imagePackIndex=0;imagePackIndex<imagePackCount;imagePackIndex++)
 	{
-		templatePackPanel=(TemplatePackPanel *)templatePackPanels.Item(imagePackIndex);
+		templatePackPanel=(TemplatePackPanel *)mTemplatePackPanels.Item(imagePackIndex);
 		if (templatePackPanel->Selected())
 		{
 			progress->ChoosePanel(WINDOW_ID_PROGRESS_PANEL_WEBSITE);
@@ -4850,119 +4045,23 @@ void GUIWizardPageTemplatePacks::OnButtonPressed(wxCommandEvent &event)
 			upgradePath=templatePackPanel->GetUpgradePath();
 			templateFilename=templatePackPanel->GetTemplateFilename();
 			fileDescription=templatePackPanel->GetDescription();
-			statsgenSite.UploadTemplatePack(fileDescription,filePath,secondFilePath,upgradePath,templateFilename);
+			mStatsgenSite.UploadTemplatePack(fileDescription,filePath,secondFilePath,upgradePath,templateFilename);
 			progress->Finalise();
 		}
 	}
-	wizard->Enable(true);
+	mWizard->Enable(true);
 
 	progress->SetClone(NULL);
-	if (callBack!=NULL)
+	if (mCallBack!=NULL)
 	{
-		callBack(callBackObject);
+		mCallBack(mCallBackObject);
 	}
 	PageContentsChanged();
 }
 
-void GUIWizardPageTemplatePacks::ResizeTemplatePackPanels()
-{
-	int				imagePackCount;
-	int				imagePackIndex;
-	TemplatePackPanel	*templatePackPanel;
-	int				x;
-	int				y;
-	wxSize			imagePackSize;
-	wxString		msg;
-	int				scrollRate=10;
-	int				width=100;
-
-	imagePackCount=templatePackPanels.GetCount();
-	x=0;
-	y=0;
-	for (imagePackIndex=0;imagePackIndex<imagePackCount;imagePackIndex++)
-	{
-		templatePackPanel=(TemplatePackPanel *)templatePackPanels.Item(imagePackIndex);
-		imagePackSize=templatePackPanel->ResizeControl(
-						x,y,
-						imagePackSize.GetWidth(),
-						imagePackSize.GetHeight(),
-						false);
-		templatePackPanel->ResizeControl(x,y,
-						imagePackSize.GetWidth(),
-						imagePackSize.GetHeight(),
-						true);
-		y+=imagePackSize.GetHeight();
-		y+=5;
-		width=imagePackSize.GetWidth();
-		scrollRate=imagePackSize.GetHeight();
-	}
-	imagesCtrl->SetScrollbars(1,1,width,y);
-	imagesCtrl->SetScrollRate(10,10);
-	imagesCtrl->SetVirtualSize(width,y);
-}
-
-wxSize GUIWizardPageTemplatePacks::ResizeControl(int x,int y,int width,bool resize)
-{
-	int			imagesX;
-	int			imagesY;
-	int			imagesWidth;
-	int			imagesHeight;
-
-	int			buttonX;
-	int			buttonY;
-	int			buttonWidth;
-	int			buttonHeight;
-
-	int			progressX;
-	int			progressY;
-	int			progressWidth;
-	int			progressHeight;
-	wxSize		objectSize;
-
-	wxSize		controlSize;
-
-	if (imagesCtrl!=NULL)
-	{
-		width			=650;
-
-		imagesX			=x;
-		imagesY			=y;
-		imagesWidth		=width;
-		imagesHeight	=300;
-
-		objectSize		= testButton->GetSize();
-		buttonX			=x;
-		buttonY			=imagesY+imagesHeight;
-		buttonWidth		=objectSize.GetWidth();
-		buttonHeight	=objectSize.GetHeight();
-
-		if (buttonWidth > width)
-		{
-			width = buttonWidth;
-		}
-
-		progressX		=x;
-		progressY		=buttonY + buttonHeight;
-		progressWidth	=width;
-		progressHeight	=30;
-
-		if (resize)
-		{
-			testButton->SetSize(buttonX,buttonY,buttonWidth,buttonHeight);
-			ResizeTemplatePackPanels();
-			imagesCtrl->SetSize(imagesX,imagesY,imagesWidth,imagesHeight);
-			progressPanel->SetSize(progressX,progressY,progressWidth,progressHeight);
-		}
-		controlSize.SetWidth(width);
-		controlSize.SetHeight(buttonHeight + progressHeight + imagesHeight);
-	}
-
-	return (controlSize);
-}
-
 GUIWizardPagesTemplatePacks::GUIWizardPagesTemplatePacks()
 {
-	pageTemplatePacks			= NULL;
+	mPageTemplatePacks			= NULL;
 }
 
 GUIWizardPagesTemplatePacks::~GUIWizardPagesTemplatePacks()
@@ -4971,28 +4070,22 @@ GUIWizardPagesTemplatePacks::~GUIWizardPagesTemplatePacks()
 
 void GUIWizardPagesTemplatePacks::CreateWizardPages(StatsgenWizard *wizardIn)
 {
-	wizard = wizardIn;
+	mWizard = wizardIn;
 
 	const char *sectionTitle="Template Packs";
-	pageTemplatePacks		= new GUIWizardPageTemplatePacks(wizard,pageID,_T("TEMPLATEPACKS"));
+	mPageTemplatePacks		= new GUIWizardPageTemplatePacks(mWizard,mPageID,_T("TEMPLATEPACKS"));
 
-	pageTemplatePacks->SetHelp(
+	mPageTemplatePacks->SetHelp(
 			"[b]Place a check[/b] in the appropriate template and then [b]press "
 			"the Upload button[/b] to download them from the statsgen website and "
 			"then upload them to your website"
 						);
 
 
-	wizard->AddPageLink(pageTemplatePacks,		"","");
+	mWizard->AddPageLink(mPageTemplatePacks,		"","");
 	
-	pageTemplatePacks->SetSectionTitle(sectionTitle);
+	mPageTemplatePacks->SetSectionTitle(sectionTitle);
 
-	ResizePages();
-}
-
-void GUIWizardPagesTemplatePacks::ResizePages()
-{
-	pageTemplatePacks->Resize();
 }
 
 TemplatePackPanel::TemplatePackPanel(wxWindow *parent,
@@ -5007,41 +4100,48 @@ TemplatePackPanel::TemplatePackPanel(wxWindow *parent,
 	wxString		label="";
 	wxString		localimage="thumbnail.";
 
-	fileDescription	=fileDescriptionIn;
-	filePath		=filePathIn;
-	serverType		=serverTypeIn;
-	secondFilePath	=secondFilePathIn;
-	templateFilename=templateFilenameIn;
-	upgradePath		=upgradePathIn;
-	thumbnail		=thumbnailIn;
+	mFileDescription	=fileDescriptionIn;
+	mFilePath		=filePathIn;
+	mServerType		=serverTypeIn;
+	mSecondFilePath	=secondFilePathIn;
+	mTemplateFilename=templateFilenameIn;
+	mUpgradePath		=upgradePathIn;
+	mThumbnail		=thumbnailIn;
 
-	if (thumbnail.EndsWith("jpg"))
+	if (mThumbnail.EndsWith("jpg"))
 	{
 		localimage+="jpg";
 	}
-	if (thumbnail.EndsWith("gif"))
+	if (mThumbnail.EndsWith("gif"))
 	{
 		localimage+="gif";
 	}
-	checkCtrl		=new wxCheckBox(this,-1,label);
-	descriptionCtrl	=new wxStaticText(this,-1,fileDescription);
-	if (thumbnail.Length()>0)
+	mCheckCtrl		=new wxCheckBox(this,wxID_ANY,label);
+	mDescriptionCtrl	=new wxStaticText(this,wxID_ANY,mFileDescription);
+	if (mThumbnail.Length()>0)
 	{
 		StatsgenWeb		statsgenSite;
 		WebFile			*webFile;
 
-		webFile=statsgenSite.GetWebFile(thumbnail);
+		webFile=statsgenSite.GetWebFile(mThumbnail);
 		webFile->Get(localimage);
-		thumbnailImage.LoadFile(localimage);
+		mThumbnailImage.LoadFile(localimage);
 
 		delete(webFile);
 	}
-	thumbnailPanel	=new ImagePanel(this,-1,
+	mThumbnailPanel	=new ImagePanel(this,wxID_ANY,
 								wxDefaultPosition,
 								wxDefaultSize,
 								0,
 								_T(""));
-	thumbnailPanel->SetImage(thumbnailImage);
+	mThumbnailPanel->SetImage(mThumbnailImage);
+	mMainSizer = new wxBoxSizer(wxHORIZONTAL);
+	mMainSizer->Add(mCheckCtrl);
+	mMainSizer->Add(mDescriptionCtrl,0,wxEXPAND);
+	mMainSizer->Add(mThumbnailPanel,1,wxEXPAND|wxALL);
+
+	mMainSizer->SetSizeHints(this);
+	SetSizer(mMainSizer);
 }
 
 TemplatePackPanel::~TemplatePackPanel()
@@ -5050,112 +4150,42 @@ TemplatePackPanel::~TemplatePackPanel()
 
 wxString TemplatePackPanel::GetServerType()
 {
-	return (serverType);
+	return (mServerType);
 }
 wxString TemplatePackPanel::GetDescription()
 {
-	return (fileDescription);
+	return (mFileDescription);
 }
 wxString TemplatePackPanel::GetFilePath()
 {
-	return (filePath);
+	return (mFilePath);
 }
 wxString TemplatePackPanel::GetSecondFilePath()
 {
-	return (secondFilePath);
+	return (mSecondFilePath);
 }
 wxString TemplatePackPanel::GetUpgradePath()
 {
-	return (upgradePath);
+	return (mUpgradePath);
 }
 wxString TemplatePackPanel::GetTemplateFilename()
 {
-	return (templateFilename);
+	return (mTemplateFilename);
 }
 bool TemplatePackPanel::Selected()
 {
-	return (checkCtrl->GetValue());
+	return (mCheckCtrl->GetValue());
 }
 void TemplatePackPanel::SelectForUpload()
 {
-	checkCtrl->SetValue(true);
+	mCheckCtrl->SetValue(true);
 }
 
-wxSize TemplatePackPanel::ResizeControl(int x,int y,int width,int height,bool resize)
+wxSize TemplatePackPanel::GetLabelSize()
 {
-	wxSize		panelSize;
-	wxSize		objectSize;
-
-	int		panelX;
-	int		panelY;
-	int		panelWidth;
-	int		panelHeight;
-
-	int		checkX;
-	int		checkY;
-	int		checkWidth;
-	int		checkHeight;
-
-	int		thumbX;
-	int		thumbY;
-	int		thumbWidth;
-	int		thumbHeight;
-
-	int		descriptionX;
-	int		descriptionY;
-	int		descriptionWidth;
-	int		descriptionHeight;
-	int		minImageWidth=325;
-
-	objectSize			=checkCtrl->GetSize();
-	checkX				=0;
-	checkY				=0;
-	checkWidth			=objectSize.GetWidth();
-	checkHeight			=objectSize.GetHeight();
-
-	thumbX				=checkX+5+checkWidth;
-	thumbY				=0;
-	thumbWidth			=thumbnailImage.GetWidth();
-	thumbHeight			=thumbnailImage.GetHeight();
-
-	if (thumbWidth<minImageWidth)
-	{
-		thumbWidth=minImageWidth;
-	}
-
-
-	objectSize			=descriptionCtrl->GetSize();
-	descriptionX		=thumbX+5+thumbWidth;
-	descriptionY		=0;
-	descriptionWidth	=objectSize.GetWidth();
-	descriptionHeight	=objectSize.GetHeight();
-
-	panelX				=x;
-	panelY				=y;
-	panelWidth			=descriptionX+descriptionWidth;
-	if (checkHeight>descriptionHeight)
-	{
-		panelHeight		=checkHeight;
-	}
-	else
-	{
-		panelHeight		=descriptionHeight;
-	}
-	if (thumbHeight>panelHeight)
-	{
-		panelHeight=thumbHeight;
-	}
-	panelSize.SetWidth(panelWidth);
-	panelSize.SetHeight(panelHeight);
-
-	if (resize)
-	{
-		checkCtrl->SetSize(checkX,checkY,checkWidth,checkHeight);
-		descriptionCtrl->SetSize(descriptionX,descriptionY,descriptionWidth,descriptionHeight);
-		thumbnailPanel->SetSize(thumbX,thumbY,thumbWidth,thumbHeight);
-		SetSize(panelX,panelY,panelWidth,panelHeight);
-	}
-
-	return (panelSize);
+	return (mDescriptionCtrl->GetSize());
 }
-
+void TemplatePackPanel::SetMinLabelSize(wxSize size)
+{
+	mDescriptionCtrl->SetMinSize(size);
+}

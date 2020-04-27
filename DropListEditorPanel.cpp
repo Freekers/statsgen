@@ -10,7 +10,6 @@
 #include "StaticFunctions.h"
 
 BEGIN_EVENT_TABLE(DropListEditorPanel, wxPanel)
-		EVT_SIZE(DropListEditorPanel::OnResize)
 		EVT_LIST_ITEM_RIGHT_CLICK(WINDOW_ID_DROPLIST,
 								DropListEditorPanel::OnDropListRightClick)
 		EVT_LIST_ITEM_RIGHT_CLICK(WINDOW_ID_PLAYERCACHE,
@@ -63,10 +62,7 @@ bool DropListEditorPanel::Create(wxWindow *parent,
 
 	playerCache=new PlayerCachePanel(dummyConfigKey,labelText);
 	playerCache->SetFilterType(PlayerCachePanel::FILTER_TYPE_NO_CASE);
-	playerCache->Create(this,
-						WINDOW_ID_PLAYERCACHE,
-						wxDefaultPosition,
-						wxDefaultSize);
+	playerCache->CreateScreen(this, WINDOW_ID_PLAYERCACHE);
 	dropListList=new wxListCtrl(this,
 							WINDOW_ID_DROPLIST,
 							wxDefaultPosition,
@@ -75,17 +71,22 @@ bool DropListEditorPanel::Create(wxWindow *parent,
 							wxLC_EDIT_LABELS);
 	RefreshDropListTree();
 
-	configItems=new GroupedConfigItemsPanel("Minimum Players");
-	configItems->Create(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE,wxDefaultPosition,wxDefaultSize);
+	configItems=new GroupedConfigItemsPanel((char *)"Minimum Players");
+	configItems->CreateDisplay(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE);
 	configKey="/General/MinPlayersInRound";
-	configItems->Add("Minimum Players In Round For It To Count",configKey,"0",3);
+	configItems->Add((char *)"Minimum Players In Round For It To Count",configKey,(char *)"0",3);
 	configKey="/General/MinRoundsPerPlayer";
-	configItems->Add("Minimum Rounds Per Player",configKey,"0",6);
+	configItems->Add((char *)"Minimum Rounds Per Player",configKey,(char *)"0",6);
 	configKey="/tmp/DropListPlayerFilter";
-	configItems->Add("Drop List Player Filter",configKey,"",-1);
+	configItems->Add((char *)"Drop List Player Filter",configKey,(char *)"",-1);
 
-	wxSizeEvent	dummyEvent;
-	OnResize(dummyEvent);
+	mMainSizer = new wxBoxSizer(wxVERTICAL);
+	mMainSizer->Add(configItems,0,wxEXPAND);
+	mMainSizer->Add(dropListList,10,wxEXPAND);
+	mMainSizer->Add(playerCache,10,wxEXPAND);
+
+	SetSizer(mMainSizer);
+	mMainSizer->SetSizeHints(this);
 	return (true);
 }
 
@@ -100,46 +101,6 @@ void DropListEditorPanel::OnTextChange(wxCommandEvent &event)
 		// filter string has changed
 		RefreshDropListTree();
 	}
-}
-
-void DropListEditorPanel::OnResize(wxSizeEvent &event)
-{
-	wxSize		itemSize;
-	int			playerCacheWidth;
-	int			playerCacheHeight;
-	int			panelWidth;
-	int			panelHeight;
-	int			dropListWidth;
-	int			dropListHeight;
-	int			configWidth;
-	int			configHeight;
-	wxString	msg;
-
-
-	if (dropListList!=NULL)
-	{
-		itemSize=GetSize();
-		panelWidth=itemSize.GetWidth();
-		panelHeight=itemSize.GetHeight();
-
-		configItems->SetSize(0,0,1,1);
-		itemSize=configItems->GetSize();
-		configWidth=panelWidth;
-		configHeight=itemSize.GetHeight();
-		configHeight=configItems->PreferredHeight();
-	
-		panelHeight-=configHeight;
-
-		playerCacheWidth=panelWidth;
-		playerCacheHeight=panelHeight/2;
-		dropListWidth=panelWidth;
-		dropListHeight=panelHeight/2;
-
-		configItems->SetSize(0,0,configWidth,configHeight);
-		dropListList->SetSize(0,configHeight,dropListWidth,dropListHeight);
-		playerCache->SetSize(0,dropListHeight+configHeight,playerCacheWidth,playerCacheHeight);
-	}
-
 }
 
 void DropListEditorPanel::AddDropListEntry(int index,

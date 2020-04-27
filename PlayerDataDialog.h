@@ -33,8 +33,8 @@ class PlayerDataDialog : public GenericOKCancelDialog
 	protected:
 
 	private:
-		PlayerDataEditorPanel	*panel;
-		PlayerDataList		*playerDataList;
+		PlayerDataEditorPanel	*mPanel;
+		PlayerDataList		*mPlayerDataList;
 };
 
 #endif

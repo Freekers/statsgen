@@ -38,6 +38,7 @@ class WebServerRequestHandler : public wxThread
 		void HandleRequest(wxString &method,wxString &url);
 		void HandleURL(wxString &url);
 		void HandleXMLRequest(wxFileName &xmlRequest);
+		void WriteErrorResponse(int code,wxString response);
 		void WriteErrorResponse(int code,char *response);
 		void ReceiveDataFromClient();
 		wxSocketBase	*client;

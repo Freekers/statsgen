@@ -68,7 +68,7 @@ void WeightList::CreateDatabase()
 				"realname string,"
 				"image string"
 			");",
-			prefix.GetData());
+			STRING_TO_CHAR(prefix));
 	globalStatistics.statsgenDatabase.SimpleExecute(SQL);
 }
 
@@ -86,18 +86,18 @@ void WeightList::WriteToDatabase()
 	for (weightIndex=0;weightIndex<weightCount;weightIndex++)
 	{
 		weight=weightList.Item(weightIndex);
-		configKey.Printf("/RealNames/%s",weight.key.GetData());
-		globalStatistics.configData.ReadTextValue(configKey,&realName,(char *)weight.key.GetData());
-		configKey.Printf("/Images/%s",weight.key.GetData());
+		configKey.Printf("/RealNames/%s",STRING_TO_CHAR(weight.key));
+		globalStatistics.configData.ReadTextValue(configKey,&realName,weight.key);
+		configKey.Printf("/Images/%s",STRING_TO_CHAR(weight.key));
 		globalStatistics.configData.ReadTextValue(configKey,&image);
 		SQL.Printf("insert into %s "
 			"(key,weight,realname,image)"
 			"values ('%s','%f','%s','%s');",
-			prefix.GetData(),
-			StatsgenDatabase::SafeForInsert(weight.key).GetData(),
+			STRING_TO_CHAR(prefix),
+			STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(weight.key)),
 			weight.weight,
-			StatsgenDatabase::SafeForInsert(realName).GetData(),
-			StatsgenDatabase::SafeForInsert(image).GetData());
+			STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(realName)),
+			STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(image)));
 		globalStatistics.statsgenDatabase.SimpleExecute(SQL);
 	}
 
@@ -106,7 +106,7 @@ void WeightList::EmptyDatabase()
 {
 	wxString			SQL;
 
-	SQL.Printf("delete from %s ",prefix.GetData());
+	SQL.Printf("delete from %s ",STRING_TO_CHAR(prefix));
 	globalStatistics.statsgenDatabase.SimpleExecute(SQL);
 }
 
@@ -121,14 +121,14 @@ void WeightList::ReadFromDatabase()
 
 	weightList.Clear();
 	SQL.Printf("select * from %s",
-			prefix.GetData());
+			STRING_TO_CHAR(prefix));
 	query.Initiate(SQL,globalStatistics.statsgenDatabase.DBHandle());
 	while (query.NextRow())
 	{
 		value=query.RetrieveProperty(propertyKey);
 		weight.key=value;
 		value=query.RetrieveProperty(propertyWeight);
-		weight.weight=atof(value.GetData());
+		weight.weight=atof(STRING_TO_CHAR(value));
 		weightList.Add(weight);
 	}
 }

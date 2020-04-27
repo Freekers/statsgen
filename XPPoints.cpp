@@ -33,7 +33,7 @@ wxString XPPoints::SQLCreateTable()
 				"pointsindex integer,"
 				"points float"
 			")",
-			SQLTableName().GetData());
+			STRING_TO_CHAR(SQLTableName()));
 
 	return SQL;
 }
@@ -49,7 +49,7 @@ bool XPPoints::WriteToDatabase(int roundIndex)
 	SQL.Printf("Insert into %s"
 				"(roundindex,playerindex,pointsindex,points)"
 				"values('%d','%d','%d','%f')",
-				SQLTableName().GetData(),
+				STRING_TO_CHAR(SQLTableName()),
 				roundIndex,
 				player.actualPlayerIndex,
 				pointsIndex,
@@ -75,7 +75,7 @@ wxString XPPoints::SQLTotalCreateTable()
 				"pointsindex integer,"
 				"points float"
 			")",
-			SQLTotalTableName().GetData());
+			STRING_TO_CHAR(SQLTotalTableName()));
 
 	return SQL;
 }
@@ -88,7 +88,7 @@ bool XPPoints::WriteTotalToDatabase()
 	SQL.Printf("Insert into %s"
 				"(playerindex,pointsindex,points)"
 				"values('%d','%d','%f')",
-				SQLTotalTableName().GetData(),
+				STRING_TO_CHAR(SQLTotalTableName()),
 				playerIndex,
 				pointsIndex,
 				points);

@@ -22,16 +22,13 @@ AliasDialog::AliasDialog(wxWindow *parent,
 											style,
 											name)
 {
-	panel=new AliasEditorPanel();
-	panel->Create(this,
-				-1,
-				wxDefaultPosition,
-				wxDefaultSize);
+	mPanel = new AliasEditorPanel();
+	mPanel->Create(this,wxID_ANY);
 }
 
 bool AliasDialog::DisplayDialog()
 {
-	return (GenericOKCancelDialog::DisplayDialog((wxPanel *)panel));
+	return (GenericOKCancelDialog::DisplayDialog((wxPanel *)mPanel));
 }
 
 AliasDialog::~AliasDialog()
@@ -49,7 +46,7 @@ void AliasDialog::CreateDialog()
 	wxSize		configItemsSize=wxDefaultSize;
 
 	STATSGEN_DEBUG_FUNCTION_START("AliasDialog","CreateDialog")
-	autoButton.Create(this,
+	mAutoButton.Create(this,
 					WINDOW_ID_BUTTON_AUTO,
 					_T(WINDOW_ID_BUTTON_AUTO_TEXT),
 					wxDefaultPosition);
@@ -58,30 +55,13 @@ void AliasDialog::CreateDialog()
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
-void AliasDialog::OnResize(wxSizeEvent &event)
+void AliasDialog::ControlsSizerPre()
 {
-	wxString	msg;
-	int			saveWidth;
-	wxSize		itemSize;
+	mControlsSizer->Add(&mAutoButton);
+}
 
-	wxPoint		itemPosition;
-	STATSGEN_DEBUG_FUNCTION_START("AliasDialog","OnResize")
-
-	GenericOKCancelDialog::OnResize(event);
-
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"Generic Resize Done")
-	// Auto button
-	itemSize=quitButton.GetSize();
-	itemPosition=quitButton.GetPosition();
-	itemPosition.x+=(itemSize.GetWidth()+BUTTON_WIDTH_GAP);
-	STATSGEN_DEBUG_CODE(msg.Printf("AUTO POSITION X=[%d] Y=[%d]",itemPosition.x,itemPosition.y);)
-	STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
-	itemSize=autoButton.GetSize();
-	STATSGEN_DEBUG_CODE(msg.Printf("AUTO SIZE=[%d] HEIGHT=[%d]",itemSize.GetWidth(),itemSize.GetWidth());)
-	STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
-	autoButton.SetPosition(itemPosition);
-
-	STATSGEN_DEBUG_FUNCTION_END
+void AliasDialog::ControlsSizerPost()
+{
 }
 
 void AliasDialog::OnAuto(wxCommandEvent &event)
@@ -99,7 +79,7 @@ void AliasDialog::OnAuto(wxCommandEvent &event)
 	wxString			childName;
 	AliasListEntry		aliasEntry;
 
-	panel->GetShownPlayers(shownPlayers);
+	mPanel->GetShownPlayers(shownPlayers);
 	shownCount=shownPlayers.GetCount();
 	for (shownIndex=0;shownIndex<shownCount;shownIndex++)
 	{
@@ -132,7 +112,7 @@ void AliasDialog::OnAuto(wxCommandEvent &event)
 		
 	}
 
-	panel->RefreshAliasTree();
+	mPanel->RefreshAliasTree();
 	// TEMP FOR TEST
 	//globalStatistics.WriteAliasList();
 	//globalStatistics.configData.CommitChanges();

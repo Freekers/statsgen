@@ -14,12 +14,11 @@ class TextListEditorPanel : public wxPanel
 		TextListEditorPanel();
 		void SetList(wxArrayString &textListIn);
 		virtual bool Create(wxWindow *parent,
-				wxWindowID id=-1,
+				wxWindowID id=wxID_ANY,
 				const wxPoint &pos=wxDefaultPosition,
 				const wxSize &size=wxDefaultSize,
 				long style=wxTAB_TRAVERSAL,
 				const wxString &name="panel");
-		void OnResize(wxSizeEvent &event);
 		void OnTextListRightClick(wxListEvent &event);
 		void OnLabelEdit(wxListEvent &event);
 		void OnPopupMenu(wxCommandEvent &event);
@@ -39,9 +38,10 @@ class TextListEditorPanel : public wxPanel
 			TEXTLIST_POPUP_DELETE
 		};
 
-		wxListCtrl				*textListList;
-		wxArrayString	textList;
-		bool		sortList;
+		wxListCtrl		*mTextListList;
+		wxArrayString	mTextList;
+		bool			mSortList;
+		wxBoxSizer		*mMainSizer;
 		DECLARE_EVENT_TABLE()
 };
 

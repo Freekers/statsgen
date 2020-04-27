@@ -25,8 +25,8 @@ void WeightListEntry::UpdateWeighting(wxString &prefix)
 	defaultString.Printf("%f",defaultValue);
 	globalStatistics.configData.ReadTextValue(configKey,
 						&configValue,
-						(char *)defaultString.GetData());
+						defaultString);
 
-	weight=atof(configValue.GetData());
+	weight=atof(STRING_TO_CHAR(configValue));
 }
 

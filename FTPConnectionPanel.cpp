@@ -3,11 +3,16 @@
 #include "GlobalStatistics.h"
 #include "GUITriggerList.h"
 
-FTPConnectionPanel::FTPConnectionPanel() : GroupedConfigItemsPanel("FTP Connection Settings")
+FTPConnectionPanel::FTPConnectionPanel() : GroupedConfigItemsPanel((char *)"FTP Connection Settings")
 {
 }
 
 void FTPConnectionPanel::CreateConfigs(char *group)
+{
+	wxString	groupStr = group;
+	CreateConfigs(groupStr);
+}
+void FTPConnectionPanel::CreateConfigs(wxString group)
 {
 	wxString	configKey;
 	wxString	triggerKey;
@@ -17,28 +22,28 @@ void FTPConnectionPanel::CreateConfigs(char *group)
 
 	triggerKey.Printf("/%s/FTPEnabled",group);
 
-	triggerItem.SetPositiveDisableTrigger(triggerKey,"N");
+	triggerItem.SetPositiveDisableTrigger(triggerKey,(char *)"N");
 	triggerList.Add(triggerItem);
 
-	AddBoolean("Enabled",triggerKey,false);
+	AddBoolean((char *)"Enabled",triggerKey,false);
 
 	configKey.Printf("/%s/IPAddress",group);
-	Add("Hostname",configKey,"",-1);
+	Add((char *)"Hostname",configKey,(char *)"",-1);
 
 	configKey.Printf("/%s/FTPUsername",group);
-	Add("Username",configKey,"",-1,&triggerList);
+	Add((char *)"Username",configKey,(char *)"",-1,&triggerList);
 
 	configKey.Printf("/%s/FTPPassword",group);
-	Add("Password",configKey,"",-1,&triggerList);
+	Add((char *)"Password",configKey,(char *)"",-1,&triggerList);
 
 	configKey.Printf("/%s/FTPPort",group);
-	Add("Port",configKey,"21",5,&triggerList);
+	Add((char *)"Port",configKey,(char *)"21",5,&triggerList);
 
 	configKey.Printf("/%s/FTPPassive",group);
-	AddBoolean("Passive",configKey,true,&triggerList);
+	AddBoolean((char *)"Passive",configKey,true,&triggerList);
 
 	configKey.Printf("/%s/FTPRestartDownload",group);
-	AddBoolean("Restart Downloads",configKey,true,&triggerList);
+	AddBoolean((char *)"Restart Downloads",configKey,true,&triggerList);
 }
 
 FTPConnectionPanel::~FTPConnectionPanel()

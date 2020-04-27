@@ -27,9 +27,9 @@ wxString GenericKey::SQLCreateTable(char *tableName)
 				"%s"
 			")",
 			tableName,
-			StatsgenDatabase::StringFieldDefinition("id","generickeyid",FIELD_WIDTH_KEY_ID).GetData(),
-			StatsgenDatabase::StringFieldDefinition("realname","generickeyname",FIELD_WIDTH_KEY_REALNAME).GetData(),
-			StatsgenDatabase::StringFieldDefinition("image","generickeyimage",FIELD_WIDTH_KEY_IMAGE).GetData()
+			STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("id","generickeyid",FIELD_WIDTH_KEY_ID)),
+			STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("realname","generickeyname",FIELD_WIDTH_KEY_REALNAME)),
+			STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("image","generickeyimage",FIELD_WIDTH_KEY_IMAGE))
 			);
 
 	return SQL;
@@ -46,10 +46,10 @@ bool GenericKey::WriteToDatabase(char *tableName,int keyIndex)
 
 	if (id.Length()>0)
 	{
-		configKey.Printf("/Images/%s_%s",tableName,id.GetData());
-		globalStatistics.configData.ReadTextValue(configKey,&image,"");
-		configKey.Printf("/RealNames/%s_%s",tableName,id.GetData());
-		globalStatistics.configData.ReadTextValue(configKey,&realName,(char *)id.GetData());
+		configKey.Printf("/Images/%s_%s",tableName,STRING_TO_CHAR(id));
+		globalStatistics.configData.ReadTextValue(configKey,&image,(char *)"");
+		configKey.Printf("/RealNames/%s_%s",tableName,STRING_TO_CHAR(id));
+		globalStatistics.configData.ReadTextValue(configKey,&realName,id);
 	}
 
 	SQL.Printf("insert into %s"
@@ -58,9 +58,9 @@ bool GenericKey::WriteToDatabase(char *tableName,int keyIndex)
 				"('%d','%s','%s','%s')",
 				tableName,
 				keyIndex,
-				StatsgenDatabase::SafeForInsert(id).GetData(),
-				StatsgenDatabase::SafeForInsert(realName).GetData(),
-				StatsgenDatabase::SafeForInsert(image).GetData());
+				STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(id)),
+				STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(realName)),
+				STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(image)));
 	globalStatistics.statsgenDatabase.SimpleExecute(SQL);
 
 	return retVal;

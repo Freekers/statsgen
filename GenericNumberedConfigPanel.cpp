@@ -4,7 +4,6 @@
 #include "GlobalStatistics.h"
 
 BEGIN_EVENT_TABLE(GenericNumberedConfigPanel, wxPanel)
-		EVT_SIZE(GenericNumberedConfigPanel::OnResize)
 		EVT_COMBOBOX(WINDOW_ID_LISTBOX_CONFIGITEMS,GenericNumberedConfigPanel::OnListItemSelected)
 		EVT_TEXT(WINDOW_ID_TEXTCTRL_CONFIGVALUE,GenericNumberedConfigPanel::OnTextChange)
 END_EVENT_TABLE()
@@ -27,17 +26,18 @@ GenericNumberedConfigPanel::GenericNumberedConfigPanel(
 				name)
 
 {
-	configPanel=NULL;
-	listGroup=listGroupIn;
-	listGroupPrefix=listGroupPrefixIn;
-	newPanelFunction=newPanelFunctionIn;
+	mConfigPanel		= NULL;
+	mListGroup			= listGroupIn;
+	mListGroupPrefix	= listGroupPrefixIn;
+
+	mNewPanelFunction=newPanelFunctionIn;
 }
 
 bool GenericNumberedConfigPanel::UpdateFromTrigger()
 {
-	if (configPanel!=NULL)
+	if (mConfigPanel!=NULL)
 	{
-		configPanel->UpdateFromTrigger();
+		mConfigPanel->UpdateFromTrigger();
 	}
 	return (true);
 }
@@ -47,33 +47,30 @@ void GenericNumberedConfigPanel::OnTextChange(wxCommandEvent &event)
 	UpdateFromTrigger();
 	if (GetParent()!=NULL)
 	{
-		GetParent()->AddPendingEvent(event);
+		//GetParent()->AddPendingEvent(event);
+		GetParent()->GetEventHandler()->AddPendingEvent(event);
 	}
 }
 
-
 void GenericNumberedConfigPanel::OnListItemSelected(wxCommandEvent& event)
 {
-	wxSizeEvent		dummyEvent;
 	// we have a new selection
 	// remove the current panel (if present) and retrieve
 	// a new one using the retrieve function
 	wxString	currentSelection;
 
-	if (configPanel!=NULL)
+	if (mConfigPanel!=NULL)
 	{
 		// first remove the old panel
-		configPanel->Destroy();
-		configPanel=NULL;
+		mConfigPanel->Destroy();
+		mConfigPanel = NULL;
 	}
-	currentSelection=idList.GetValue();
+	currentSelection=mIDList.GetValue();
 	if (currentSelection.Length()>0)
 	{
-		configPanel=newPanelFunction(this,currentSelection);
-		configPanel->OnResize(dummyEvent);
-		SetConfigPanel(configPanel);
+		mConfigPanel = mNewPanelFunction(this,currentSelection);
+		SetConfigPanel(mConfigPanel);
 	}
-	OnResize(dummyEvent);
 }
 
 GenericNumberedConfigPanel::~GenericNumberedConfigPanel()
@@ -82,7 +79,7 @@ GenericNumberedConfigPanel::~GenericNumberedConfigPanel()
 
 void GenericNumberedConfigPanel::SetConfigPanel(GenericConfigPanel *configPanelIn)
 {
-	configPanel=configPanelIn;
+	mConfigPanel	= configPanelIn;
 }
 
 void GenericNumberedConfigPanel::CreateDialog()
@@ -99,13 +96,13 @@ void GenericNumberedConfigPanel::CreateDialog()
 	wxString		initialSelection="";
 	
 
-	globalStatistics.configData.ReadList(listGroup,ids);
+	globalStatistics.configData.ReadList(mListGroup,ids);
 
 	if (ids.GetCount()>0)
 	{
 		initialSelection=ids.Item(0);
 	}
-	idList.Create(this, 
+	mIDList.Create(this, 
 					WINDOW_ID_LISTBOX_CONFIGITEMS,
 					initialSelection,
 					wxDefaultPosition,
@@ -115,48 +112,5 @@ void GenericNumberedConfigPanel::CreateDialog()
 					);
 					
 	OnListItemSelected(event);
-}
-
-void GenericNumberedConfigPanel::OnResize(wxSizeEvent &event)
-{
-	wxString	msg;
-
-	int		dialogWidth;
-	int		dialogHeight;
-	int		configPanelWidth;
-	int		configPanelHeight;
-	wxSize	itemSize;
-	wxPoint	itemPosition;
-	int		yPosition;
-	int		listWidth;
-	int		listHeight;
-
-	
-	itemSize=GetSize();
-	dialogWidth=itemSize.GetWidth();
-	dialogHeight=itemSize.GetHeight();
-
-	itemSize=idList.GetSize();
-	listWidth=itemSize.GetWidth();
-	if (listWidth<150)
-	{
-		listWidth=150;
-	}
-	idList.SetSize(listWidth,listHeight);
-	listHeight=itemSize.GetHeight();
-
-	configPanelHeight=dialogHeight-listHeight;
-	configPanelWidth=dialogWidth;
-
-	// ID List
-	idList.SetSize(0,0,listWidth,listHeight);
-	// Config Panel
-	yPosition=listHeight;
-	// Config Panels resize themselves to fit
-	if (configPanel!=NULL)
-	{
-		configPanel->SetSize(0,yPosition,configPanelWidth,configPanelHeight);
-	}
-
 }
 

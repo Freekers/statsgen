@@ -31,7 +31,6 @@ class ConfigEditorGUI : public wxDialog
 		void OnQuit(wxCommandEvent& event);
 		void OnSave(wxCommandEvent& event);
 		void OnListItemSelected(wxListEvent& event);
-		void OnResize(wxSizeEvent& event);
 		void OnTextChange(wxCommandEvent& event);
 		void OnFilterChanged(wxCommandEvent& event);
 
@@ -42,25 +41,22 @@ class ConfigEditorGUI : public wxDialog
 		void DisplayDialog();
 
 	protected:
+		void ConfigureSizer();
 		void CreateDialog();
 
-		wxArrayString	configKeys;
-		wxArrayString	configBaseKeys;
-		wxArrayString	configDisplayNames;
-		wxListCtrl	configItems;
-		//wxTextCtrl	valueText;
-		TextConfigItemGUI	valueText;
-		wxButton	saveButton;
-		wxButton	quitButton;
-		BoxedDropDown	*filter1;
-		BoxedDropDown	*filter2;
-		GroupedConfigItemsPanel		*configPanel;
-		bool		drawImages;
-		ImagePanel	*imagePanel;
-		int		imagePanelWidth;
-		int		imagePanelHeight;
-		int		imagePanelX;
-		int		imagePanelY;
+		wxArrayString			mConfigKeys;
+		wxArrayString			mConfigBaseKeys;
+		wxArrayString			mConfigDisplayNames;
+		wxListCtrl				mConfigItems;
+		TextConfigItemGUI		mValueText;
+		wxButton				mSaveButton;
+		wxButton				mQuitButton;
+		BoxedDropDown			*mFilter1;
+		BoxedDropDown			*mFilter2;
+		GroupedConfigItemsPanel	*mConfigPanel;
+		bool					mDrawImages;
+		ImagePanel				*mImagePanel;
+		wxBoxSizer				*mMainSizer;
 
 	private:
 		void PopulateConfigItems();

@@ -59,9 +59,9 @@ void PerformUpgradeDialog::OnSave(wxCommandEvent& event)
 		if (upgradeType.CmpNoCase(UPGRADE_TYPE_UNKNOWN)!=0)
 		{
 			message.Printf("Are you sure you want to upgrade the %s using the upgrade file [%s], [%s]",
-					upgradeType.GetData(),
-					upgradeFilename.GetData(),
-					description.GetData());
+					STRING_TO_CHAR(upgradeType),
+					STRING_TO_CHAR(upgradeFilename),
+					STRING_TO_CHAR(description));
 			if (wxMessageBox(message,caption,wxYES_NO)==wxYES)
 			{
 				if (upgradeType.CmpNoCase(UPGRADE_TYPE_CONFIG)==0)
@@ -113,7 +113,7 @@ void PerformUpgradeDialog::CreateDialog()
 				wxDefaultSize,
 				wxLC_REPORT);
 	progressPanel=new ProgressPanel();
-	progressPanel->DynamicSizing();
+	//progressPanel->DynamicSizing();
 	progressPanel->DisableTimeToGo();
 	progressPanel->DisableCounter();
 	progressPanel->Create(this,
@@ -124,7 +124,7 @@ void PerformUpgradeDialog::CreateDialog()
 	progress->SetDynamicPanel(progressPanel);
 	progress->ChoosePanel(WINDOW_ID_PROGRESS_PANEL_DYNAMIC);
 	progress->UpdateLabel("Status");
-	STATSGEN_DEBUG(DEBUG_RARELY,"items created")
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"items created")
 	// populate the list with upgrade files
 	wxFileName	baseDirectory;
 	wxString	fileSpec="*.ini";
@@ -145,7 +145,7 @@ void PerformUpgradeDialog::CreateDialog()
 			&upgradeFiles,
 			fileSpec,
 			flags);
-	STATSGEN_DEBUG(DEBUG_RARELY,"got file list")
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"got file list")
 	listColumn.SetText("Type");
 	upgradeList->InsertColumn(0,listColumn);
 	listColumn.SetText("Description");
@@ -153,7 +153,7 @@ void PerformUpgradeDialog::CreateDialog()
 	listColumn.SetText("Filename");
 	upgradeList->InsertColumn(2,listColumn);
 
-	STATSGEN_DEBUG(DEBUG_RARELY,"created columns")
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"created columns")
 	fileCount=upgradeFiles.GetCount();
 	rowNumber=0;
 	for (fileIndex=0;fileIndex<fileCount;fileIndex++)
@@ -178,7 +178,7 @@ void PerformUpgradeDialog::CreateDialog()
 	upgradeList->SetColumnWidth(0,wxLIST_AUTOSIZE);
 	upgradeList->SetColumnWidth(1,wxLIST_AUTOSIZE);
 	upgradeList->SetColumnWidth(2,wxLIST_AUTOSIZE);
-	STATSGEN_DEBUG(DEBUG_RARELY,"populated columns")
+	STATSGEN_DEBUG(DEBUG_RARELY,(char *)"populated columns")
 	OnResize(event);
 	STATSGEN_DEBUG_FUNCTION_END
 }

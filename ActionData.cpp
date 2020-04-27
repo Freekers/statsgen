@@ -35,7 +35,7 @@ wxString ActionData::SQLCreateTable()
 				"playerteam integer,"
 				"action integer"
 			")",
-			SQLTableName().GetData());
+			STRING_TO_CHAR(SQLTableName()));
 
 	return SQL;
 }
@@ -51,7 +51,7 @@ bool ActionData::WriteToDatabase(int roundIndex,int itemIndex)
 	SQL.Printf("Insert into %s"
 				"(roundindex,actionidx,playerindex,playerclass,playerteam,action)"
 				"values('%d','%d','%d','%d','%d','%d')",
-				SQLTableName().GetData(),
+				STRING_TO_CHAR(SQLTableName()),
 				roundIndex,
 				itemIndex,
 				player.actualPlayerIndex,

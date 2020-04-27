@@ -40,8 +40,8 @@ void PlayerDataEntry::ReadFromFile(wxTextFile *fp,int index)
 	playerGUID=playerGUID.BeforeFirst(',');
 	STATSGEN_DEBUG_CODE(
 	msg.Printf("name read [%s] [%s]",
-				playerGUID.GetData(),
-				playerName.GetData());
+				STRING_TO_CHAR(playerGUID),
+				STRING_TO_CHAR(playerName));
 							)
 	STATSGEN_DEBUG(DEBUG_RARELY,msg)
 
@@ -56,8 +56,8 @@ void PlayerDataEntry::ReadFromFile(wxTextFile *fp,int index)
 		playerName=alias.primaryName;
 		STATSGEN_DEBUG_CODE(
 		msg.Printf("Re-aliased to [%s] [%s]",
-				playerGUID.GetData(),
-				playerName.GetData());
+				STRING_TO_CHAR(playerGUID),
+				STRING_TO_CHAR(playerName));
 							)
 		STATSGEN_DEBUG(DEBUG_RARELY,msg)
 	}
@@ -101,9 +101,9 @@ void PlayerDataEntry::WriteToFile(FILE *fp)
 {
 	STATSGEN_DEBUG_FUNCTION_START("PlayerDataEntry","WriteToFile")
 	fprintf(fp,"%s,%s,%s\n",
-		playerData.GetData(),
-		playerGUID.GetData(),
-		playerName.GetData());
+		STRING_TO_CHAR(playerData),
+		STRING_TO_CHAR(playerGUID),
+		STRING_TO_CHAR(playerName));
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
@@ -124,7 +124,7 @@ bool PlayerDataEntry::WriteToDatabase(const char *tableName)
 				"('%d','%s')",
 				tableName,
 				playerIndex,
-				StatsgenDatabase::SafeForInsert(playerData).GetData()
+				STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(playerData))
 				);
 
 		globalStatistics.statsgenDatabase.SimpleExecute(SQL);

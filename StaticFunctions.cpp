@@ -256,12 +256,12 @@ void UpgradeConfigFile(wxString &upgradeFilenameStr)
 			upgradeConfigFile.ReadGroup(group,configKeys,configValues);
 			configCount=configKeys.GetCount();
 
-			answerType=atoi(answerTypeStr.GetData());
+			answerType=atoi(STRING_TO_CHAR(answerTypeStr));
 			if (answerType==CONFIG_ANSWER_TYPE_ASK)
 			{
 				message.Printf("%s\n\nRecommendation\n%s\n",
-						description.GetData(),
-						recommendation.GetData());
+						STRING_TO_CHAR(description),
+						STRING_TO_CHAR(recommendation));
 				caption="What Do You Want To Do?";
 
 				choiceIndex=wxGetSingleChoiceIndex(message,caption,choices);
@@ -296,7 +296,7 @@ void UpgradeConfigFile(wxString &upgradeFilenameStr)
 						configValue=configValues.Item(configIndex);
 						if (!configKey.StartsWith("UPGRADE"))
 						{
-							fullConfigKey.Printf("/%s/%s",group.GetData(),configKey.GetData());
+							fullConfigKey.Printf("/%s/%s",STRING_TO_CHAR(group),STRING_TO_CHAR(configKey));
 							globalStatistics.configData.WriteTextValue(fullConfigKey,configValue);
 						}
 					}

@@ -14,28 +14,16 @@ class TextConfigItemGUI : public BaseConfigItemGUI
 	public:
 		TextConfigItemGUI();
 		virtual ~TextConfigItemGUI();
+		void CreateDisplay(wxWindow *parent,int id,wxString labelText);
 		void OnTextChange(wxCommandEvent& event);
-
-		void SetConfigKey(wxString &configKeyIn);
-		void SetLabelWidth(int width);
-		int GetLabelWidth();
-		void Set(wxString &configKeyIn,
-			wxString &labelText,
-			wxString &defaultValueIn,
-			int	maxCharactersIn);
-			void OnResize(wxSizeEvent &event);
-
+		virtual void ApplyConfigKeyChange();
 		wxString GetValue();
 	protected:
 
 	private:
-		wxTextCtrl		textEdit;
-		wxStaticText	label;
-		bool			maxCharactersSet;
-		int				maxCharacters;
-		wxString		labelText;
-		wxString		defaultValue;
-
+		wxTextCtrl		*mTextEdit;
+		wxStaticText	*mLabel;
+		wxString		mLabelText;
 		DECLARE_EVENT_TABLE()
 };
 

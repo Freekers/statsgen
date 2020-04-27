@@ -93,7 +93,12 @@ Unless otherwise specified, all code is released under the GNU Affero General Pu
 - sqlite: [Public Domain](https://www.sqlite.org/copyright.html/)
 
 # Version History
-Below is the original version history of Statsgen 2, as written by Shaun Jackson.
+
+### 1.10.0 8th January 2019
+- Fixed Window resizing issues
+- Removed obsolete MySQL support
+
+**Below is the original version history of Statsgen 2, as written by Shaun Jackson.**
 
 ### 1.9.3 23rd November 2009
 - Upgraded the MOHAA identification to properly identify maps and gametypes as well as location kills with some mods

@@ -8,15 +8,51 @@
 #include "Progress.h"
 
 BEGIN_EVENT_TABLE(DirectoryConfigItemGUI, wxPanel)
-		EVT_SIZE(DirectoryConfigItemGUI::OnResize)
 		EVT_TEXT(WINDOW_ID_TEXTCTRL_CONFIGVALUE,DirectoryConfigItemGUI::OnTextChange)
 		EVT_BUTTON(WINDOW_ID_CONFIG_BUTTON,DirectoryConfigItemGUI::OnButtonPressed)
 END_EVENT_TABLE()
 
 DirectoryConfigItemGUI::DirectoryConfigItemGUI()
 {
-	maxCharacters=-1;
-	configKey="";
+}
+
+DirectoryConfigItemGUI::~DirectoryConfigItemGUI()
+{
+}
+
+void DirectoryConfigItemGUI::CreateDisplay(wxWindow *parent,
+			int id,
+			wxString &labelTextIn)
+{
+	wxSize		buttonSize(16,16);
+
+	Create(parent,id);
+	mLabelText	= labelTextIn;
+	 
+
+	mLabel	= new wxStaticText();
+	mLabel->Create(this,wxID_ANY,mLabelText);
+
+	mTextEdit = new wxTextCtrl();
+	mTextEdit->Create(this,
+				WINDOW_ID_TEXTCTRL_CONFIGVALUE,
+				wxEmptyString,
+				wxDefaultPosition,
+				wxDefaultSize,
+				0,
+				wxDefaultValidator);
+	mButton = new wxBitmapButton();
+	mButton->Create(this,
+				WINDOW_ID_CONFIG_BUTTON,
+				wxArtProvider::GetIcon(wxART_FOLDER,
+										wxART_OTHER,
+										buttonSize));
+	mMainSizer = new wxBoxSizer(wxHORIZONTAL);
+	mMainSizer->Add(mLabel,2,wxEXPAND);
+	mMainSizer->Add(mButton,0);
+	mMainSizer->Add(mTextEdit,7,wxEXPAND);
+
+	ConfigureSizer();
 }
 
 void DirectoryConfigItemGUI::OnTextChange(wxCommandEvent& event)
@@ -25,159 +61,44 @@ void DirectoryConfigItemGUI::OnTextChange(wxCommandEvent& event)
 	wxString	key;
 	wxString	value;
 
-	value=textEdit.GetValue();
-	if (configKey.Length()>0)
+	if (mConfigKey.Length()==0)
 	{
-		globalStatistics.configData.WriteTextValue(configKey,
-										value);
+		return;
 	}
+	value=GetValue();
+	globalStatistics.configData.WriteTextValue(mConfigKey, value);
 	if (GetParent()!=NULL)
 	{
 		wxCommandEvent	newEvent;
 		newEvent.SetId(WINDOW_ID_TEXTCTRL_CONFIGVALUE);
 		newEvent.SetEventType(wxEVT_COMMAND_TEXT_UPDATED);
-		GetParent()->AddPendingEvent(newEvent);
+		//GetParent()->AddPendingEvent(newEvent);
+		GetParent()->GetEventHandler()->AddPendingEvent(newEvent);
 	}
 }
 
-DirectoryConfigItemGUI::~DirectoryConfigItemGUI()
-{
-}
-
-void DirectoryConfigItemGUI::SetConfigKey(wxString &configKeyIn)
+void DirectoryConfigItemGUI::ApplyConfigKeyChange()
 {
 	wxString	value;
 
-	configKey=configKeyIn;
-	if (configKey.Length()>0)
+	if (mConfigKey.Length() == 0)
 	{
-		globalStatistics.configData.ReadTextValue(configKey,
-										&value,
-										(char *)defaultValue.GetData());
-		textEdit.SetValue(value);
+		return;
 	}
-}
-
-void DirectoryConfigItemGUI::Set(
-			wxString &configKeyIn,
-			wxString &labelTextIn,
-			wxString &defaultValueIn,
-			int maxCharactersIn)
-{
-	wxSizeEvent	event;
-	wxSize		buttonSize(16,16);
-
-	labelText=labelTextIn;
-	defaultValue=defaultValueIn;
-	maxCharacters=maxCharactersIn;
-	 
-	//SetConfigKey(configKey);
-
-	// Create the config items
-	label.Create(this,
-				-1,
-				labelText,
-				wxPoint(0,0));
-
-	textEdit.Create(this,
-				WINDOW_ID_TEXTCTRL_CONFIGVALUE,
-				defaultValue,
-				wxDefaultPosition,
-				wxDefaultSize,
-				0,
-				wxDefaultValidator);
-
-	configKey=configKeyIn;
-	SetConfigKey(configKey);
-	button.Create(this,
-				WINDOW_ID_CONFIG_BUTTON,
-				wxArtProvider::GetIcon(wxART_FOLDER,
-										wxART_OTHER,
-										buttonSize));
-				
-	OnResize(event);
+	globalStatistics.configData.ReadTextValue(mConfigKey,
+										&value,
+										mDefaultValue);
+	mTextEdit->SetValue(value);
 }
 
 wxString DirectoryConfigItemGUI::GetValue()
 {
-	return (textEdit.GetValue());
+	return (mTextEdit->GetValue());
 }
 
-int DirectoryConfigItemGUI::GetLabelWidth()
+void DirectoryConfigItemGUI::SetValue(wxString &value)
 {
-	wxSize		itemSize;
-
-	itemSize=label.GetSize();
-	return (itemSize.GetWidth());
-}
-
-void DirectoryConfigItemGUI::SetLabelWidth(int width)
-{
-	wxSize		itemSize;
-	wxPoint		itemPosition;
-
-	itemSize=label.GetSize();
-	itemPosition=label.GetPosition();
-
-	label.SetSize(itemPosition.x,
-						itemPosition.y,
-						width,
-						itemSize.GetHeight());
-}
-
-void DirectoryConfigItemGUI::OnResize(wxSizeEvent &event)
-{
-	wxString	msg;
-
-	wxSize		itemSize;
-	int			textWidth;
-	int			textHeight;
-	int			labelWidth;
-	int			labelHeight;
-	int			panelWidth;
-	int			panelHeight;
-	int			buttonWidth;
-	int			buttonHeight;
-	int			widthForTextEdit;
-	int			fixedWidth;
-	
-
-	itemSize=GetSize();
-	panelWidth=itemSize.GetWidth();
-	panelHeight=itemSize.GetHeight();
-
-	itemSize=label.GetSize();
-	labelWidth=itemSize.GetWidth();
-	labelHeight=itemSize.GetHeight();
-
-	itemSize=button.GetSize();
-	buttonWidth=itemSize.GetWidth();
-	buttonHeight=itemSize.GetHeight();
-
-	label.SetSize(0,0,labelWidth,labelHeight);
-	labelWidth+=5;
-
-	itemSize=textEdit.GetSize();
-	textWidth=itemSize.GetWidth();
-	textHeight=itemSize.GetHeight();
-
-	widthForTextEdit=panelWidth-labelWidth-buttonWidth;
-	fixedWidth=(maxCharacters * FONT_CHAR_WIDTH)+FONT_TEXT_CTRL_GAP;
-	if (maxCharacters>0)
-	{
-		// We have an overriding field width
-		if (fixedWidth<widthForTextEdit)
-		{
-			widthForTextEdit=fixedWidth;
-		}
-	}
-	if (widthForTextEdit<1)
-	{
-		widthForTextEdit=1;
-	}
-
-	button.SetSize(labelWidth,0,buttonWidth,buttonHeight);
-	textEdit.SetSize(labelWidth+buttonWidth,0,widthForTextEdit,textHeight);
+	mTextEdit->SetValue(value);
 }
 
 void DirectoryConfigItemGUI::OnButtonPressed(wxCommandEvent& event)
@@ -188,19 +109,15 @@ void DirectoryConfigItemGUI::OnButtonPressed(wxCommandEvent& event)
 	wxString	newDirectory;
 	wxString	message;
 
-	value=textEdit.GetValue();
+	value=GetValue();
 
 	message="Select Directory";
 	newDirectory=wxDirSelector(message,value);
 	if (newDirectory.Length()>0)
 	{
-		textEdit.SetValue(newDirectory);
+		mTextEdit->SetValue(newDirectory);
 	}
 	
 }
 
-void DirectoryConfigItemGUI::SetValue(wxString &value)
-{
-	textEdit.SetValue(value);
-}
 

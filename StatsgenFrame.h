@@ -98,6 +98,7 @@ private:
 	wxHtmlHelpController		m_advancedHtmlHelp;
 	bool				advanced;
 	bool				runningWizard;
+	wxBoxSizer			*mMainSizer;
 	DECLARE_CLASS(wxWidgetsFrame)
 
 	DECLARE_EVENT_TABLE()

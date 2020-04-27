@@ -39,7 +39,7 @@ wxString SkillTypePanel::FindCodeFromName(wxString &name)
 
 	for (index=0;index<count;index++)
 	{
-		if (strcmp(SkillTypeNames[index],name.GetData())==0)
+		if (strcmp(SkillTypeNames[index],STRING_TO_CHAR(name))==0)
 		{
 			retVal=SkillTypeCodes[index];
 		}

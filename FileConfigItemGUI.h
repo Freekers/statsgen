@@ -18,28 +18,20 @@ class FileConfigItemGUI : public BaseConfigItemGUI
 		void OnTextChange(wxCommandEvent& event);
 		void OnButtonPressed(wxCommandEvent& event);
 
-		void SetConfigKey(wxString &configKeyIn);
-		void SetLabelWidth(int width);
-		int GetLabelWidth();
-		void Set(wxString &configKeyIn,
+		void CreateDisplay(wxWindow *parent,
+			int id,
 			wxString &labelText,
-			wxString &defaultValueIn,
-			int	maxCharactersIn,
-			DirectoryConfigItemGUI	*directoryGUIIn=NULL);
-			void OnResize(wxSizeEvent &event);
-
+			DirectoryConfigItemGUI *directoryConfig);
+		virtual void ApplyConfigKeyChange();
 		wxString GetValue();
 	protected:
 
 	private:
-		wxTextCtrl		textEdit;
-		wxBitmapButton	button;
-		wxStaticText	label;
-		bool			maxCharactersSet;
-		int				maxCharacters;
-		wxString		labelText;
-		wxString		defaultValue;
-		DirectoryConfigItemGUI	*directoryConfig;
+		wxTextCtrl		*mTextEdit;
+		wxBitmapButton	*mButton;
+		wxStaticText	*mLabel;
+		wxString		mLabelText;
+		DirectoryConfigItemGUI	*mDirectoryConfig;
 
 		DECLARE_EVENT_TABLE()
 };

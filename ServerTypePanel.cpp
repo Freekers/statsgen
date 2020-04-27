@@ -62,7 +62,7 @@ wxString ServerTypePanel::FindCodeFromName(wxString &name)
 
 	for (index=0;index<count;index++)
 	{
-		if (strcmp(ServerTypeNames[index],name.GetData())==0)
+		if (strcmp(ServerTypeNames[index],STRING_TO_CHAR(name))==0)
 		{
 			retVal=ServerTypeCodes[index];
 		}

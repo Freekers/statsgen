@@ -29,14 +29,14 @@ bool LogFile::Process(Server *server, int serverIndex,long maxLogfileSize)
 	STATSGEN_DEBUG_FUNCTION_START("LogFile","Process")
 	if (logFileReader==NULL)
 	{
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"Log file reader is null")
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Log file reader is null")
 	}
 	else
 	{
 		msg="Processing";
 		progress->SetStatus(msg);
 		logFileReader->ProcessLogFile(server,serverIndex,maxLogfileSize);
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"ran Log file reader")
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"ran Log file reader")
 	}
 
 	return (retVal);
@@ -127,16 +127,16 @@ LogFile::~LogFile()
 void LogFile::StartFromBeginning()
 {
 	STATSGEN_DEBUG_FUNCTION_START("LogFile","StartFromBeginning")
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"hello")
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"hello")
 	if (logFileReader==NULL)
 	{
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"Log file reader is null")
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Log file reader is null")
 	}
 	else
 	{
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"About to call StartFromBeginning")
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"About to call StartFromBeginning")
 		logFileReader->StartFromBeginning();
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"Called StartFromBeginning")
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Called StartFromBeginning")
 	}
 	STATSGEN_DEBUG_FUNCTION_END
 }

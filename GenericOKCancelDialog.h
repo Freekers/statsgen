@@ -21,17 +21,20 @@ class GenericOKCancelDialog : public wxDialog
 
 		virtual void OnQuit(wxCommandEvent& event);
 		virtual void OnSave(wxCommandEvent& event);
-		virtual void OnResize(wxSizeEvent& event);
-		virtual void CreateDialog();
 
 		virtual bool DisplayDialog(wxPanel *panel);
 		void SetPanel(wxPanel *configPanel);
+		virtual void ControlsSizerPre();
+		virtual void ControlsSizerPost();
 
 	protected:
+		virtual void CreateDialog();
 
-		wxPanel		*configPanel;
-		wxButton	saveButton;
-		wxButton	quitButton;
+		wxPanel		*mConfigPanel;
+		wxButton	mSaveButton;
+		wxButton	mQuitButton;
+		wxBoxSizer	*mMainSizer;
+		wxBoxSizer	*mControlsSizer;
 	private:
 		DECLARE_EVENT_TABLE()
 };

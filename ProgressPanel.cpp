@@ -9,60 +9,93 @@
 #include "GlobalStatistics.h"
 
 BEGIN_EVENT_TABLE(ProgressPanel, wxPanel)
-		EVT_SIZE(ProgressPanel::OnResize)
 		EVT_BUTTON(WINDOW_ID_ERROR_BUTTON,ProgressPanel::OnButtonPressed)
 END_EVENT_TABLE()
 
 ProgressPanel::ProgressPanel()
 {
 
-	timeRemaining		=NULL;
-	timeSpent			=NULL;
-	counter				=NULL;
-	description			=NULL;
-	status				=NULL;
-	maxValue			=-1;
-	scale				=1;
-	currentValue		=0;
-	offset				=0;
-	desiredLabelWidth	=0;
-	previousTime		=0;
-	dynamicSizing		=false;
+	mTimeRemaining		=NULL;
+	mTimeSpent			=NULL;
+	mCounter			=NULL;
+	mDescription		=NULL;
+	mStatus				=NULL;
+	mMaxValue			=-1;
+	mScale				=1;
+	mCurrentValue		=0;
+	mOffset				=0;
+	mPreviousTime		=0;
 	EnableTimeToGo();
-	counterEnabled		=true;
-	timeStepsCreated	=0;
-	storingError		=false;
-	statusIndex			=0;
+	mCounterEnabled		=true;
+	mTimeStepsCreated	=false;
+	mStoringError		=false;
+	mStatusIndex		=0;
 
-	EventUpdating(true);
+	//EventUpdating(true);
+	EventUpdating(false);
 
 }
 
 void ProgressPanel::Reset()
 {
-	startTime=time(&startTime);
-	currentValue=0;
-	offset=0;
-	timeStepsCreated=0;
-	statusIndex=0;
+	mStartTime=time(&mStartTime);
+	mCurrentValue=0;
+	mOffset=0;
+	mTimeStepsCreated=0;
+	mStatusIndex=0;
 }
 
 void ProgressPanel::CreateScreen()
 {
 	wxString		label="";
 	wxSize	buttonSize(16,16);
+	wxSize	panelSize;
 
-	if (timeRemaining==NULL)
+	if (mTimeRemaining==NULL)
 	{
-		timeRemaining=new wxStaticText(this,-1,label);
-		timeSpent=new wxStaticText(this,-1,label);
-		counter=new wxStaticText(this,-1,label);
-		description=new wxStaticText(this,-1,label);
-		rate=new wxStaticText(this,-1,label);
-		status=new wxStaticText(this,GetId(),label);
-		resultButton=new wxBitmapButton(this,WINDOW_ID_ERROR_BUTTON,wxArtProvider::GetIcon(wxART_ERROR,wxART_OTHER,buttonSize));
+		mTimeRemaining=new wxStaticText(this,wxID_ANY,label);
+		mTimeSpent=new wxStaticText(this,wxID_ANY,label);
+		mCounter=new wxStaticText(this,wxID_ANY,label);
+		mDescription=new wxStaticText(this,wxID_ANY,label);
+		mRate=new wxStaticText(this,wxID_ANY,label);
+		mStatus=new wxStaticText(this,GetId(),label);
+		mResultButton=new wxBitmapButton(this,WINDOW_ID_ERROR_BUTTON,wxArtProvider::GetIcon(wxART_ERROR,wxART_OTHER,buttonSize));
 		ClearErrors();
 
+
+		mMainSizer	= new wxBoxSizer(wxHORIZONTAL);
+		mMainSizer->Add(mDescription,	125,	wxEXPAND);
+		mMainSizer->Add(mCounter,		125,	wxEXPAND);
+		mMainSizer->Add(mTimeSpent,		50,		wxEXPAND);
+		mMainSizer->Add(mTimeRemaining,	50,		wxEXPAND);
+		mMainSizer->Add(mRate,			125,	wxEXPAND);
+		mMainSizer->Add(mStatus,		250,	wxEXPAND);
+		mMainSizer->Add(mResultButton);
+		
+		// As labels have no size unless they have values in them - i need
+		// to set up a minimum size so the gui does not start off squashed
+		// this is because i find sizers somewhat still confusing
+		// so i am sure there is a better way of doing this
+		mDescription->SetLabel((char *)"Locate Existing Players");	mDescription->SetMinSize(mDescription->GetSize());
+		mCounter->SetLabel((char *)"1000 rounds");					mCounter->SetMinSize(mCounter->GetSize());
+		mTimeSpent->SetLabel((char *)"00:00:00");					mTimeSpent->SetMinSize(mTimeSpent->GetSize());
+		mTimeRemaining->SetLabel((char *)"00:00:00");				mTimeRemaining->SetMinSize(mTimeRemaining->GetSize());
+		mRate->SetLabel((char *)"1000 rounds / sec");				mRate->SetMinSize(mRate->GetSize());
+		mStatus->SetLabel((char *)"open the pod bay doors HAL");	mStatus->SetMinSize(mStatus->GetSize());
+
+		mDescription->SetLabel((char *)"");
+		mCounter->SetLabel((char *)"");
+		mTimeSpent->SetLabel((char *)"");
+		mTimeRemaining->SetLabel((char *)"");
+		mRate->SetLabel((char *)"");
+		mStatus->SetLabel((char *)"");
+
+		mProgressBarPanel = new wxPanel(this,wxID_ANY);
+		mProgressSizer = new wxBoxSizer(wxVERTICAL);
+		mProgressSizer->Add(mMainSizer,9,wxEXPAND);
+		mProgressSizer->Add(mProgressBarPanel,1,wxEXPAND);
+		mProgressSizer->SetSizeHints(this);
+		SetSizer(mProgressSizer);
 	}
 }
 
@@ -82,58 +115,42 @@ void ProgressPanel::Initiate(
 	CreateScreen();
 
 	Reset();
-	unitText=unitsIn;
-	maxValue=maxIn;
-	scale=scaleIn;
-	rateScale=rateScaleIn;
-	rateUnits=rateUnitsIn;
+	mUnitText	= unitsIn;
+	mMaxValue	= maxIn;
+	mScale		= scaleIn;
+	mRateScale	= rateScaleIn;
+	mRateUnits	= rateUnitsIn;
 
 	
-}
-
-int ProgressPanel::LabelWidth()
-{
-	wxSize	itemSize;
-
-	itemSize=description->GetSize();
-	return (itemSize.GetWidth());
-}
-
-void ProgressPanel::SetLabelWidth(int labelWidth)
-{
-	desiredLabelWidth=labelWidth;
-
-	wxSizeEvent	dummyEvent;
-
-	OnResize(dummyEvent);
 }
 
 void ProgressPanel::SetLabel(const char *label)
 {
 	CreateScreen();
-	description->SetLabel(label);
+	mDescription->SetLabel(label);
 }
 
 void ProgressPanel::SetOffset(long value)
 {
-	offset=value;
+	mOffset		= value;
 }
 
 void ProgressPanel::WakeUp()
 {
-	Update(currentValue-offset);
+	Update(mCurrentValue-mOffset);
 }
 
 void ProgressPanel::UpdateColouredBar()
 {
-	if (timeToGoEnabled)
+	STATSGEN_DEBUG_FUNCTION_START("ProgressPanel","UpdateColouredBar")
+	if (mTimeToGoEnabled)
 	{
-		wxClientDC	dc(this);
+		wxClientDC	dc(mProgressBarPanel);
 		wxPen		currentPen;
 		wxBrush		currentBrush;
-		wxColour	green(0,175,0);
-		wxColour	red(175,0,0);
-		wxColour	amber(175,0,175);
+		wxColour	green(0,255,0);
+		wxColour	red(255,0,0);
+		wxColour	amber(255,127,0);
 		wxPen	greenPen(green);
 		wxBrush	greenBrush(green);
 		wxPen	redPen(red);
@@ -153,18 +170,22 @@ void ProgressPanel::UpdateColouredBar()
 		switch (OverallSeverity())
 		{
 			case SeverityOK:
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Severity OK");
 				chosenBrush=greenBrush;
 				chosenPen=greenPen;
 				break;
 			case SeverityCaution:
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Severity Caution");
 				chosenBrush=amberBrush;
 				chosenPen=amberPen;
 				break;
 			case SeverityError:
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Severity Error");
 				chosenBrush=redBrush;
 				chosenPen=redPen;
 				break;
 			default:
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Severity Default");
 				chosenBrush=greenBrush;
 				chosenPen=greenPen;
 				break;
@@ -172,28 +193,29 @@ void ProgressPanel::UpdateColouredBar()
 		currentPen		=dc.GetPen();
 		currentBrush	=dc.GetBrush();
 
-		size=description->GetSize();
+		size=mProgressBarPanel->GetSize();
 		maxWidth=size.GetWidth();
 		size=GetSize();
 		height=size.GetHeight();
-		if (maxValue<=0)
+		if (mMaxValue<=0)
 		{
 			pixelsPerUnit=(float)maxWidth;
 		}
 		else
 		{
-			pixelsPerUnit=(float)maxWidth/(float)maxValue;
+			pixelsPerUnit=(float)maxWidth/(float)mMaxValue;
 		}
-		width=(int)(pixelsPerUnit * (float)currentValue);
+		width=(int)(pixelsPerUnit * (float)mCurrentValue);
 
 		dc.SetPen(chosenPen);
 		dc.SetBrush(chosenBrush);
-		dc.DrawRectangle(0,1,width,height-3);
-		dc.SetPen(chosenPen);
+		dc.DrawRectangle(0,0,width,height);
+		dc.SetPen(currentPen);
 		dc.SetBrush(currentBrush);
-		dc.DrawRectangle(width,1,maxWidth-width,height-3);
+		dc.DrawRectangle(width,0,maxWidth-width,height);
 	}
 
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void ProgressPanel::Update(long value)
@@ -210,55 +232,60 @@ void ProgressPanel::Update(long value)
 	long		minutes;
 	long		seconds;
 	float		rateValue;
+	int			historyIndex;
 	
-	currentTime=time(&currentTime);
-	elapsedTime=currentTime-startTime;
-	currentValue=value+offset;
-	if ((elapsedTime!=previousTime)/*||(previousTime==0)*/)
+	currentTime		= time(&currentTime);
+	elapsedTime		= currentTime-mStartTime;
+	mCurrentValue	= value+mOffset;
+	if ((elapsedTime != mPreviousTime)/*||(previousTime==0)*/)
 	{
 		// Add the current time and value to the history list
 		// first shuffle the current values down one
-		historyTimes[0]=historyTimes[1];
-		historyValues[0]=historyValues[1];
-		historyTimes[1]=historyTimes[2];
-		historyValues[1]=historyValues[2];
-		if (timeStepsCreated==0)
+		if (mTimeStepsCreated)
 		{
-			historyTimes[0]=currentTime;
-			historyValues[0]=currentValue;
-			historyTimes[1]=currentTime;
-			historyValues[1]=currentValue;
-			historyTimes[2]=currentTime;
-			historyValues[2]=currentValue;
+			for (historyIndex = 0;historyIndex<(MAX_TIME_STEPS-1);historyIndex++)
+			{
+				mHistoryTimes[historyIndex] = mHistoryTimes[historyIndex+1];
+				mHistoryValues[historyIndex] = mHistoryValues[historyIndex+1];
+			}
 		}
-		historyTimes[2]=currentTime;
-		historyValues[2]=currentValue;
-		previousTime=elapsedTime;
-		timeRemainingString="???";
-		rateString="???";
-		progressString="???";
-		progressToGo=maxValue-currentValue;
+		else
+		{
+			for (historyIndex = 0;historyIndex<(MAX_TIME_STEPS-1);historyIndex++)
+			{
+				mHistoryTimes[historyIndex] = currentTime;
+				mHistoryValues[historyIndex] = mCurrentValue;
+			}
+		}
+		mHistoryTimes[MAX_TIME_STEPS-1]		= currentTime;
+		mHistoryValues[MAX_TIME_STEPS-1]	= mCurrentValue;
+		mPreviousTime		= elapsedTime;
+		timeRemainingString	= "???";
+		rateString			= "???";
+		progressString		= "???";
+		progressToGo= mMaxValue-mCurrentValue;
 		if (progressToGo<0)
 		{
-			progressToGo=0;
+			progressToGo = 0;
 		}
-		if ((elapsedTime>0)&&(timeStepsCreated>0))
+		if ((elapsedTime>0)&&(mTimeStepsCreated))
 		{
-			if (timeToGoEnabled)
+
+			if (mTimeToGoEnabled)
 			{
 				time_t		rateElapsedTime;
 				long		rateElapsedValue;
 
-				rateElapsedTime=historyTimes[2]-historyTimes[0];
-				rateElapsedValue=historyValues[2]-historyValues[0];
+				rateElapsedTime		=mHistoryTimes[MAX_TIME_STEPS-1]	- mHistoryTimes[0];
+				rateElapsedValue	=mHistoryValues[MAX_TIME_STEPS-1]	- mHistoryValues[0];
 				//rateValue=((float)currentValue)/((float)elapsedTime);
 				
 				if ((rateElapsedTime>0)&&(rateElapsedValue>0))
 				{
 					rateValue=((float)rateElapsedValue)/((float)rateElapsedTime);
 					timeToGo=(long)(((float)progressToGo)/rateValue);
-					rateValue/=((float)rateScale);
-					rateString.Printf("%0.1f%s / sec",rateValue,rateUnits.GetData());
+					rateValue/=((float)mRateScale);
+					rateString.Printf("%0.1f%s / sec",rateValue,STRING_TO_CHAR(mRateUnits));
 					minutes=timeToGo/60;
 					seconds=timeToGo % 60;
 					timeRemainingString.Printf("%ld:%02ld",minutes,seconds);
@@ -278,85 +305,83 @@ void ProgressPanel::Update(long value)
 				else
 				{
 					timeRemainingString="???";
-					rateString.Printf("???%s / sec",rateUnits.GetData());
+					rateString.Printf("???%s / sec",STRING_TO_CHAR(mRateUnits));
 				}
 			}
 		}
-		if (timeStepsCreated<2)
+		mTimeStepsCreated = true;
+		if (mTimeToGoEnabled)
 		{
-			timeStepsCreated++;
-		}
-		if (timeToGoEnabled)
-		{
-			progressToGo/=scale;
-			progressString.Printf("%ld%s",progressToGo,unitText.GetData());
+			progressToGo/=mScale;
+			progressString.Printf("%ld%s",progressToGo,STRING_TO_CHAR(mUnitText));
 		}
 		else
 		{
-			progressString.Printf("%ld%s",currentValue/scale,unitText.GetData());
+			progressString.Printf("%ld%s",mCurrentValue/mScale,STRING_TO_CHAR(mUnitText));
 		}
 		minutes=elapsedTime / 60;
 		seconds=elapsedTime % 60;
 		timeSpentString.Printf("%ld:%02ld",minutes,seconds);
 
-		if (timeToGoEnabled)
+		if (mTimeToGoEnabled)
 		{
 			//timeRemaining->SetLabel(timeRemainingString);
 			wxCommandEvent	event(wxEVT_COMMAND_MENU_SELECTED,EVENT_ID_PROGRESS_STATUS_TEXT);
-			event.SetClientData(timeRemaining);
+			event.SetClientData(mTimeRemaining);
 			event.SetString(timeRemainingString);
-			if (eventUpdating)
+			if (mEventUpdating)
 			{
 				wxPostEvent(globalStatistics.mainEventHandler,event);
 			}
 			else
 			{
-				timeRemaining->SetLabel(timeRemainingString);
+				mTimeRemaining->SetLabel(timeRemainingString);
 				wxSafeYield();
 			}
-			event.SetClientData(rate);
+			event.SetClientData(mRate);
 			event.SetString(rateString);
-			if (eventUpdating)
+			if (mEventUpdating)
 			{
 				wxPostEvent(globalStatistics.mainEventHandler,event);
 			}
 			else
 			{
-				rate->SetLabel(rateString);
+				mRate->SetLabel(rateString);
 				wxSafeYield();
 			}
 		}
-		if (counterEnabled)
+		if (mCounterEnabled)
 		{
 			wxCommandEvent	event(wxEVT_COMMAND_MENU_SELECTED,EVENT_ID_PROGRESS_STATUS_TEXT);
 			//counter->SetLabel(progressString);
-			event.SetClientData(counter);
+			event.SetClientData(mCounter);
 			event.SetString(progressString);
-			if (eventUpdating)
+			if (mEventUpdating)
 			{
 				wxPostEvent(globalStatistics.mainEventHandler,event);
 			}
 			else
 			{
-				counter->SetLabel(progressString);
+				mCounter->SetLabel(progressString);
 				wxSafeYield();
 			}
-			event.SetClientData(timeSpent);
+			event.SetClientData(mTimeSpent);
 			event.SetString(timeSpentString);
-			if (eventUpdating)
+			if (mEventUpdating)
 			{
 				wxPostEvent(globalStatistics.mainEventHandler,event);
 			}
 			else
 			{
-				timeSpent->SetLabel(timeSpentString);
+				mTimeSpent->SetLabel(timeSpentString);
 				wxSafeYield();
 			}
-			if (eventUpdating)
+			//if (mEventUpdating)
 			{
 				UpdateColouredBar();
 			}
 		}
+		wxSafeYield();
 	}
 	
 }
@@ -365,177 +390,64 @@ void ProgressPanel::Finalise()
 {
 	wxString	errorText="done";
 
-	previousTime=0;
-	Update(currentValue-offset);
+	mPreviousTime=0;
+	Update(mCurrentValue-mOffset);
 	LogError(errorText,SeverityOK);
 	SetStatus(errorText);
 }
 
-void ProgressPanel::OnResize(wxSizeEvent &event)
-{
-	wxString	msg;
-
-	wxSize		itemSize;
-	int			width;
-	int			height;
-	int			timeRemainingWidth;
-	int			timeSpentWidth;
-	int			counterWidth;
-	int			descriptionWidth;
-	int			rateWidth;
-	int			statusWidth;
-	int			buttonWidth;
-	int			buttonHeight;
-	int			gap=10;
-	int			yBorder=11;
-	
-	CreateScreen();
-
-	itemSize=counter->GetSize();
-	height=itemSize.GetHeight();
-	
-	itemSize=resultButton->GetSize();
-	buttonHeight=itemSize.GetHeight();
-	buttonWidth=itemSize.GetWidth();
-
-	counterWidth		=120;
-	timeSpentWidth		=50;
-	statusWidth			=250;
-
-	timeRemainingWidth	=50;
-	rateWidth			=120;
-	
-
-	if ((!counterEnabled) &&
-		(dynamicSizing))
-	{
-		counterWidth=0;
-		timeSpentWidth=0;
-	}
-
-	if ((!timeToGoEnabled) &&
-		(dynamicSizing))
-	{
-		timeRemainingWidth=0;
-		rateWidth=0;
-	}
-	itemSize=description->GetSize();
-	descriptionWidth=itemSize.GetWidth();
-	if (desiredLabelWidth>0)
-	{
-		descriptionWidth=desiredLabelWidth;
-	}
-
-	itemSize=GetSize();
-	width=itemSize.GetWidth();
-	if (dynamicSizing)
-	{
-
-		statusWidth=width-(timeRemainingWidth+gap+
-				timeSpentWidth+gap+
-				counterWidth+gap+
-				descriptionWidth+gap+
-				gap+
-				buttonWidth+gap+
-				rateWidth+gap);
-		if (statusWidth<0)
-		{
-			statusWidth=0;
-		}
-	}
-	description->SetSize(0,
-						yBorder/2,
-						descriptionWidth,height);
-
-	counter->SetSize(descriptionWidth+gap,
-							yBorder/2,
-							counterWidth,height);
-
-	timeSpent->SetSize(descriptionWidth+gap+
-							counterWidth+gap,
-							yBorder/2,
-							timeSpentWidth,height);
-
-	timeRemaining->SetSize(descriptionWidth+gap+
-							counterWidth+gap+
-							timeSpentWidth+gap,
-							yBorder/2,
-							timeRemainingWidth,height);
-
-	rate->SetSize(descriptionWidth+gap+
-				counterWidth+gap+
-				timeSpentWidth+gap+
-				timeRemainingWidth+gap,
-				yBorder/2,
-				rateWidth,height);
-	status->SetSize(descriptionWidth+gap+
-				counterWidth+gap+
-				timeSpentWidth+gap+
-				rateWidth+gap+
-				timeRemainingWidth+gap,
-				yBorder/2,
-				statusWidth,height);
-	resultButton->SetSize(descriptionWidth+gap+
-				counterWidth+gap+
-				timeSpentWidth+gap+
-				rateWidth+gap+
-				timeRemainingWidth+gap+
-				statusWidth+gap,
-				0,
-				buttonWidth,buttonHeight);
-
-	width=timeRemainingWidth+gap+
-			timeSpentWidth+gap+
-			counterWidth+gap+
-			descriptionWidth+gap+
-			statusWidth+gap+
-			buttonWidth+gap+
-			rateWidth+gap;
-	SetSize(width,height+yBorder+5);
-}
-
 long ProgressPanel::CurrentValue()
 {
-	return (currentValue);
+	return (mCurrentValue);
 }
 
 bool ProgressPanel::GetEventUpdating()
 {
-	return (eventUpdating);
+	return (mEventUpdating);
 }
 
+void ProgressPanel::EnableCounter()
+{
+	mCounterEnabled=true;
+}
 void ProgressPanel::DisableCounter()
 {
-	counterEnabled=false;
+	mCounterEnabled=false;
 }
 void ProgressPanel::DisableTimeToGo()
 {
-	timeToGoEnabled=false;
+	mTimeToGoEnabled=false;
 }
 
 void ProgressPanel::EnableTimeToGo()
 {
-	timeToGoEnabled=true;
+	mTimeToGoEnabled=true;
 }
 
 void ProgressPanel::SetStatus(wxString &statusText)
 {
+	STATSGEN_DEBUG_FUNCTION_START("ProgressPanel","SetStatus")
+	STATSGEN_DEBUG(DEBUG_ALWAYS,statusText);
 	wxString	errorText="";
 	int			severity=-1;
 	//status->SetLabel(statusText);
 	wxCommandEvent	event(wxEVT_COMMAND_MENU_SELECTED,EVENT_ID_PROGRESS_STATUS_TEXT);
-	event.SetClientData(status);
+	event.SetClientData(mStatus);
 	event.SetString(statusText);
-	if (eventUpdating)
+	if (mEventUpdating)
 	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Posting event");
 		wxPostEvent(globalStatistics.mainEventHandler,event);
 	}
 	else
 	{
-		status->SetLabel(statusText);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Not Posting event");
+		mStatus->SetLabel(statusText);
 		wxSafeYield();
 	}
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Logging To Database");
 	LogToDatabase(severity,errorText,statusText);
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 wxBitmap ProgressPanel::SeverityImage(int severity)
@@ -570,9 +482,17 @@ void ProgressPanel::SetResultSeverity(int severity)
 	//resultButton->SetBitmapLabel(bitmap);
 
 	wxCommandEvent	event(wxEVT_COMMAND_MENU_SELECTED,EVENT_ID_PROGRESS_BUTTON);
-	event.SetClientData(resultButton);
+	event.SetClientData(mResultButton);
 	event.SetInt(severity);
-	wxPostEvent(globalStatistics.mainEventHandler,event);
+	if (mEventUpdating)
+	{
+		wxPostEvent(globalStatistics.mainEventHandler,event);
+	}
+	else
+	{
+		wxBitmap		bitmap=SeverityImage(severity);
+		mResultButton->SetBitmapLabel(bitmap);
+	}
 }
 
 void ProgressPanel::ClearErrors()
@@ -580,25 +500,25 @@ void ProgressPanel::ClearErrors()
 	wxString	label="";
 	wxString	SQL;
 
-	errorSeverities.Clear();
-	errors.Clear();
+	mErrorSeverities.Clear();
+	mErrors.Clear();
 	SetSeverityIcon();
-	timeRemaining->SetLabel(label);
-	timeSpent->SetLabel(label);
-	counter->SetLabel(label);
-	rate->SetLabel(label);
-	status->SetLabel(label);
-	statusIndex=0;
-	if (!storingError)
+	mTimeRemaining->SetLabel(label);
+	mTimeSpent->SetLabel(label);
+	mCounter->SetLabel(label);
+	mRate->SetLabel(label);
+	mStatus->SetLabel(label);
+	mStatusIndex=0;
+	if (!mStoringError)
 	{
-		if (description!=NULL)
+		if (mDescription!=NULL)
 		{
-			storingError=true;
+			mStoringError=true;
 			SQL.Printf("delete from %s where stage='%s'",
-				TableName().GetData(),
-				description->GetLabel().GetData());
+				STRING_TO_CHAR(TableName()),
+				STRING_TO_CHAR(mDescription->GetLabel()));
 			globalStatistics.statsgenDatabase.SimpleExecute(SQL);
-			storingError=false;
+			mStoringError=false;
 		}
 	}
 }
@@ -610,10 +530,10 @@ int ProgressPanel::OverallSeverity()
 	int	thisSeverity;
 	int	severityIndex;
 
-	severityCount=errorSeverities.GetCount();
+	severityCount=mErrorSeverities.GetCount();
 	for (severityIndex=0;severityIndex<severityCount;severityIndex++)
 	{
-		thisSeverity=errorSeverities.Item(severityIndex);
+		thisSeverity=mErrorSeverities.Item(severityIndex);
 		if (thisSeverity>severity)
 		{
 			severity=thisSeverity;
@@ -633,14 +553,14 @@ void ProgressPanel::LogError(wxString &errorTextIn,int severity)
 	wxString	status="";
 	wxString	errorText;
 	wxString	panelDescription;
-	if (!storingError)
+	if (!mStoringError)
 	{
 		panelDescription=GetDescription();
 		panelDescription=panelDescription+"                                          ";
 		panelDescription=panelDescription.Left(25);
-		errorText.Printf("%s: %s",panelDescription.GetData(),errorTextIn.GetData());
-		errorSeverities.Add(severity);
-		errors.Add(errorText);
+		errorText.Printf("%s: %s",STRING_TO_CHAR(panelDescription),STRING_TO_CHAR(errorTextIn));
+		mErrorSeverities.Add(severity);
+		mErrors.Add(errorText);
 		SetSeverityIcon();
 		LogToDatabase(severity,errorText,status);
 	}
@@ -653,7 +573,7 @@ void ProgressPanel::OnButtonPressed(wxCommandEvent &event)
 	ErrorPanel	*errorPanel;
 	bool		save;
 	
-	GenericOKCancelDialog	dialog(this,-1,title,wxDefaultPosition,wxDefaultSize,
+	GenericOKCancelDialog	dialog(this,wxID_ANY,title,wxDefaultPosition,wxDefaultSize,
 						wxCAPTION |
 						wxCLOSE_BOX |
 						wxSYSTEM_MENU |
@@ -661,15 +581,15 @@ void ProgressPanel::OnButtonPressed(wxCommandEvent &event)
 						wxMAXIMIZE_BOX,
 									"");
 
-	errorPanel=new ErrorPanel(errors,errorSeverities);
-	errorPanel->Create(&dialog,-1,
+	errorPanel=new ErrorPanel(mErrors,mErrorSeverities);
+	errorPanel->Create(&dialog,wxID_ANY,
 						wxDefaultPosition,wxDefaultSize,
 						wxTAB_TRAVERSAL,
 						_T("panel"));
 	errorPanel->CreateScreen();
-	dialog.SetPanel(errorPanel);
-	dialog.CreateDialog();
-	save=(dialog.ShowModal()==WINDOW_ID_BUTTON_SAVE);
+	//dialog.SetPanel(errorPanel);
+	//dialog.CreateDialog();
+	save = dialog.DisplayDialog(errorPanel);
 	if (save)
 	{
 		wxString	filename;
@@ -679,7 +599,7 @@ void ProgressPanel::OnButtonPressed(wxCommandEvent &event)
 		{
 			FILE *fp;
 
-			fp=fopen(filename.GetData(),"w");
+			fp=fopen(STRING_TO_CHAR(filename),"w");
 			if (fp!=NULL)
 			{
 				int			errorCount;
@@ -688,24 +608,19 @@ void ProgressPanel::OnButtonPressed(wxCommandEvent &event)
 				wxString	errorSeverity;
 				int			severity;
 
-				errorCount=errors.GetCount();
+				errorCount=mErrors.GetCount();
 				for (errorIndex=0;errorIndex<errorCount;errorIndex++)
 				{
-					errorText=errors.Item(errorIndex);
-					severity=errorSeverities.Item(errorIndex);
+					errorText=mErrors.Item(errorIndex);
+					severity=mErrorSeverities.Item(errorIndex);
 					errorSeverity=SeverityString(severity);
 
-					fprintf(fp,"%15s %s\n",errorSeverity.GetData(),errorText.GetData());
+					fprintf(fp,"%15s %s\n",STRING_TO_CHAR(errorSeverity),STRING_TO_CHAR(errorText));
 				}
 				fclose(fp);
 			}
 		}
 	}
-}
-
-void ProgressPanel::DynamicSizing()
-{
-	dynamicSizing=true;
 }
 
 wxString ProgressPanel::SeverityString(int severity)
@@ -752,7 +667,7 @@ wxString ProgressPanel::CreateTableSQL()
 				"severity		string,"
 				"error			string"
 				")",
-				TableName().GetData());
+				STRING_TO_CHAR(TableName()));
 
 	return (SQL);
 
@@ -762,82 +677,93 @@ void ProgressPanel::LogToDatabase(int severity,
 									wxString &errorText,
 									wxString &statusText)
 {
+	STATSGEN_DEBUG_FUNCTION_START("ProgressPanel","LogToDatabase")
 	wxString	severityString="";
 	wxString	SQL;
 	wxString	stage;
 	time_t		logTime;
+	int			logTimeInt;
 
-	if ((!storingError)&&(description!=NULL) &&(severity!=SeverityNotRun))
+	if ((!mStoringError)&&(mDescription!=NULL) &&(severity!=SeverityNotRun))
 	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Constructing SQL");
 		severityString = SeverityString(severity);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Severity String");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,severityString)
 		logTime=time(&logTime);
-		stage=description->GetLabel();
-		storingError=true;
+		logTimeInt = logTime;
+		stage=mDescription->GetLabel();
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Label");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,stage)
+		mStoringError=true;
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"SQL");
 		SQL.Printf("insert into %s "
 				"(stage,statusindex,logtime,status,severity,error)"
 				"values"
 				"('%s',%d,%d,'%s','%s','%s')",
-				TableName().GetData(),
-				stage.GetData(),
-				statusIndex,
-				logTime,
-				statusText.GetData(),
-				severityString.GetData(),
-				globalStatistics.statsgenDatabase.SafeForInsert(errorText).GetData());
+				STRING_TO_CHAR(TableName()),
+				STRING_TO_CHAR(stage),
+				mStatusIndex,
+				logTimeInt,
+				STRING_TO_CHAR(statusText),
+				STRING_TO_CHAR(severityString),
+				STRING_TO_CHAR(globalStatistics.statsgenDatabase.SafeForInsert(errorText)));
+		STATSGEN_DEBUG(DEBUG_ALWAYS,STRING_TO_CHAR(SQL))
 		globalStatistics.statsgenDatabase.SimpleExecute(SQL);
-		statusIndex++;
-		storingError=false;
+		mStatusIndex++;
+		mStoringError=false;
 	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 wxString ProgressPanel::GetTimeRemaining()
 {
-	return (timeRemaining->GetLabel());
+	return (mTimeRemaining->GetLabel());
 }
 
 wxString ProgressPanel::GetTimeSpent()
 {
-	return (timeSpent->GetLabel());
+	return (mTimeSpent->GetLabel());
 }
 
 wxString ProgressPanel::GetDescription()
 {
-	return (description->GetLabel());
+	return (mDescription->GetLabel());
 }
 
 wxString ProgressPanel::GetRate()
 {
-	return (rate->GetLabel());
+	return (mRate->GetLabel());
 }
 
 wxString ProgressPanel::GetCounter()
 {
-	return (counter->GetLabel());
+	return (mCounter->GetLabel());
 }
 
 wxString ProgressPanel::GetStatusPanel()
 {
-	return (status->GetLabel());
+	return (mStatus->GetLabel());
 }
 
 int ProgressPanel::GetErrorCount()
 {
-	return (errorSeverities.GetCount());
+	return (mErrorSeverities.GetCount());
 }
 
 void ProgressPanel::SetTimeRemaining(wxString &value)
 {
 	wxCommandEvent	event(wxEVT_COMMAND_MENU_SELECTED,
 				EVENT_ID_PROGRESS_STATUS_TEXT);
-	event.SetClientData(timeRemaining);
+	event.SetClientData(mTimeRemaining);
 	event.SetString(value);
-	if (eventUpdating)
+	if (mEventUpdating)
 	{
 		wxPostEvent(globalStatistics.mainEventHandler,event);
 	}
 	else
 	{
-		timeRemaining->SetLabel(value);
+		mTimeRemaining->SetLabel(value);
 		wxSafeYield();
 	}
 }
@@ -846,15 +772,15 @@ void ProgressPanel::SetTimeSpent(wxString &value)
 {
 	wxCommandEvent	event(wxEVT_COMMAND_MENU_SELECTED,
 				EVENT_ID_PROGRESS_STATUS_TEXT);
-	event.SetClientData(timeSpent);
+	event.SetClientData(mTimeSpent);
 	event.SetString(value);
-	if (eventUpdating)
+	if (mEventUpdating)
 	{
 		wxPostEvent(globalStatistics.mainEventHandler,event);
 	}
 	else
 	{
-		timeSpent->SetLabel(value);
+		mTimeSpent->SetLabel(value);
 		wxSafeYield();
 	}
 }
@@ -863,15 +789,15 @@ void ProgressPanel::SetDescription(wxString &value)
 {
 	wxCommandEvent	event(wxEVT_COMMAND_MENU_SELECTED,
 				EVENT_ID_PROGRESS_STATUS_TEXT);
-	event.SetClientData(description);
+	event.SetClientData(mDescription);
 	event.SetString(value);
-	if (eventUpdating)
+	if (mEventUpdating)
 	{
 		wxPostEvent(globalStatistics.mainEventHandler,event);
 	}
 	else
 	{
-		description->SetLabel(value);
+		mDescription->SetLabel(value);
 		wxSafeYield();
 	}
 }
@@ -880,15 +806,15 @@ void ProgressPanel::SetRate(wxString &value)
 {
 	wxCommandEvent	event(wxEVT_COMMAND_MENU_SELECTED,
 				EVENT_ID_PROGRESS_STATUS_TEXT);
-	event.SetClientData(rate);
+	event.SetClientData(mRate);
 	event.SetString(value);
-	if (eventUpdating)
+	if (mEventUpdating)
 	{
 		wxPostEvent(globalStatistics.mainEventHandler,event);
 	}
 	else
 	{
-		rate->SetLabel(value);
+		mRate->SetLabel(value);
 		wxSafeYield();
 	}
 }
@@ -897,15 +823,15 @@ void ProgressPanel::SetCounter(wxString &value)
 {
 	wxCommandEvent	event(wxEVT_COMMAND_MENU_SELECTED,
 				EVENT_ID_PROGRESS_STATUS_TEXT);
-	event.SetClientData(counter);
+	event.SetClientData(mCounter);
 	event.SetString(value);
-	if (eventUpdating)
+	if (mEventUpdating)
 	{
 		wxPostEvent(globalStatistics.mainEventHandler,event);
 	}
 	else
 	{
-		counter->SetLabel(value);
+		mCounter->SetLabel(value);
 		wxSafeYield();
 	}
 }
@@ -914,23 +840,23 @@ void ProgressPanel::SetStatusPanel(wxString &value)
 {
 	wxCommandEvent	event(wxEVT_COMMAND_MENU_SELECTED,
 				EVENT_ID_PROGRESS_STATUS_TEXT);
-	event.SetClientData(status);
+	event.SetClientData(mStatus);
 	event.SetString(value);
-	if (eventUpdating)
+	if (mEventUpdating)
 	{
 		wxPostEvent(globalStatistics.mainEventHandler,event);
 	}
 	else
 	{
-		status->SetLabel(value);
+		mStatus->SetLabel(value);
 		wxSafeYield();
 	}
 }
 
 void ProgressPanel::SetErrors(wxArrayInt &severitiesIn,wxArrayString &errorsIn)
 {
-	WX_APPEND_ARRAY(errorSeverities,severitiesIn);
-	WX_APPEND_ARRAY(errors,errorsIn);
+	WX_APPEND_ARRAY(mErrorSeverities,severitiesIn);
+	WX_APPEND_ARRAY(mErrors,errorsIn);
 	SetSeverityIcon();
 }
 
@@ -974,7 +900,7 @@ bool ProgressPanel::UpdateClone(ProgressPanel *destinationPanel)
 	destinationCounter			=destinationPanel->GetCounter();
 
 	
-	destinationPanel->counterEnabled=counterEnabled;
+	destinationPanel->mCounterEnabled=mCounterEnabled;
 	if (sourceTimeRemaining.Cmp(destinationTimeRemaining)!=0)
 	{
 		panelUpdated = true;
@@ -1008,13 +934,12 @@ bool ProgressPanel::UpdateClone(ProgressPanel *destinationPanel)
 	if (sourceErrorCount != destinationErrorCount)
 	{
 		// Need to add to errors here actually
-		destinationPanel->SetErrors(errorSeverities,errors);
+		destinationPanel->SetErrors(mErrorSeverities,mErrors);
 	}
 
 	if  (panelUpdated)
 	{
 		wxSizeEvent event;
-		destinationPanel->OnResize(event);
 		wxSafeYield();
 	}
 	return (panelUpdated);
@@ -1022,5 +947,14 @@ bool ProgressPanel::UpdateClone(ProgressPanel *destinationPanel)
 
 void ProgressPanel::EventUpdating(bool value)
 {
-	eventUpdating=value;
+	mEventUpdating=value;
+}
+
+wxSize ProgressPanel::GetDescriptionSize()
+{
+	return mDescription->GetSize();
+}
+void ProgressPanel::SetDescriptionMinimumSize(wxSize size)
+{
+	mDescription->SetMinSize(size);
 }

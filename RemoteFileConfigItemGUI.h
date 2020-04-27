@@ -18,30 +18,24 @@ class RemoteFileConfigItemGUI : public BaseConfigItemGUI
 		void OnTextChange(wxCommandEvent& event);
 		void OnButtonPressed(wxCommandEvent& event);
 
-		void SetConfigKey(wxString &configKeyIn);
-		void SetLabelWidth(int width);
-		int GetLabelWidth();
-		void Set(wxString &configKeyIn,
-			wxString &labelText,
-			wxString &defaultValueIn,
-			int	maxCharactersIn,
-			wxString &FTPIDIn,
-			RemoteDirectoryConfigItemGUI	*directoryGUIIn=NULL);
-			void OnResize(wxSizeEvent &event);
+		void CreateDisplay(wxWindow *parent,
+						int id,
+						wxString &labelText,
+						RemoteDirectoryConfigItemGUI *directoryGUI=NULL);
+		void SetConfigKey(wxString &configKey,wxString &defaultValue,wxString &ftpID);
+		virtual void ApplyConfigKeyChange();
 
 		wxString GetValue();
 	protected:
 
 	private:
-		wxTextCtrl		textEdit;
-		wxBitmapButton	button;
-		wxStaticText	label;
-		bool			maxCharactersSet;
-		int				maxCharacters;
-		wxString		labelText;
-		wxString		defaultValue;
-		RemoteDirectoryConfigItemGUI	*directoryConfig;
-		wxString		FTPID;
+		wxTextCtrl		*mTextEdit;
+		wxBitmapButton	*mButton;
+		wxStaticText	*mLabel;
+		wxString		mLabelText;
+		wxString		mDefaultValue;
+		RemoteDirectoryConfigItemGUI	*mDirectoryConfig;
+		wxString		mFTPID;
 
 		DECLARE_EVENT_TABLE()
 };

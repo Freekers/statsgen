@@ -4,14 +4,15 @@
 // wxWindows includes
 #include <wx/wx.h>
 #include <wx/string.h>
+#define STRING_TO_CHAR(variable) (const char *)variable.mb_str()
 
 // statsgen includes
 #include "WindowIDs.h"
 //#define DEBUG 1
 #ifdef DEBUG
 #define STATSGEN_DEBUG_FUNCTION_START(CLASSNAME,FUNCTIONNAME) \
-char *StatsgenDebugClassName=CLASSNAME; \
-char *StatsgenDebugFunctionName=FUNCTIONNAME; \
+wxString StatsgenDebugClassName=(char *)CLASSNAME; \
+wxString StatsgenDebugFunctionName=(char *)FUNCTIONNAME; \
 statsgenDebug.Entering(StatsgenDebugClassName,StatsgenDebugFunctionName);
 
 #define STATSGEN_DEBUG_FUNCTION_END \
@@ -52,18 +53,18 @@ class StatsgenDebugObject
 
 		StatsgenDebugObject();
 		void UpdateDebugConfig();
-		void Debug(const char *classname,
-			const char *functionname,
+		void Debug(wxString classname,
+			wxString functionname,
 			int DebugLevel,
-			wxString &message);
-		void Debug(const char *classname,
-			const char *functionname,
+			wxString message);
+		void Debug(wxString classname,
+			wxString functionname,
 			int DebugLevel,
-			const char *message);
-		void Entering(const char *classname,
-			const char *functionname);
-		void Leaving(const char *classname,
-			const char *functionname);
+			char *message);
+		void Entering(wxString classname,
+			wxString functionname);
+		void Leaving(wxString classname,
+			wxString functionname);
 		void UpdateCurrentDebugLevel(int progressPanelID);
 		bool DebugOn();
 		bool initiateDebugFile;

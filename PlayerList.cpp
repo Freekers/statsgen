@@ -134,7 +134,7 @@ int PlayerList::AddPlayer(wxString &name,wxString &id)
 	if (!blockedAutoAliasGUIDRead)
 	{
 		blockedAutoAliasGUIDRead=true;
-		globalStatistics.configData.ReadList("AutoAliasBlockedGUIDS",
+		globalStatistics.configData.ReadList((char *)"AutoAliasBlockedGUIDS",
 											blockedAutoAliasGUIDs);
 		if (blockedAutoAliasGUIDs.GetCount()==0)
 		{
@@ -143,7 +143,7 @@ int PlayerList::AddPlayer(wxString &name,wxString &id)
 			blockedGUID="MOHAA_";blockedAutoAliasGUIDs.Add(blockedGUID);
 			blockedGUID="WOLFENSTEIN_";blockedAutoAliasGUIDs.Add(blockedGUID);
 			blockedGUID="QUAKEWARS_0";blockedAutoAliasGUIDs.Add(blockedGUID);
-			globalStatistics.configData.WriteList("AutoAliasBlockedGUIDS",
+			globalStatistics.configData.WriteList((char *)"AutoAliasBlockedGUIDS",
 											blockedAutoAliasGUIDs);
 		}
 	}

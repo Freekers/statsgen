@@ -10,7 +10,6 @@
 #include "RemoteMachine.h"
 
 BEGIN_EVENT_TABLE(FTPBrowserPanel, wxPanel)
-		EVT_SIZE(FTPBrowserPanel::OnResize)
 		EVT_MENU(WORKER_EVENT,FTPBrowserPanel::OnRemoteRequest)
 		EVT_LIST_ITEM_SELECTED(WINDOW_ID_LISTBOX_CONFIGITEMS,FTPBrowserPanel::OnListSingleClick)
 		EVT_LIST_ITEM_ACTIVATED(WINDOW_ID_LISTBOX_CONFIGITEMS,FTPBrowserPanel::OnListDoubleClick)
@@ -18,9 +17,9 @@ END_EVENT_TABLE()
 
 FTPBrowserPanel::~FTPBrowserPanel()
 {
-	if (remoteMachine!=NULL)
+	if (mRemoteMachine!=NULL)
 	{
-		delete (remoteMachine);
+		delete (mRemoteMachine);
 	}
 	progress->SetDynamicPanel(NULL);
 	/*
@@ -38,10 +37,10 @@ FTPBrowserPanel::FTPBrowserPanel(
 						bool browsingForFile)
 {
 	workingForThread=false;
-	directoryListing=NULL;
-	configGroup=configGroupIn;
-	currentPath=defaultPathIn;
-	remoteMachine=new RemoteMachine(configGroup);
+	mDirectoryListing=NULL;
+	mConfigGroup=configGroupIn;
+	mCurrentPath=defaultPathIn;
+	mRemoteMachine=new RemoteMachine(mConfigGroup);
 	thread=NULL;
 }
 
@@ -56,10 +55,10 @@ void FTPBrowserPanel::OnListDoubleClick(wxListEvent &event)
 	listIndex=event.GetIndex();
 	STATSGEN_DEBUG_CODE(msg.Printf("item double clicked %ld",event.GetIndex());)
 	STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
-	if (listIndex<fileNames.GetCount())
+	if (listIndex<mFileNames.GetCount())
 	{
-		fileName=fileNames.Item(listIndex);
-		fileSize=fileSizes.Item(listIndex);
+		fileName=mFileNames.Item(listIndex);
+		fileSize=mFileSizes.Item(listIndex);
 		if (fileSize<0)
 		{
 			ChangeDirectory(fileName);
@@ -96,16 +95,16 @@ void FTPBrowserPanel::OnRemoteRequest(wxCommandEvent &event)
 		// Been asked to get a directory listing
 		CreateList();
 
-		fileNames.Clear();
-		fileSizes.Clear();
+		mFileNames.Clear();
+		mFileSizes.Clear();
 
 		wxString		wildcard="";
 	
-		remoteMachine->GetRemoteDirectoryListing(currentPath,
+		mRemoteMachine->GetRemoteDirectoryListing(mCurrentPath,
 											wildcard,
-											fileNames);
+											mFileNames);
 		filename="..";
-		fileNames.Insert(filename,0);
+		mFileNames.Insert(filename,0);
 
 		StopThreadWork();
 	}
@@ -127,22 +126,22 @@ void FTPBrowserPanel::Update(int directoryIndex)
 	
 
 	STATSGEN_DEBUG_FUNCTION_START("FTPBrowserPanel","Update")
-	directoryCount=fileNames.GetCount();
+	directoryCount=mFileNames.GetCount();
 	if (directoryIndex<directoryCount)
 	{
 		int			imageIndex;
 		wxString	fileSizeString;
 
-		fileSize=fileSizes.Item(directoryIndex);
+		fileSize=mFileSizes.Item(directoryIndex);
 		if (fileSize==-2)
 		{
 			// We need to update the file size
-			fileName=fileNames.Item(directoryIndex);
+			fileName=mFileNames.Item(directoryIndex);
 			status="Getting Size";progress->SetStatus(status);
-			fileSize=remoteMachine->GetRemoteFileSize(currentPath,fileName);
+			fileSize=mRemoteMachine->GetRemoteFileSize(mCurrentPath,fileName);
 			status="Done";progress->SetStatus(status);
-			fileSizes.RemoveAt(directoryIndex);
-			fileSizes.Insert(fileSize,directoryIndex);
+			mFileSizes.RemoveAt(directoryIndex);
+			mFileSizes.Insert(fileSize,directoryIndex);
 			if (fileSize<0)
 			{
 				fileSizeString="";
@@ -161,14 +160,15 @@ void FTPBrowserPanel::Update(int directoryIndex)
 				}
 				imageIndex=2;
 			}
-			directoryListing->SetItem(directoryIndex,0,fileName,imageIndex);
-			directoryListing->SetItem(directoryIndex,1,fileSizeString);
+			mDirectoryListing->SetItem(directoryIndex,0,fileName,imageIndex);
+			mDirectoryListing->SetItem(directoryIndex,1,fileSizeString);
 
-			directoryListing->SetColumnWidth(0,wxLIST_AUTOSIZE);
-			directoryListing->SetColumnWidth(1,wxLIST_AUTOSIZE);
+			mDirectoryListing->SetColumnWidth(0,wxLIST_AUTOSIZE);
+			mDirectoryListing->SetColumnWidth(1,wxLIST_AUTOSIZE);
 		}
 	}
 
+	PostSizeEventToParent();
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
@@ -187,19 +187,19 @@ void FTPBrowserPanel::GetDirectoryListing()
 	status="Getting Directory Listing"; progress->SetStatus(status);
 	CreateList();
 
-	fileNames.Clear();
-	fileSizes.Clear();
+	mFileNames.Clear();
+	mFileSizes.Clear();
 
 	wxString		wildcard="";
 	
-	remoteMachine->GetRemoteDirectoryListing(currentPath,
+	mRemoteMachine->GetRemoteDirectoryListing(mCurrentPath,
 											wildcard,
-											fileNames);
+											mFileNames);
 	status="Done"; progress->SetStatus(status);
 	fileName="..";
-	fileNames.Insert(fileName,0);
+	mFileNames.Insert(fileName,0);
 
-	directoryCount=fileNames.GetCount();
+	directoryCount=mFileNames.GetCount();
 	for (directoryIndex=0;directoryIndex<directoryCount;directoryIndex++)
 	{
 		if (directoryIndex>0)
@@ -212,17 +212,17 @@ void FTPBrowserPanel::GetDirectoryListing()
 			fileSize=-1;
 			imageIndex=1;
 		}
-		fileSizes.Add(fileSize);
-		fileName=fileNames.Item(directoryIndex);
+		mFileSizes.Add(fileSize);
+		fileName=mFileNames.Item(directoryIndex);
 
-		listIndex=directoryListing->InsertItem(directoryIndex,_T(""));
-		directoryListing->SetItemData(listIndex,directoryIndex);
-		directoryListing->SetItem(directoryIndex,0,fileName,imageIndex);
-		directoryListing->SetItem(directoryIndex,1,_T(""));
+		listIndex=mDirectoryListing->InsertItem(directoryIndex,_T(""));
+		mDirectoryListing->SetItemData(listIndex,directoryIndex);
+		mDirectoryListing->SetItem(directoryIndex,0,fileName,imageIndex);
+		mDirectoryListing->SetItem(directoryIndex,1,_T(""));
 	}
 
-	directoryListing->SetColumnWidth(0,wxLIST_AUTOSIZE);
-	directoryListing->SetColumnWidth(1,wxLIST_AUTOSIZE);
+	mDirectoryListing->SetColumnWidth(0,wxLIST_AUTOSIZE);
+	mDirectoryListing->SetColumnWidth(1,wxLIST_AUTOSIZE);
 	/*
 	if (thread!=NULL)
 	{
@@ -236,124 +236,96 @@ void FTPBrowserPanel::GetDirectoryListing()
 	thread->Create();
 	thread->Run();
 	*/
+	PostSizeEventToParent();
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void FTPBrowserPanel::CreateScreen()
 {
+	STATSGEN_DEBUG_FUNCTION_START("FTPBrowserPanel","CreateScreen")
 	wxString	defaultValue="";
 	wxSizeEvent	event;
 
-	if (directoryListing==NULL)
+	if (mDirectoryListing==NULL)
 	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"mDirectoryList is NULL")
 		globalStatistics.ReadPlayerCache();
-		directoryListing=new wxListCtrl(this,
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"creating directorylisting")
+		mDirectoryListing=new wxListCtrl(this,
 									WINDOW_ID_LISTBOX_CONFIGITEMS,
 									wxDefaultPosition,
 									wxDefaultSize,
 									wxLC_REPORT);
-		currentSelection=new wxTextCtrl(this,
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"creating currentSelection")
+		mCurrentSelection=new wxTextCtrl(this,
 									-1,
-									currentPath,
+									mCurrentPath,
 									wxDefaultPosition,
 									wxDefaultSize,
 									wxTE_READONLY);
 
-		progressPanel=new ProgressPanel();
-		progressPanel->DynamicSizing();
-		progressPanel->DisableTimeToGo();
-		progressPanel->DisableCounter();
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"creating progresspanel")
+		mProgressPanel=new ProgressPanel();
+		//progressPanel->DynamicSizing();
+		mProgressPanel->DisableTimeToGo();
+		mProgressPanel->DisableCounter();
 
-		progressPanel->Create(this,
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"progresspanel->Create")
+		mProgressPanel->Create(this,
 							WINDOW_ID_PROGRESS_PANEL_DYNAMIC,
 							wxDefaultPosition,
 							wxDefaultSize,
 							wxRAISED_BORDER);
-		progress->SetDynamicPanel(progressPanel);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"creating sizer")
+		mMainSizer = new wxBoxSizer(wxVERTICAL);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"adding directorylisting")
+		mMainSizer->Add(mDirectoryListing,1,wxEXPAND);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"adding currentselection")
+		mMainSizer->Add(mCurrentSelection,0,wxEXPAND);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"adding currentselection")
+		mMainSizer->Add(mProgressPanel,0,wxEXPAND);
+
+		mMainSizer->SetSizeHints(this);
+		SetSizer(mMainSizer);
+
+		progress->SetDynamicPanel(mProgressPanel);
 		progress->ChoosePanel(WINDOW_ID_PROGRESS_PANEL_DYNAMIC);
 		progress->UpdateLabel("");
 									
 		GetDirectoryListing();
-							
 	}
 	else
 	{
 		// Screen is already created
 	}
-}
-
-void FTPBrowserPanel::OnResize(wxSizeEvent &event)
-{
-	wxSize		itemSize;
-	int			panelWidth;
-	int			panelHeight;
-	int			selectionWidth;
-	int			selectionHeight;
-	int			progressWidth;
-	int			progressHeight;
-	int			listHeight;
-	int			listWidth;
-	wxString	msg;
-
-	// Make sure the screen has been created
-	CreateScreen();
-
-	itemSize=GetSize();
-	panelWidth=itemSize.GetWidth();
-	panelHeight=itemSize.GetHeight();
-	itemSize=currentSelection->GetSize();
-	selectionWidth=itemSize.GetWidth();
-	selectionHeight=itemSize.GetHeight();
-	itemSize=progressPanel->GetSize();
-	progressWidth=itemSize.GetWidth();
-	progressHeight=itemSize.GetHeight();
-
-	progressWidth=panelWidth-10;
-
-	listWidth=panelWidth-10;
-	listHeight=panelHeight;
-	listHeight-=selectionHeight;
-	listHeight-=progressHeight;
-	if (listHeight<0)
-	{
-		listHeight=0;
-	}
-
-	selectionWidth=panelWidth;
-
-	directoryListing->SetSize(0,0,listWidth,listHeight);
-	currentSelection->SetSize(0,listHeight,selectionWidth,selectionHeight);
-	progressPanel->SetSize(0,listHeight+selectionHeight,
-							progressWidth,progressHeight);
-
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void FTPBrowserPanel::CreateList()
 {
-	wxListItem	listColumn;
 	wxBitmap	bitmap;
 	wxSize		buttonSize(16,16);
 	
-	imageList.Create(16,16);
+	Refresh();
+	mImageList.Create(16,16);
 	bitmap=wxArtProvider::GetIcon(wxART_FOLDER,wxART_OTHER,buttonSize);
-	imageList.Add(bitmap);
+	mImageList.Add(bitmap);
 	bitmap=wxArtProvider::GetIcon(wxART_GO_DIR_UP,wxART_OTHER,buttonSize);
-	imageList.Add(bitmap);
+	mImageList.Add(bitmap);
 	bitmap=wxArtProvider::GetIcon(wxART_NORMAL_FILE,wxART_OTHER,buttonSize);
-	imageList.Add(bitmap);
+	mImageList.Add(bitmap);
 	bitmap=wxArtProvider::GetIcon(wxART_QUESTION,wxART_OTHER,buttonSize);
-	imageList.Add(bitmap);
+	mImageList.Add(bitmap);
 
-	directoryListing->SetImageList(&imageList,wxIMAGE_LIST_NORMAL);
-	directoryListing->SetImageList(&imageList,wxIMAGE_LIST_SMALL);
+	mDirectoryListing->SetImageList(&mImageList,wxIMAGE_LIST_NORMAL);
+	mDirectoryListing->SetImageList(&mImageList,wxIMAGE_LIST_SMALL);
 
-	directoryListing->DeleteAllColumns();
-	directoryListing->DeleteAllItems();
-	listColumn.SetText("Filename");
-	directoryListing->InsertColumn(0,listColumn);
-	listColumn.SetText("Size");
-	directoryListing->InsertColumn(1,listColumn);
+	mDirectoryListing->DeleteAllColumns();
+	mDirectoryListing->DeleteAllItems();
+	mDirectoryListing->InsertColumn(0,_T("Filename"),wxLIST_FORMAT_LEFT,wxLIST_AUTOSIZE);
+	mDirectoryListing->InsertColumn(1,_T("Size"),wxLIST_FORMAT_LEFT,wxLIST_AUTOSIZE);
 
+	PostSizeEventToParent();
 }
 
 RemoteFTPBrowserThread::RemoteFTPBrowserThread(
@@ -387,7 +359,7 @@ void *RemoteFTPBrowserThread::Entry()
 	int		directoryCount;
 	int		directoryIndex;
 
-	directoryCount=browserPanel->fileNames.GetCount();
+	directoryCount=browserPanel->mFileNames.GetCount();
 	for (directoryIndex=0;directoryIndex<directoryCount;directoryIndex++)
 	{
 		// Pop loads of events onto the stack to get the file size
@@ -417,38 +389,40 @@ void FTPBrowserPanel::OnListSingleClick(wxListEvent &event)
 	STATSGEN_DEBUG_FUNCTION_START("FTPBrowserPanel","OnListSingleClick")
 	listIndex=event.GetIndex();
 	STATSGEN_DEBUG_CODE(msg.Printf("item selected %ld",event.GetIndex());)
-	if (listIndex<fileNames.GetCount())
+	if (listIndex<mFileNames.GetCount())
 	{
-		fileName=fileNames.Item(listIndex);
-		selection=currentPath+"/"+fileName;
-		currentSelection->SetValue(selection);
+		fileName=mFileNames.Item(listIndex);
+		selection=mCurrentPath+"/"+fileName;
+		mCurrentSelection->SetValue(selection);
 		Update(listIndex);
-		fileSize=fileSizes.Item(listIndex);
-		selectedSize=fileSize;
+		fileSize=mFileSizes.Item(listIndex);
+		mSelectedSize=fileSize;
 	}
 	STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
+	PostSizeEventToParent();
+	
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
 wxString FTPBrowserPanel::GetCurrentSelection()
 {
-	return (currentSelection->GetValue());
+	return (mCurrentSelection->GetValue());
 }
 
 void FTPBrowserPanel::ChangeDirectory(wxString &filename)
 {
-	wxString	newDirectory=currentPath+"/"+filename;
+	wxString	newDirectory=mCurrentPath+"/"+filename;
 
-	if (remoteMachine->ChangeDirectory(newDirectory))
+	if (mRemoteMachine->ChangeDirectory(newDirectory))
 	{
-		currentPath=newDirectory;
-		currentSelection->SetValue(currentPath);
-		selectedSize=-1;
+		mCurrentPath=newDirectory;
+		mCurrentSelection->SetValue(mCurrentPath);
+		mSelectedSize=-1;
 		GetDirectoryListing();
 	}
 }
 
 wxString FTPBrowserPanel::CurrentPath()
 {
-	return (currentPath);
+	return (mCurrentPath);
 }

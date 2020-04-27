@@ -3,7 +3,6 @@
 #include "GlobalStatistics.h"
 
 BEGIN_EVENT_TABLE(WebsiteConfigGUI, wxDialog)
-		EVT_SIZE(WebsiteConfigGUI::OnResize)
 		EVT_BUTTON(WINDOW_ID_BUTTON_SAVE,WebsiteConfigGUI::OnSave)
 		EVT_BUTTON(WINDOW_ID_BUTTON_QUIT,WebsiteConfigGUI::OnQuit)
 END_EVENT_TABLE()
@@ -45,8 +44,8 @@ void WebsiteConfigGUI::CreateDialog()
 	wxString	label="Website Configuration";
 	wxString	defaultValue="";
 	wxString	configKey;
-	wxSizeEvent	event;
 	GroupedConfigItemsPanel	*configPanel;
+	wxBoxSizer	*mControlsSizer;
 
 	wxPoint		configItemsPosition=wxDefaultPosition;
 	wxSize		configItemsSize=wxDefaultSize;
@@ -61,28 +60,35 @@ void WebsiteConfigGUI::CreateDialog()
 					_T(WINDOW_ID_BUTTON_QUIT_TEXT),
 					wxDefaultPosition);
 
-	configPanel=new GroupedConfigItemsPanel("FTP Connection Settings");
-	configPanel->Create(this,
-						-1,
-						wxDefaultPosition,
-						wxDefaultSize);
+	configPanel=new GroupedConfigItemsPanel((char *)"FTP Connection Settings");
+	configPanel->CreateDisplay(this,wxID_ANY);
 
 	configKey="/website/IPAddress";
-	configPanel->Add("Hostname",configKey,"",-1);
+	configPanel->Add((char *)"Hostname",configKey,(char *)"",-1);
 	configKey="/website/FTPUsername";
-	configPanel->Add("Username",configKey,"",-1);
+	configPanel->Add((char *)"Username",configKey,(char *)"",-1);
 	configKey="/website/FTPPassword";
-	configPanel->Add("Password",configKey,"",-1);
+	configPanel->Add((char *)"Password",configKey,(char *)"",-1);
 	configKey="/website/FTPPort";
-	configPanel->Add("Port",configKey,"21",5);
+	configPanel->Add((char *)"Port",configKey,(char *)"21",5);
 	configKey="/website/FTPEnabled";
-	configPanel->Add("Enabled",configKey,"n",1);
+	configPanel->Add((char *)"Enabled",configKey,(char *)"n",1);
 	configKey="/website/FTPPassive";
-	configPanel->Add("Passive",configKey,"y",1);
+	configPanel->Add((char *)"Passive",configKey,(char *)"y",1);
 
 	configItems.Add((void *)configPanel);
 
-	OnResize(event);
+
+	mMainSizer	= new wxBoxSizer(wxVERTICAL);
+	mControlsSizer	= new wxBoxSizer(wxHORIZONTAL);
+
+	mControlsSizer->Add(&saveButton,1,wxEXPAND);
+	mControlsSizer->Add(&quitButton,1,wxEXPAND);
+
+	mMainSizer->Add(configPanel,1,wxEXPAND);
+	mMainSizer->Add(mControlsSizer,1,wxEXPAND);
+
+	ConfigureSizer();
 }
 
 void WebsiteConfigGUI::DisplayDialog()
@@ -117,51 +123,8 @@ void WebsiteConfigGUI::DisplayDialog()
 	}
 }
 
-void WebsiteConfigGUI::OnResize(wxSizeEvent &event)
+void WebsiteConfigGUI::ConfigureSizer()
 {
-	wxString	msg;
-
-	int		dialogWidth;
-	int		dialogHeight;
-	int		quitWidth;
-	int		quitHeight;
-	int		saveWidth;
-	int		saveHeight;
-	wxSize	itemSize;
-	wxPoint	itemPosition;
-	int		configPanelHeight;
-	int		configPanelWidth;
-	GroupedConfigItemsPanel	*configPanel;
-
-	itemSize=GetSize();
-	dialogWidth=itemSize.GetWidth();
-	dialogHeight=itemSize.GetHeight();
-
-	// Quit and Save buttons are at the bottom of the screen
-	itemSize=quitButton.GetSize();
-	quitWidth=itemSize.GetWidth();
-	quitHeight=itemSize.GetHeight();
-
-	itemSize=saveButton.GetSize();
-	saveWidth=itemSize.GetWidth();
-	saveHeight=itemSize.GetHeight();
-
-	configPanelHeight=dialogHeight-saveHeight-DIALOG_BOTTOM_BORDER_SIZE;
-	configPanelWidth=dialogWidth;
-
-	// Config Panel
-	configPanel=(GroupedConfigItemsPanel *)configItems.Item(0);
-	configPanel->SetSize(0,0,configPanelWidth,configPanelHeight);
-
-	// Save button
-	itemPosition.x=BUTTON_WIDTH_GAP;
-	itemPosition.y=dialogHeight-saveHeight-DIALOG_BOTTOM_BORDER_SIZE;
-	saveButton.SetPosition(itemPosition);
-
-	// Quit button
-	itemPosition.x=saveWidth+BUTTON_WIDTH_GAP+BUTTON_WIDTH_GAP;
-	itemPosition.y=dialogHeight-quitHeight-DIALOG_BOTTOM_BORDER_SIZE;
-	quitButton.SetPosition(itemPosition);
-
+	mMainSizer->SetSizeHints(this);
+	SetSizer(mMainSizer);
 }
-

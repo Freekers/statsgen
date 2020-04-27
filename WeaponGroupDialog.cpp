@@ -157,9 +157,9 @@ void WeaponGroupDialog::WriteCurrentWeaponGroup()
 			if 	(weaponKeysList->IsChecked(weaponKeyIndex))
 			{
 				configKey.Printf("/%s/%s",
-						currentWeaponGroup.GetData(),
-						weaponKey.GetData());
-				globalStatistics.configData.WriteTextValue(configKey,"");
+						STRING_TO_CHAR(currentWeaponGroup),
+						STRING_TO_CHAR(weaponKey));
+				globalStatistics.configData.WriteTextValue(configKey,(char *)"");
 			}
 		}
 		globalStatistics.configData.CommitChanges();

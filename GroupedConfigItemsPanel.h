@@ -18,9 +18,9 @@
 class GroupedConfigItemsPanel : public wxPanel
 {
 	public:
-		int PreferredHeight();
 		GroupedConfigItemsPanel(char *titleIn);
 		~GroupedConfigItemsPanel();
+		void CreateDisplay(wxWindow *parent,int id);
 		void AddSchedule(char *label,
 			wxString &configKey,
 			wxString &defaultValue,
@@ -35,6 +35,11 @@ class GroupedConfigItemsPanel : public wxPanel
 			char *defaultValue,
 			int charWidth,
 			GUITriggerList *triggerList=NULL);
+		void Add(wxString label,
+			wxString &configKey,
+			wxString defaultValue,
+			int charWidth,
+			GUITriggerList *triggerList=NULL);
 		void AddSelectionFreeForm(char *label,
 			wxString &configKey,
 			char *defaultValue,
@@ -42,11 +47,23 @@ class GroupedConfigItemsPanel : public wxPanel
 			wxArrayString &names,
 			int charWidth,
 			GUITriggerList *triggerList=NULL);
+		void AddSelection(wxString label,
+			wxString &configKey,
+			wxString defaultValue,
+			wxArrayString &codes,
+			wxArrayString &names,
+			GUITriggerList *triggerList=NULL);
 		void AddSelection(char *label,
 			wxString &configKey,
 			char *defaultValue,
 			wxArrayString &codes,
 			wxArrayString &names,
+			GUITriggerList *triggerList=NULL);
+		FileConfigItemGUI *AddFile(wxString label,
+			wxString &configKey,
+			wxString defaultValue,
+			int charWidth,
+			DirectoryConfigItemGUI *directoryGUI=NULL,
 			GUITriggerList *triggerList=NULL);
 		FileConfigItemGUI *AddFile(char *label,
 			wxString &configKey,
@@ -57,6 +74,16 @@ class GroupedConfigItemsPanel : public wxPanel
 		DirectoryConfigItemGUI *AddDirectory(char *label,
 			wxString &configKey,
 			char *defaultValue,
+			int charWidth,
+			GUITriggerList *triggerList=NULL);
+		DirectoryConfigItemGUI *AddDirectory(char *label,
+			wxString &configKey,
+			wxString defaultValue,
+			int charWidth,
+			GUITriggerList *triggerList=NULL);
+		DirectoryConfigItemGUI *AddDirectory(wxString label,
+			wxString &configKey,
+			wxString defaultValue,
 			int charWidth,
 			GUITriggerList *triggerList=NULL);
 		RemoteFileConfigItemGUI *AddRemoteFile(char *label,
@@ -73,17 +100,17 @@ class GroupedConfigItemsPanel : public wxPanel
 			wxString &FTPIDIn,
 			GUITriggerList *triggerList=NULL);
 			
-			void OnResize(wxSizeEvent &event);
 			void OnTextChange(wxCommandEvent &event);
 		bool UpdateFromTrigger();
-
+		void ConfigureSizer();
 	protected:
 
 	private:
-		wxString	title;
-		wxStaticBox	staticBox;
-		bool		staticBoxAdded;
+		wxString	mTitle;
 		ArrayOfPointers	configItemPanels;
+		wxBoxSizer		*mContentsSizer;
+		wxStaticBox		*mTitleBox;
+		wxStaticBoxSizer	*mTitleSizer;
 		DECLARE_EVENT_TABLE()
 };
 

@@ -39,7 +39,7 @@ wxString ImageTypePanel::FindCodeFromName(wxString &name)
 
 	for (index=0;index<count;index++)
 	{
-		if (strcmp(ImageTypeNames[index],name.GetData())==0)
+		if (strcmp(ImageTypeNames[index],STRING_TO_CHAR(name))==0)
 		{
 			retVal=ImageTypeCodes[index];
 		}

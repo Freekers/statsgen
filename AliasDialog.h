@@ -22,17 +22,18 @@ class AliasDialog : public GenericOKCancelDialog
 
 		virtual ~AliasDialog();
 
-		virtual void OnResize(wxSizeEvent& event);
 		virtual void OnAuto(wxCommandEvent& event);
 		virtual void OnSave(wxCommandEvent& event);
 		virtual void CreateDialog();
 		virtual bool DisplayDialog();
+		virtual void ControlsSizerPre();
+		virtual void ControlsSizerPost();
 
 	protected:
 
 	private:
-		AliasEditorPanel	*panel;
-		wxButton	autoButton;
+		AliasEditorPanel	*mPanel;
+		wxButton	mAutoButton;
 		DECLARE_EVENT_TABLE()
 };
 

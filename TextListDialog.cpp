@@ -5,7 +5,6 @@
 #include "LogFileReader.h"
 
 BEGIN_EVENT_TABLE(TextListDialog,GenericOKCancelDialog)
-	EVT_SIZE(TextListDialog::OnResize)
 	EVT_BUTTON(WINDOW_ID_BUTTON_NEW,TextListDialog::OnNew)
 END_EVENT_TABLE()
 
@@ -27,26 +26,22 @@ TextListDialog::TextListDialog(wxWindow *parent,
 {
 	wxArrayString	textItems;
 
-	group=groupIn;
-	singleWords=true;
+	mGroup			= groupIn;
+	mSingleWords	= true;
 
-	newButton.Create(this,
+	mNewButton.Create(this,
 					WINDOW_ID_BUTTON_NEW,
 					_T(WINDOW_ID_BUTTON_NEW_TEXT),
 					wxDefaultPosition);
-	globalStatistics.configData.ReadList(group,textItems);
-	panel=new TextListEditorPanel();
-	panel->SetList(textItems);
-	panel->Create(this,
-				-1,
-				wxDefaultPosition,
-				wxDefaultSize
-				);
+	globalStatistics.configData.ReadList(mGroup,textItems);
+	mPanel=new TextListEditorPanel();
+	mPanel->SetList(textItems);
+	mPanel->Create(this, wxID_ANY, wxDefaultPosition, wxDefaultSize);
 }
 
 bool TextListDialog::DisplayDialog()
 {
-	return (GenericOKCancelDialog::DisplayDialog((wxPanel *)panel));
+	return (GenericOKCancelDialog::DisplayDialog((wxPanel *)mPanel));
 }
 
 TextListDialog::~TextListDialog()
@@ -58,10 +53,10 @@ void TextListDialog::OnSave(wxCommandEvent &event)
 	wxString			msg;
 	wxArrayString	textItems;
 
-	panel->GetList(textItems);
+	mPanel->GetList(textItems);
 	// Write the TextList List to disk
 
-	globalStatistics.configData.WriteList(group,textItems);
+	globalStatistics.configData.WriteList(mGroup,textItems);
 	globalStatistics.configData.CommitChanges();
 	// Do any standard Save
 	GenericOKCancelDialog::OnSave(event);
@@ -87,52 +82,33 @@ void TextListDialog::OnNew(wxCommandEvent &event)
 	userEntry=wxGetTextFromUser(message,caption);
 	if (userEntry.Length()>0)
 	{
-		if (singleWords)
+		if (mSingleWords)
 		{
-			GetLineToken(userEntry," ",1,&tokenCount);
+			GetLineToken(userEntry,(char *)" ",1,&tokenCount);
 			for (tokenIndex=1;tokenIndex<=tokenCount;tokenIndex++)
 			{
-				newEntry=GetLineToken(userEntry," ",tokenIndex,&tokenCount);
-				panel->Add(newEntry);
+				newEntry=GetLineToken(userEntry,(char *)" ",tokenIndex,&tokenCount);
+				mPanel->Add(newEntry);
 			}
 		}
 		else
 		{
-			panel->Add(userEntry);
+			mPanel->Add(userEntry);
 		}
 	}
 }
-
-void TextListDialog::OnResize(wxSizeEvent &event)
+void TextListDialog::ControlsSizerPre()
 {
-	int 	newX;
-	int		newWidth;
-	int		newHeight;
-	int		quitX;
-	int		quitY;
-	int		quitWidth;
-	wxSize	itemSize;
-	wxPoint	itemPos;
-	GenericOKCancelDialog::OnResize(event);
-
-	itemPos=quitButton.GetPosition();
-	itemSize=quitButton.GetSize();
-	quitWidth=itemSize.GetWidth();
-	quitX=itemPos.x;
-	quitY=itemPos.y;
-	
-	newX=quitX+quitWidth;
-	itemSize=newButton.GetSize();
-	newWidth=itemSize.GetWidth();
-	newHeight=itemSize.GetHeight();
-	newButton.SetSize(newX,quitY,newWidth,newHeight);
+	mControlsSizer->Add(&mNewButton);
 }
-
+void TextListDialog::ControlsSizerPost()
+{
+}
 void TextListDialog::SortOn(bool value)
 {
-	panel->SortOn(value);
+	mPanel->SortOn(value);
 }
 void TextListDialog::SingleWords(bool value)
 {
-	singleWords=value;
+	mSingleWords=value;
 }

@@ -29,6 +29,12 @@ WebServerRequestHandler::~WebServerRequestHandler()
 
 void WebServerRequestHandler::WriteErrorResponse(int errorCode,char *response)
 {
+	wxString responseStr = response;
+
+	WriteErrorResponse(errorCode,responseStr);
+}
+void WebServerRequestHandler::WriteErrorResponse(int errorCode,wxString response)
+{
 	wxString	responseStr;
 
 	responseStr.Printf("HTTP/1.1 %ld %s\r\nserver: statsgen\r\n"
@@ -40,7 +46,7 @@ void WebServerRequestHandler::WriteErrorResponse(int errorCode,char *response)
 					response,
 					strlen(response),
 					response);
-	WriteBufferToClient(responseStr.GetData(),responseStr.Length());
+	WriteBufferToClient(STRING_TO_CHAR(responseStr),responseStr.Length());
 }
 
 void WebServerRequestHandler::WriteBufferToClient(
@@ -88,9 +94,9 @@ void WebServerRequestHandler::WriteStandardResponse(
 							"content-length: %ld\r\n"
 							"\r\n",
 							responseCode,
-							contentType.GetData(),
+							STRING_TO_CHAR(contentType),
 							bufferSize);
-	WriteBufferToClient(responseHeader.GetData(),responseHeader.Length());
+	WriteBufferToClient(STRING_TO_CHAR(responseHeader),responseHeader.Length());
 	WriteBufferToClient(responseBuffer,bufferSize);
 	STATSGEN_DEBUG_FUNCTION_END
 }
@@ -201,7 +207,8 @@ wxXmlDocument WebServerRequestHandler::KeyListToXML(
 	{
 		rootPropertyKey=rootPropertyKeys.Item(rootKeyIndex);
 		rootPropertyValue=rootPropertyValues.Item(rootKeyIndex);
-		root->AddProperty(rootPropertyKey,rootPropertyValue);
+		//root->AddProperty(rootPropertyKey,rootPropertyValue);
+		root->AddAttribute(rootPropertyKey,rootPropertyValue);
 	}
 	xmlResponse.SetRoot(root);
 	keyCount=keys.GetCount();
@@ -299,7 +306,7 @@ void WebServerRequestHandler::HandleURL(wxString &url)
 	STATSGEN_DEBUG_FUNCTION_START("WebServerRequestHandler","HandleURL")
 	STATSGEN_DEBUG(DEBUG_ALWAYS,url)
 	url=url.AfterFirst('/');
-	urlFileName=BaseDirectoryFileName(url.GetData());
+	urlFileName=BaseDirectoryFileName(STRING_TO_CHAR(url));
 	ext=urlFileName.GetExt().Lower();
 	if (ext.CmpNoCase("xml")==0)
 	{
@@ -331,15 +338,15 @@ void WebServerRequestHandler::HandleURL(wxString &url)
 			else
 			{
 				// File exists but could not open
-				msg.Printf("url=[%s] Could Not Be Opened",url.GetData());
-				WriteErrorResponse(404,(char *)msg.GetData());
+				msg.Printf("url=[%s] Could Not Be Opened",STRING_TO_CHAR(url));
+				WriteErrorResponse(404,msg);
 			}
 		}
 		else
 		{
-			STATSGEN_DEBUG(DEBUG_ALWAYS,"NOT FOUND")
-			msg.Printf("url=[%s] Not Found",url.GetData());
-			WriteErrorResponse(404,(char *)msg.GetData());
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"NOT FOUND")
+			msg.Printf("url=[%s] Not Found",STRING_TO_CHAR(url));
+			WriteErrorResponse(404,msg);
 		}
 	}
 	if (client!=NULL)
@@ -399,10 +406,10 @@ void WebServerRequestHandler::ReceiveDataFromClient()
 		{
 		
 			msg.Printf("Bad Request: Method=[%s], URL=[%s], Version=[%s]",
-					method.GetData(),
-					url.GetData(),
-					version.GetData());
-			WriteErrorResponse(400,(char *)msg.GetData());
+					STRING_TO_CHAR(method),
+					STRING_TO_CHAR(url),
+					STRING_TO_CHAR(version));
+			WriteErrorResponse(400,msg);
 			return;
 		}
 		else
@@ -413,7 +420,7 @@ void WebServerRequestHandler::ReceiveDataFromClient()
 	}
 	catch (int e)
 	{
-		WriteErrorResponse(500,"Server Error");
+		WriteErrorResponse(500,(char *)"Server Error");
 		return;
 		// Server Error (500)
 	}

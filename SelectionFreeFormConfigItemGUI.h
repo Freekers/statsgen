@@ -14,36 +14,26 @@ class SelectionFreeFormConfigItemGUI : public BaseConfigItemGUI
 	public:
 		SelectionFreeFormConfigItemGUI();
 		virtual ~SelectionFreeFormConfigItemGUI();
+		void CreateDisplay(wxWindow *parent,int id,wxString labelText);
 		void OnTextChange(wxCommandEvent& event);
+		wxString GetNameFromCode(wxString code);
+		void SetSelection(wxArrayString &codes,wxArrayString &names);
+		virtual void ApplyConfigKeyChange();
 		void OnSelectionChange(wxCommandEvent& event);
 		void OnButtonPressed(wxCommandEvent& event);
-
-		void SetConfigKey(wxString &configKeyIn);
-		void SetLabelWidth(int width);
-		int GetLabelWidth();
-		void Set(wxString &configKeyIn,
-			wxString &labelText,
-			wxString &defaultValueIn,
-			wxArrayString &codes,
-			wxArrayString &names,
-			int	maxCharactersIn);
-			void OnResize(wxSizeEvent &event);
 
 		wxString GetValue();
 		void SetValue(wxString &value);
 	protected:
 
 	private:
-		wxTextCtrl		textEdit;
-		wxComboBox		choices;
-		wxBitmapButton	button;
-		wxStaticText	label;
-		bool			maxCharactersSet;
-		int				maxCharacters;
-		wxString		labelText;
-		wxString		defaultValue;
-		wxArrayString	codes;
-		wxArrayString	names;
+		wxTextCtrl		*mTextEdit;
+		wxComboBox		*mChoices;
+		wxBitmapButton	*mButton;
+		wxStaticText	*mLabel;
+		wxString		mLabelText;
+		wxArrayString	mCodes;
+		wxArrayString	mNames;
 
 		DECLARE_EVENT_TABLE()
 };

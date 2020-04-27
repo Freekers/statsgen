@@ -71,9 +71,9 @@ wxString Player::SQLCreateTable()
 				"clanindex integer,"
 				"dropped varchar(1)"
 			")",
-			SQLTableName().GetData(),
-	StatsgenDatabase::StringFieldDefinition("name","playername",FIELD_WIDTH_PLAYER_NAME).GetData(),
-	StatsgenDatabase::StringFieldDefinition("id","playerguid",FIELD_WIDTH_PLAYER_GUID).GetData()
+			STRING_TO_CHAR(SQLTableName()),
+	STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("name","playername",FIELD_WIDTH_PLAYER_NAME)),
+	STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("id","playerguid",FIELD_WIDTH_PLAYER_GUID))
 			);
 
 	return SQL;
@@ -127,7 +127,7 @@ bool Player::WriteToDatabaseUpdate(int itemIndex,bool updateExisting)
 					"clanindex='%d',"
 					"dropped='%c' "
 					"where playerindex='%d'",
-				SQLTableName().GetData(),
+				STRING_TO_CHAR(SQLTableName()),
 				score, skill,
 				scoreWeighted, skillWeighted,
 				kills,deaths,
@@ -174,10 +174,10 @@ bool Player::WriteToDatabaseUpdate(int itemIndex,bool updateExisting)
 				"'%d',"		// lastactiveround
 				"'%d',"		// clanindex
 				"'%c')",	// dropped
-				SQLTableName().GetData(),
+				STRING_TO_CHAR(SQLTableName()),
 				itemIndex,
-				StatsgenDatabase::SafeForInsert(name).GetData(),
-				StatsgenDatabase::SafeForInsert(ID).GetData(),
+				STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(name)),
+				STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(ID)),
 				score, skill,
 				scoreWeighted, skillWeighted,
 				kills,deaths,
@@ -237,26 +237,26 @@ bool Player::UpdateFromDatabase(int newPlayerIndex)
 	static wxString		propertyDuration				="duration";
 	static wxString		propertyDropped					="dropped";
 
-	sql.Printf("select * from player where name=\'%s\'",StatsgenDatabase::SafeForInsert(name).GetData());
+	sql.Printf("select * from player where name=\'%s\'",STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(name)));
 
 	query.Initiate(sql,globalStatistics.statsgenDatabase.DBHandle());
 	playerUpdated=query.NextRow();
 	if (playerUpdated)
 	{
-		actualPlayerIndex		=atoi(query.RetrieveProperty(propertyPlayerIndex).GetData());
-		score					=atof(query.RetrieveProperty(propertyScore).GetData());
-		skill					=atof(query.RetrieveProperty(propertySkill).GetData());
-		kills					=atoi(query.RetrieveProperty(propertyKills).GetData());
-		deaths					=atoi(query.RetrieveProperty(propertyDeaths).GetData());
-		teamWins				=atoi(query.RetrieveProperty(propertyTeamWins).GetData());
-		teamLosses				=atoi(query.RetrieveProperty(propertyTeamLosses).GetData());
-		teamKills				=atoi(query.RetrieveProperty(propertyTeamKills).GetData());
-		longestKillStreak		=atoi(query.RetrieveProperty(propertyLongestKillStreak).GetData());
-		longestTeamKillStreak	=atoi(query.RetrieveProperty(propertyLongestTeamKillStreak).GetData());
-		longestDeathStreak		=atoi(query.RetrieveProperty(propertyLongestDeathStreak).GetData());
-		suicides				=atoi(query.RetrieveProperty(propertySuicides).GetData());
-		rounds					=atoi(query.RetrieveProperty(propertyRounds).GetData());
-		accumulatedDuration		=wxTimeSpan::Seconds(atoi(query.RetrieveProperty(propertyDuration).GetData()));
+		actualPlayerIndex		=atoi(STRING_TO_CHAR(query.RetrieveProperty(propertyPlayerIndex)));
+		score					=atof(STRING_TO_CHAR(query.RetrieveProperty(propertyScore)));
+		skill					=atof(STRING_TO_CHAR(query.RetrieveProperty(propertySkill)));
+		kills					=atoi(STRING_TO_CHAR(query.RetrieveProperty(propertyKills)));
+		deaths					=atoi(STRING_TO_CHAR(query.RetrieveProperty(propertyDeaths)));
+		teamWins				=atoi(STRING_TO_CHAR(query.RetrieveProperty(propertyTeamWins)));
+		teamLosses				=atoi(STRING_TO_CHAR(query.RetrieveProperty(propertyTeamLosses)));
+		teamKills				=atoi(STRING_TO_CHAR(query.RetrieveProperty(propertyTeamKills)));
+		longestKillStreak		=atoi(STRING_TO_CHAR(query.RetrieveProperty(propertyLongestKillStreak)));
+		longestTeamKillStreak	=atoi(STRING_TO_CHAR(query.RetrieveProperty(propertyLongestTeamKillStreak)));
+		longestDeathStreak		=atoi(STRING_TO_CHAR(query.RetrieveProperty(propertyLongestDeathStreak)));
+		suicides				=atoi(STRING_TO_CHAR(query.RetrieveProperty(propertySuicides)));
+		rounds					=atoi(STRING_TO_CHAR(query.RetrieveProperty(propertyRounds)));
+		accumulatedDuration		=wxTimeSpan::Seconds(atoi(STRING_TO_CHAR(query.RetrieveProperty(propertyDuration))));
 		dropped					=(query.RetrieveProperty(propertyDropped).CmpNoCase("Y") == 0);
 	}
 	else

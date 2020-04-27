@@ -52,12 +52,12 @@ void ScheduleEditorPanel::SplitValue(
 		baseScheduleComponent=value.BeforeFirst(',');
 		intervalScheduleComponent=value.AfterFirst(',');
 		timeComponent=baseScheduleComponent.BeforeFirst(':');
-		hours=atoi(timeComponent.GetData());
+		hours=atoi(STRING_TO_CHAR(timeComponent));
 		baseScheduleComponent=baseScheduleComponent.AfterFirst(':');
 		timeComponent=baseScheduleComponent.BeforeFirst(':');
-		minutes=atoi(timeComponent.GetData());
+		minutes=atoi(STRING_TO_CHAR(timeComponent));
 		baseScheduleComponent=baseScheduleComponent.AfterFirst(':');
-		seconds=atoi(baseScheduleComponent.GetData());
+		seconds=atoi(STRING_TO_CHAR(baseScheduleComponent));
 
 		baseHourString.Printf("%02d",hours);
 		baseMinuteString.Printf("%02d",minutes);
@@ -68,7 +68,7 @@ void ScheduleEditorPanel::SplitValue(
 		intervalScheduleComponent=value;
 	}
 	
-	totalSeconds=atoi(intervalScheduleComponent.GetData());
+	totalSeconds=atoi(STRING_TO_CHAR(intervalScheduleComponent));
 	hours=totalSeconds/3600;
 	totalSeconds-=(hours*3600);
 	minutes=totalSeconds/60;
@@ -133,18 +133,18 @@ void ScheduleEditorPanel::SetValue()
 	if (intervalWithBase)
 	{
 		baseTimeComponent.Printf("%02d:%02d:%02d,",
-			atoi(baseHours->GetValue().GetData()),
-			atoi(baseMinutes->GetValue().GetData()),
-			atoi(baseSeconds->GetValue().GetData()));
+			atoi(STRING_TO_CHAR(baseHours->GetValue())),
+			atoi(STRING_TO_CHAR(baseMinutes->GetValue())),
+			atoi(STRING_TO_CHAR(baseSeconds->GetValue())));
 	}
 	else
 	{
 		baseTimeComponent="";
 	}
 	intervalTimeComponent.Printf("%d",
-			(atoi(intervalHours->GetValue().GetData())*3600)+
-			(atoi(intervalMinutes->GetValue().GetData())*60)+
-			atoi(intervalSeconds->GetValue().GetData()));
+			(atoi(STRING_TO_CHAR(intervalHours->GetValue()))*3600)+
+			(atoi(STRING_TO_CHAR(intervalMinutes->GetValue()))*60)+
+			atoi(STRING_TO_CHAR(intervalSeconds->GetValue())));
 
 	value=baseTimeComponent+intervalTimeComponent;
 }

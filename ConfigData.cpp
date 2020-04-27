@@ -143,7 +143,7 @@ void ConfigData::CommitChanges()
 		}
 	}
 	
-	STATSGEN_DEBUG(DEBUG_SOMETIMES,"Written non-committed data to config")
+	STATSGEN_DEBUG(DEBUG_SOMETIMES,(char *)"Written non-committed data to config")
 	// We have stepped through every cache entry and written
 	// them to the config file now remove any groups that are 
 	// in the deleted groups list
@@ -153,7 +153,7 @@ void ConfigData::CommitChanges()
 	for (groupIndex=0;groupIndex<groupCount;groupIndex++)
 	{
 		group="/"+groupsDeleted.Item(groupIndex);
-		STATSGEN_DEBUG_CODE(errorMessage.Printf("Deleting group [%s]",group.GetData());)
+		STATSGEN_DEBUG_CODE(errorMessage.Printf("Deleting group [%s]",STRING_TO_CHAR(group));)
 		STATSGEN_DEBUG(DEBUG_RARELY,errorMessage)
 		configFile->DeleteGroup(group);
 	}
@@ -169,7 +169,7 @@ void ConfigData::EmptyCache()
 	configKeys.Clear();
 }
 
-bool ConfigData::ReadTextValue(wxString &key,wxString *value)
+bool ConfigData::ReadTextValue(wxString key,wxString *value)
 {
 	int		cacheIndex;
 	bool		retVal=false;
@@ -220,7 +220,7 @@ bool ConfigData::ReadTextValue(char *key,wxString *value)
 	return(ReadTextValue(keyString, value));
 }
 
-bool ConfigData::ReadTextValue(wxString &key,wxString *value,char *defaultValue)
+bool ConfigData::ReadTextValue(wxString key,wxString *value,wxString defaultValue)
 {
 	bool	retVal;
 
@@ -248,9 +248,24 @@ bool ConfigData::ReadTextValue(wxString &key,wxString *value,char *defaultValue)
 bool ConfigData::ReadTextValue(char *key,wxString *value,char *defaultValue)
 {
 	wxString	keyString;
+	wxString	defaultStr;
+
+	keyString=key;
+	defaultStr = defaultValue;
+	return(ReadTextValue(keyString, value, defaultStr));
+}
+bool ConfigData::ReadTextValue(char *key,wxString *value,wxString defaultValue)
+{
+	wxString	keyString;
 
 	keyString=key;
 	return(ReadTextValue(keyString, value, defaultValue));
+}
+bool ConfigData::ReadTextValue(wxString key,wxString *value,char *defaultValue)
+{
+	wxString	defaultValueStr=defaultValue;
+
+	return(ReadTextValue(key, value, defaultValueStr));
 }
 
 void ConfigData::WriteTextValue(wxString &key,wxString &value)
@@ -354,12 +369,12 @@ bool ConfigData::ReadGroup(char *group,
 
 bool ConfigData::ReadList(wxString &group, wxArrayString &list)
 {
-	return (ReadList(group,"",list));
+	return (ReadList(group,(char *)"",list));
 }
 
 bool ConfigData::ReadList(char *group, wxArrayString &list)
 {
-	return (ReadList(group,"",list));
+	return (ReadList(group,(char *)"",list));
 }
 
 bool ConfigData::ReadList(wxString &group, 
@@ -375,17 +390,17 @@ bool ConfigData::ReadList(wxString &group,
 	list.Clear();
 
 	configKey.Printf("/%s/%sLISTCOUNT",
-						group.GetData(),
-						subGroup.GetData());
-	ReadTextValue(configKey,&configValue,"0");
-	listCount=atoi(configValue.GetData());
+						STRING_TO_CHAR(group),
+						STRING_TO_CHAR(subGroup));
+	ReadTextValue(configKey,&configValue,(char *)"0");
+	listCount=atoi(STRING_TO_CHAR(configValue));
 	for (listIndex=0;listIndex<listCount;listIndex++)
 	{
 		configKey.Printf("/%s/%sLISTITEM%03d",
-							group.GetData(),
-							subGroup.GetData(),
+							STRING_TO_CHAR(group),
+							STRING_TO_CHAR(subGroup),
 							listIndex+1);
-		ReadTextValue(configKey,&configValue,"");
+		ReadTextValue(configKey,&configValue,(char *)"");
 		list.Add(configValue);
 	}
 	return (retVal);
@@ -437,12 +452,12 @@ bool ConfigData::WriteList(wxString &group, wxString &subGroup,
 
 	listCount=list.GetCount();
 	configValue.Printf("%d",listCount);
-	configKey.Printf("/%s/%sLISTCOUNT",group.GetData(),subGroup.GetData());
+	configKey.Printf("/%s/%sLISTCOUNT",STRING_TO_CHAR(group),STRING_TO_CHAR(subGroup));
 	WriteTextValue(configKey,configValue);
 	for (listIndex=0;listIndex<listCount;listIndex++)
 	{
-		configKey.Printf("/%s/%sLISTITEM%03d",group.GetData(),
-								subGroup.GetData(),listIndex+1);
+		configKey.Printf("/%s/%sLISTITEM%03d",STRING_TO_CHAR(group),
+								STRING_TO_CHAR(subGroup),listIndex+1);
 		configValue=list.Item(listIndex);
 		WriteTextValue(configKey,configValue);
 	}
@@ -476,14 +491,14 @@ bool ConfigData::WriteList(char *group, wxString &subGroup,
 
 bool ConfigData::WriteList(wxString &group, wxArrayString &list)
 {
-	return (WriteList(group,"",list));
+	return (WriteList(group,(char *)"",list));
 }
 
 bool ConfigData::WriteList(char *group, wxArrayString &list)
 {
 	wxString	groupStr=group;
 
-	return (WriteList(groupStr,"",list));
+	return (WriteList(groupStr,(char *)"",list));
 }
 
 void ConfigData::PurgeDeletedEntry(wxString &configKey)
@@ -549,8 +564,8 @@ void ConfigData::Initiate(wxFileName &iniFilenameIn)
 {
 	wxString	msg;
 	long	style=wxCONFIG_USE_NO_ESCAPE_CHARACTERS;
-	char	*appName="Statsgen2";
-	char	*vendorName="";
+	char	*appName=(char *)"Statsgen2";
+	char	*vendorName=(char *)"";
 
 	STATSGEN_DEBUG_FUNCTION_START("ConfigData","Initiate")
 
@@ -566,6 +581,24 @@ void ConfigData::Initiate(wxFileName &iniFilenameIn)
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
+void ConfigData::Export(wxArrayString &upgradeList,
+			ConfigData &sourceConfig,
+			wxString description,
+			wxString group,
+			int exportType,
+			int exportAnswerType,
+			char *recommendation)
+{
+	wxString	descriptionStr = description;
+	wxString	groupStr = group;
+	Export(upgradeList,
+		sourceConfig,
+		descriptionStr,
+		groupStr,
+		exportType,
+		exportAnswerType,
+		recommendation);
+}
 void ConfigData::Export(wxArrayString &upgradeList,
 			ConfigData &sourceConfig,
 			char *description,
@@ -654,7 +687,7 @@ void ConfigData::UpgradeDetails(wxString &description,wxString &upgradeType)
 	description="";
 	upgradeType="";
 
-	ReadList((char *)configGroup.GetData(),groups);
+	ReadList(configGroup,groups);
 	ReadTextValue(configKeyDescription,&description);
 	ReadTextValue(configKeyType,&upgradeType);
 	if (groups.GetCount()>0)

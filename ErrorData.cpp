@@ -22,7 +22,7 @@ void StatsgenDebugObject::UpdateDebugConfig()
 	wxString	configValue;
 	
 	configKey="/Debug/DebugFile";
-	globalStatistics.configData.ReadTextValue(configKey,&debugFilename,"");
+	globalStatistics.configData.ReadTextValue(configKey,&debugFilename,(char *)"");
 
 	debugMaxLevel.Clear();
 	for (debugIndex=WINDOW_ID_PROGRESS_PANEL_GENERAL;
@@ -33,8 +33,8 @@ void StatsgenDebugObject::UpdateDebugConfig()
 				debugIndex-WINDOW_ID_PROGRESS_PANEL_GENERAL);
 		
 
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"0");
-		debugMaxLevel.Add(atoi(configValue.GetData()));
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"0");
+		debugMaxLevel.Add(atoi(STRING_TO_CHAR(configValue)));
 	}
 	initiateDebugFile=true;
 	currentDebugLevel=0;
@@ -45,10 +45,16 @@ bool StatsgenDebugObject::DebugOn()
 	return ((currentDebugLevel!=0)&&(debugFilename.Length()!=0));
 }
 
-void StatsgenDebugObject::Debug(const char *classname,const char *functionname,
-			int debugLevel,const char *message)
+void StatsgenDebugObject::Debug(wxString classname,wxString functionname,
+			int debugLevel,char *message)
 {
-	if ((currentDebugLevel!=0)&&(strlen(debugFilename.GetData())!=0))
+	wxString messageStr = message;
+	Debug(classname,functionname, debugLevel,messageStr);
+}
+void StatsgenDebugObject::Debug(wxString classname,wxString functionname,
+			int debugLevel,wxString message)
+{
+	if ((currentDebugLevel!=0)&&(strlen(STRING_TO_CHAR(debugFilename))!=0))
 	{
 		// debug enabled
 		if (currentDebugLevel>=debugLevel)
@@ -56,37 +62,33 @@ void StatsgenDebugObject::Debug(const char *classname,const char *functionname,
 			FILE *fp;
 			if (initiateDebugFile)
 			{
-				fp=fopen(debugFilename.GetData(),"w");
+				fp=fopen(STRING_TO_CHAR(debugFilename),"w");
 				initiateDebugFile=false;
 			}
 			else
 			{
-				fp=fopen(debugFilename.GetData(),"a");
+				fp=fopen(STRING_TO_CHAR(debugFilename),"a");
 			}
 			if (fp!=NULL)
 			{
 				fprintf(fp,"%s::%s():%s\n",
-					classname,functionname,message);
+					STRING_TO_CHAR(classname),STRING_TO_CHAR(functionname),STRING_TO_CHAR(message));
 				fclose(fp);
 			}
 		}
 	}
 }
 
-void StatsgenDebugObject::Debug(const char *classname,const char *functionname,
-			int debugLevel,wxString &message)
+void StatsgenDebugObject::Entering(wxString classname,wxString functionname)
 {
-	Debug(classname,functionname,debugLevel,message.GetData());
+	wxString	message="Entering";
+	Debug(classname,functionname,DEBUG_SOMETIMES,message);
 }
 
-void StatsgenDebugObject::Entering(const char *classname,const char *functionname)
+void StatsgenDebugObject::Leaving(wxString classname,wxString functionname)
 {
-	Debug(classname,functionname,DEBUG_SOMETIMES,"Entering");
-}
-
-void StatsgenDebugObject::Leaving(const char *classname,const char *functionname)
-{
-	Debug(classname,functionname,DEBUG_SOMETIMES,"Leaving");
+	wxString	message="Leaving";
+	Debug(classname,functionname,DEBUG_SOMETIMES,message);
 }
 
 void StatsgenDebugObject::UpdateCurrentDebugLevel(int progressPanelID)

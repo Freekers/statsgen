@@ -14,29 +14,21 @@ class ScheduleConfigItemGUI : public BaseConfigItemGUI
 	public:
 		ScheduleConfigItemGUI();
 		virtual ~ScheduleConfigItemGUI();
+		void CreateDisplay(wxWindow *parent,int id,wxString &labelText);
 		void OnTextChange(wxCommandEvent& event);
 		void OnButtonPressed(wxCommandEvent& event);
-
-		void SetConfigKey(wxString &configKeyIn);
-		void SetLabelWidth(int width);
-		int GetLabelWidth();
-		void Set(wxString &configKeyIn,
-			wxString &labelText,
-			wxString &defaultValueIn,
-			bool intervalWithBaseIn);
-			void OnResize(wxSizeEvent &event);
-
+		virtual void ApplyConfigKeyChange();
+		void SetConfigKey(wxString configKey,wxString defaultValue,bool intervalWithBase);
 		wxString GetValue();
+
 	protected:
 
 	private:
-		wxTextCtrl		textEdit;
-		wxBitmapButton	button;
-		wxStaticText	label;
-		bool			maxCharactersSet;
-		wxString		labelText;
-		wxString		defaultValue;
-		bool			intervalWithBase;
+		wxTextCtrl		*mTextEdit;
+		wxBitmapButton	*mButton;
+		wxStaticText	*mLabel;
+		wxString		mLabelText;
+		bool			mIntervalWithBase;
 
 		DECLARE_EVENT_TABLE()
 };

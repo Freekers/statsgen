@@ -46,20 +46,26 @@ time_t QuakeWarsLogFileReader::StripTimeFromLine(wxString &lineRead)
 time_t QuakeWarsLogFileReader::DecodeTime(wxString &timeString)
 {
 	wxDateTime	decodedTime;
-	wxChar		*parseResult;
+	bool		parseResult;
 	time_t		retVal;
-	char		*dateFormat="%Y-%m-%d %H:%M:%S";
-	char		*timeStringChar;
+	//char		*dateFormat="%Y-%m-%d %H:%M:%S";
+	wxString	dateFormat="%Y-%m-%d %H:%M:%S";
+	//char		*timeStringChar;
+	wxString	timeStringChar;
+	wxString::const_iterator	end;
 
-	timeStringChar=(char *)timeString.GetData();
+	//timeStringChar=(char *)timeString.GetData();
+	timeStringChar=timeString;
 	if (timeString.Length()!=19)
 	{
 		retVal=0;
 	}
 	else
 	{
-		parseResult=(wxChar *)decodedTime.ParseFormat(timeStringChar,dateFormat);
-		if (parseResult=NULL)
+		//parseResult=(wxChar *)decodedTime.ParseFormat(timeStringChar,dateFormat);
+		parseResult=decodedTime.ParseFormat(timeString,dateFormat,&end);
+		//if (parseResult=NULL)
+		if (parseResult == FALSE)
 		{
 			retVal=0;
 		}
@@ -264,7 +270,7 @@ bool QuakeWarsLogFileReader::DecodeRound(
 	// What players are present and in what teams
 
 	noMoreRounds=false;
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"Decoding Objective File")
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Decoding Objective File")
 	secondaryFilePosition=secondaryLogfileBuffer.TellI();
 	while (!secondaryLogfileBuffer.Eof() && (!roundFinished))
 	{
@@ -275,7 +281,7 @@ bool QuakeWarsLogFileReader::DecodeRound(
 		STATSGEN_DEBUG(DEBUG_RARELY,lineRead)
 		if (lineRead.StartsWith(QUAKEWARS_LOGLINEPREFIX_PLAYER_XP))
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"XP Found")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"XP Found")
 			xpLine=lineRead+" ";
 			xpLine+=lastPlayerName;
 			xpIndex=xpLines.Index(xpLine);
@@ -287,7 +293,7 @@ bool QuakeWarsLogFileReader::DecodeRound(
 		} else
 		if (lineRead.StartsWith(QUAKEWARS_LOGLINEPREFIX_MAPSTARTED))
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"Round Start Found")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Round Start Found")
 			xpLines.Clear();
 			roundStarted=true;
 			mapStartTime=DecodeMapStartTime(lineRead,
@@ -295,13 +301,13 @@ bool QuakeWarsLogFileReader::DecodeRound(
 		} else
 		if (lineRead.StartsWith(QUAKEWARS_LOGLINEPREFIX_SERVER))
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"Server Found")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Server Found")
 			serverName=lineRead.Mid(strlen(QUAKEWARS_LOGLINEPREFIX_SERVER));
 			STATSGEN_DEBUG(DEBUG_RARELY,serverName)
 		} else
 		if (lineRead.StartsWith(QUAKEWARS_LOGLINEPREFIX_MAP))
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"Map Found")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Map Found")
 			mapName=lineRead.Mid(strlen(QUAKEWARS_LOGLINEPREFIX_MAP));
 			TrimQuotes(mapName);
 			mapName=mapName.AfterLast('/');
@@ -311,21 +317,21 @@ bool QuakeWarsLogFileReader::DecodeRound(
 		} else
 		if (lineRead.StartsWith(QUAKEWARS_LOGLINEPREFIX_RULESET))
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"gametype Found")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"gametype Found")
 			gameType=lineRead.Mid(strlen(QUAKEWARS_LOGLINEPREFIX_RULESET));
 			gameType=gameType.Lower();
 			STATSGEN_DEBUG(DEBUG_RARELY,gameType)
 		} else
 		if (lineRead.StartsWith(QUAKEWARS_LOGLINEPREFIX_TEAM))
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"team Found")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"team Found")
 			currentTeam=lineRead.Mid(strlen(QUAKEWARS_LOGLINEPREFIX_TEAM));
 			currentTeam=currentTeam.Lower();
 			STATSGEN_DEBUG(DEBUG_RARELY,currentTeam)
 		} else
 		if (lineRead.StartsWith(QUAKEWARS_LOGLINEPREFIX_PLAYER))
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"player Found")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"player Found")
 			playerLine=lineRead.Mid(strlen(QUAKEWARS_LOGLINEPREFIX_PLAYER));
 			// Player Line contains
 			// 'playername' Class 'class'
@@ -359,20 +365,20 @@ bool QuakeWarsLogFileReader::DecodeRound(
 			lastPlayerName=playerName;
 			wxString msg;
 			msg.Printf("name [%s] class=[%s] team=[%s]",
-				playerName.GetData(),
-				playerClass.GetData(),
-				currentTeam.GetData());
+				STRING_TO_CHAR(playerName),
+				STRING_TO_CHAR(playerClass),
+				STRING_TO_CHAR(currentTeam));
 			STATSGEN_DEBUG(DEBUG_RARELY,msg)
 		} else
 		if (lineRead.StartsWith(QUAKEWARS_LOGLINEPREFIX_MAPFINISHED))
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"map finished Found")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"map finished Found")
 			mapEndTime=DecodeMapStartTime(lineRead,
 								QUAKEWARS_LOGLINEPREFIX_MAPFINISHED);
 		} else
 		if (lineRead.StartsWith(QUAKEWARS_LOGLINEPREFIX_WINNINGTEAM))
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"team win Found")
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"team win Found")
 			winningTeam=lineRead.Mid(strlen(QUAKEWARS_LOGLINEPREFIX_WINNINGTEAM));
 			winningTeam=winningTeam.Lower();
 			roundNearlyFinished=true;
@@ -386,7 +392,7 @@ bool QuakeWarsLogFileReader::DecodeRound(
 			}
 		}
 	}
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"Finished Decoding Objective File")
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Finished Decoding Objective File")
 	if ((roundFinished) && 
 			(gameType.Length()>0) &&
 			(mapName.Length()>0) &&
@@ -395,7 +401,7 @@ bool QuakeWarsLogFileReader::DecodeRound(
 			(playerNames.GetCount()!=0)
 		)
 	{
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"Decoding Kill File")
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Decoding Kill File")
 		Round	currentRound;
 
 
@@ -466,18 +472,18 @@ bool QuakeWarsLogFileReader::DecodeRound(
 			// At this point i should have a line and it's time
 			if (lineTime>0)
 			{
-				STATSGEN_DEBUG(DEBUG_RARELY,"line time found")
+				STATSGEN_DEBUG(DEBUG_RARELY,(char *)"line time found")
 				// we have decoded a line time
 				// we can use this to identify if this kill
 				// is within a round or not
 				if ((lineTime>=mapStartTime) && (lineTime<=mapEndTime))
 				{
-					STATSGEN_DEBUG(DEBUG_RARELY,"line time within range")
+					STATSGEN_DEBUG(DEBUG_RARELY,(char *)"line time within range")
 					inRound=true;
 				}
 				if (lineTime>mapEndTime)
 				{
-					STATSGEN_DEBUG(DEBUG_RARELY,"line time greater than range")
+					STATSGEN_DEBUG(DEBUG_RARELY,(char *)"line time greater than range")
 					// After end of round
 					inRound=false;
 					roundFinished=true;
@@ -486,7 +492,7 @@ bool QuakeWarsLogFileReader::DecodeRound(
 				}
 				if (lineTime<mapStartTime)
 				{
-					STATSGEN_DEBUG(DEBUG_RARELY,"line time less than range")
+					STATSGEN_DEBUG(DEBUG_RARELY,(char *)"line time less than range")
 					// before beginning of round
 					inRound=false;
 					roundFinished=false;
@@ -494,14 +500,14 @@ bool QuakeWarsLogFileReader::DecodeRound(
 			}
 			else
 			{
-				STATSGEN_DEBUG(DEBUG_RARELY,"no line time found")
+				STATSGEN_DEBUG(DEBUG_RARELY,(char *)"no line time found")
 				// We do not have line times to guide us with
 				// we can only use the log entries to determine status
 				// round start is
 				// "All Stats Cleared" to mark the beginning of a new round
 				if (lineRead.Cmp(QUAKEWARS_LOGLINEPREFIX_ALLSTATSCLEARED)==0)
 				{
-					STATSGEN_DEBUG(DEBUG_RARELY,"all stats cleared found")
+					STATSGEN_DEBUG(DEBUG_RARELY,(char *)"all stats cleared found")
 					useThisLine=false;
 					// Encountered start of new round
 					if (inRound)
@@ -527,14 +533,14 @@ bool QuakeWarsLogFileReader::DecodeRound(
 			// at the line and decide if it is a kill or not
 			if (inRound && useThisLine)
 			{
-				STATSGEN_DEBUG(DEBUG_RARELY,"checking this line for kills")
+				STATSGEN_DEBUG(DEBUG_RARELY,(char *)"checking this line for kills")
 				// Ok = we have a line to check
 				// replace any player names in it with the word
 				// PLAYER
 				decodedLine=SubstitutePlayerNamesInLine(lineRead,playerNames);
 				if (decodedLine.StartsWith(QUAKEWARS_LOGLINEPREFIX_PLAYER_JOIN))
 				{
-					STATSGEN_DEBUG(DEBUG_RARELY,"this is a join line - ignore it")
+					STATSGEN_DEBUG(DEBUG_RARELY,(char *)"this is a join line - ignore it")
 					// Ignore loglines that are join lines
 					wxString	teamName;
 					// ends with a kill - does it start with a kill?
@@ -577,12 +583,12 @@ bool QuakeWarsLogFileReader::DecodeRound(
 				else
 				if (EndsWith(decodedLine,QUAKEWARS_LOGLINESUFFIX_PLAYER_KILL))
 				{
-					STATSGEN_DEBUG(DEBUG_RARELY,"line ends with kill suffix")
+					STATSGEN_DEBUG(DEBUG_RARELY,(char *)"line ends with kill suffix")
 					// ends with a kill - does it start with a kill?
 					if (decodedLine.StartsWith("[") ||
 						decodedLine.StartsWith(QUAKEWARS_LOGLINEPREFIX_PLAYER_KILL))
 					{
-						STATSGEN_DEBUG(DEBUG_RARELY,"so far this appears to be a kill line")
+						STATSGEN_DEBUG(DEBUG_RARELY,(char *)"so far this appears to be a kill line")
 						// OK - this appears to be a kill line
 						// i.e. player [weapon] player
 						// or 
@@ -641,13 +647,13 @@ bool QuakeWarsLogFileReader::DecodeRound(
 								msg.Printf("player [%s] class [%s] team [%s] "
 											"weapon [%s] "
 											"target [%s] class [%s] team [%s]",
-									playerName.GetData(),
-									playerClass.GetData(),
-									playerTeam.GetData(),
-									weapon.GetData(),
-									targetName.GetData(),
-									targetClass.GetData(),
-									targetTeam.GetData()
+									STRING_TO_CHAR(playerName),
+									STRING_TO_CHAR(playerClass),
+									STRING_TO_CHAR(playerTeam),
+									STRING_TO_CHAR(weapon),
+									STRING_TO_CHAR(targetName),
+									STRING_TO_CHAR(targetClass),
+									STRING_TO_CHAR(targetTeam)
 									);
 								STATSGEN_DEBUG(DEBUG_RARELY,msg)
 
@@ -737,7 +743,7 @@ bool QuakeWarsLogFileReader::DecodeRound(
 			// xpKey = fieldops
 			playerName=xpPointsStr.AfterFirst(' ');
 			xpPointsStr=xpPointsStr.BeforeFirst(' ');
-			xpPoints=atof(xpPointsStr.GetData());
+			xpPoints=atof(STRING_TO_CHAR(xpPointsStr));
 			if (xpPoints > 0.000000001)
 			{
 				// Only add if we actually have points
@@ -776,7 +782,7 @@ bool QuakeWarsLogFileReader::DecodeRound(
 	}
 	else
 	{
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"Did not find end of logfile")
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Did not find end of logfile")
 		// reached end of file without identifying all the component parts of the round
 		// if the round finished = it means we can continue reading from here
 		// in the future
@@ -784,11 +790,11 @@ bool QuakeWarsLogFileReader::DecodeRound(
 		// for next time when hopefully it will be finished
 		if (roundFinished)
 		{
-			STATSGEN_DEBUG(DEBUG_ALWAYS,"but round finished")
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"but round finished")
 		}
 		else
 		{
-			STATSGEN_DEBUG(DEBUG_ALWAYS,"but round not finished")
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"but round not finished")
 			// rewind to the beginning of the objective file round
 			secondaryLogfileBuffer.SeekI(secondaryFilePosition);
 			noMoreRounds=true;

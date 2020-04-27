@@ -6,9 +6,10 @@
 #include "PlayerCachePanel.h"
 #include "GlobalStatistics.h"
 #include "StaticFunctions.h"
+#include "ResizingListCtrl.h"
 
 BEGIN_EVENT_TABLE(PlayerCachePanel, wxPanel)
-		EVT_SIZE(PlayerCachePanel::OnResize)
+		//EVT_SIZE(PlayerCachePanel::OnSize)
 		EVT_TEXT(WINDOW_ID_TEXTCTRL_CONFIGVALUE,PlayerCachePanel::OnFilterChanged)
 		EVT_LIST_COL_CLICK(WINDOW_ID_LISTBOX_CONFIGITEMS,PlayerCachePanel::OnColumnClick)
 		EVT_LIST_ITEM_RIGHT_CLICK(WINDOW_ID_LISTBOX_CONFIGITEMS,
@@ -17,18 +18,17 @@ END_EVENT_TABLE()
 
 PlayerCachePanel::PlayerCachePanel(wxString &configKeyIn,wxString &labelTextIn)
 {
-	cacheDisplay=NULL;
-	filter=NULL;
-	configKey=configKeyIn;
-	labelText=labelTextIn;
+	mCacheDisplay	= NULL;
+	mFilter			= NULL;
+	mConfigKey		= configKeyIn;
+	mLabelText		= labelTextIn;
 	SetFilterType(FILTER_TYPE_NO_CASE);
-	filterNameCallBack=(bool (*)(wxString &name))NULL;
+	mFilterNameCallBack=(bool (*)(wxString &name))NULL;
 
 }
 
 void PlayerCachePanel::UpdateCacheList()
 {
-	wxListItem			listColumn;
 	int					cacheIndex;
 	int					cacheCount;
 	PlayerCacheEntry	cacheEntry;
@@ -40,9 +40,9 @@ void PlayerCachePanel::UpdateCacheList()
 	wxString			matchString;
 	wxRegEx				regExp;
 
-	globalStatistics.configData.ReadTextValue(configKey,&filterString);
+	globalStatistics.configData.ReadTextValue(mConfigKey,&filterString);
 	
-	switch (filterType)
+	switch (mFilterType)
 	{
 		case FILTER_TYPE_NO_CASE:
 			filterString.MakeLower();
@@ -58,15 +58,12 @@ void PlayerCachePanel::UpdateCacheList()
 			}
 			break;
 	}
-	cacheDisplay->Hide();
-	cacheDisplay->DeleteAllColumns();
-	cacheDisplay->DeleteAllItems();
-	listColumn.SetText("GUID");
-	cacheDisplay->InsertColumn(0,listColumn);
-	listColumn.SetText("Name");
-	cacheDisplay->InsertColumn(1,listColumn);
-	listColumn.SetText("Decoloured Name");
-	cacheDisplay->InsertColumn(2,listColumn);
+	mCacheDisplay->Hide();
+	mCacheDisplay->DeleteAllColumns();
+	mCacheDisplay->DeleteAllItems();
+	mCacheDisplay->InsertColumn(0,_T("GUID"),wxLIST_FORMAT_LEFT,wxLIST_AUTOSIZE_USEHEADER);
+	mCacheDisplay->InsertColumn(1,_T("Name"),wxLIST_FORMAT_LEFT,wxLIST_AUTOSIZE_USEHEADER);
+	mCacheDisplay->InsertColumn(2,_T("Decoloured Name"),wxLIST_FORMAT_LEFT,wxLIST_AUTOSIZE_USEHEADER);
 	cacheCount=globalStatistics.playerCache.GetCount();
 	rowNumber=0;
 	for (cacheIndex=0;cacheIndex<cacheCount;cacheIndex++)
@@ -79,7 +76,7 @@ void PlayerCachePanel::UpdateCacheList()
 			// how to match the filter depends on the filter type
 			addRow=false;
 			matchString=decolouredName;
-			switch (filterType)
+			switch (mFilterType)
 			{
 				case FILTER_TYPE_NO_CASE:
 					matchString.MakeLower();
@@ -89,55 +86,53 @@ void PlayerCachePanel::UpdateCacheList()
 					addRow=matchString.Contains(filterString);
 					break;
 				case FILTER_TYPE_REGEXP:
-					addRow=regExp.Matches(matchString.GetData());
+					addRow=regExp.Matches(STRING_TO_CHAR(matchString));
 					break;
 			}
 		}
-		if (filterNameCallBack!=NULL)
+		if (mFilterNameCallBack!=NULL)
 		{
-			addRow=(addRow && (!filterNameCallBack(cacheEntry.name)));
+			addRow=(addRow && (!mFilterNameCallBack(cacheEntry.name)));
 		}
 		if (addRow)
 		{
-			listIndex=cacheDisplay->InsertItem(rowNumber,cacheEntry.guid);
-			cacheDisplay->SetItemData(listIndex,cacheIndex);
-			cacheDisplay->SetItem(rowNumber,1,cacheEntry.name);
-			cacheDisplay->SetItem(rowNumber,2,decolouredName);
+			listIndex=mCacheDisplay->InsertItem(rowNumber,cacheEntry.guid);
+			mCacheDisplay->SetItemData(listIndex,cacheIndex);
+			mCacheDisplay->SetItem(rowNumber,1,cacheEntry.name);
+			mCacheDisplay->SetItem(rowNumber,2,decolouredName);
 			rowNumber++;
 		}
 	}
-	cacheDisplay->SetColumnWidth(0,wxLIST_AUTOSIZE);
-	cacheDisplay->SetColumnWidth(1,wxLIST_AUTOSIZE);
-	cacheDisplay->SetColumnWidth(2,wxLIST_AUTOSIZE);
-	cacheDisplay->Show();
+	mCacheDisplay->SetColumnWidth(0,wxLIST_AUTOSIZE_USEHEADER);
+	mCacheDisplay->SetColumnWidth(1,wxLIST_AUTOSIZE_USEHEADER);
+	mCacheDisplay->SetColumnWidth(2,wxLIST_AUTOSIZE_USEHEADER);
+	mCacheDisplay->Show();
+
+	
+	PostSizeEventToParent();
 }
 
-void PlayerCachePanel::CreateScreen()
+void PlayerCachePanel::CreateScreen(wxWindow *parent,int id)
 {
+	Create(parent,id,wxDefaultPosition,wxDefaultSize,wxFULL_REPAINT_ON_RESIZE);
 	wxString	defaultValue="";
-	wxSizeEvent	event;
 
-	if (cacheDisplay==NULL)
-	{
-		globalStatistics.ReadPlayerCache();
-		cacheDisplay=new wxListCtrl(this,
+	globalStatistics.ReadPlayerCache();
+	mCacheDisplay=new wxListCtrl(this,
 									WINDOW_ID_LISTBOX_CONFIGITEMS,
 									wxDefaultPosition,
 									wxDefaultSize,
 									wxLC_REPORT);
-		filter=new TextConfigItemGUI();
-		filter->Create(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE);
-		filter->Set(configKey,labelText,defaultValue,-1);
-		filter->OnResize(event);
-//		filter=new TextConfigItemGUI(this,
-//							WINDOW_ID_TEXTCTRL_CONFIGVALUE);
-		UpdateCacheList();
-							
-	}
-	else
-	{
-		// Screen is already created
-	}
+	mFilter=new TextConfigItemGUI();
+	mFilter->CreateDisplay(this,WINDOW_ID_TEXTCTRL_CONFIGVALUE,mLabelText);
+	mFilter->SetConfigKey(mConfigKey,defaultValue);
+	mFilter->ApplyConfigKeyChange();
+	mMainSizer = new wxBoxSizer(wxVERTICAL);
+	mMainSizer->Add(mCacheDisplay,1,wxEXPAND|wxALL);
+	mMainSizer->Add(mFilter,0,wxEXPAND);
+	mMainSizer->SetSizeHints(this);
+	SetSizer(mMainSizer);
+	UpdateCacheList();
 }
 
 void PlayerCachePanel::OnRightClick(wxListEvent &event)
@@ -146,51 +141,18 @@ void PlayerCachePanel::OnRightClick(wxListEvent &event)
 	{
 		// Pop the event up to the next level
 		event.SetId(this->GetId());
-		GetParent()->AddPendingEvent(event);
+		//GetParent()->AddPendingEvent(event);
+		GetParent()->GetEventHandler()->AddPendingEvent(event);
 	}
-}
-
-void PlayerCachePanel::OnResize(wxSizeEvent &event)
-{
-	wxSize		itemSize;
-	int			filterWidth;
-	int			filterHeight;
-	int			panelWidth;
-	int			panelHeight;
-	int			listHeight;
-	int			listWidth;
-	wxString	msg;
-
-	// Make sure the screen has been created
-	CreateScreen();
-
-	itemSize=GetSize();
-	panelWidth=itemSize.GetWidth();
-	panelHeight=itemSize.GetHeight();
-	itemSize=filter->GetSize();
-	filterWidth=itemSize.GetWidth();
-	filterHeight=itemSize.GetHeight();
-
-	listWidth=panelWidth-10;
-	listHeight=panelHeight-filterHeight;
-	if (listHeight<0)
-	{
-		listHeight=0;
-	}
-
-	filterWidth=panelWidth-10;
-	cacheDisplay->SetSize(0,0,listWidth,listHeight);
-
-	filter->SetSize(0,listHeight,filterWidth,filterHeight);
 }
 
 void PlayerCachePanel::OnColumnClick(wxListEvent &event)
 {
-	columnToSort=event.GetColumn();
-	cacheDisplay->SortItems(PlayerCachePanel::CompareItems,(long)columnToSort);
+	mColumnToSort=event.GetColumn();
+	mCacheDisplay->SortItems(PlayerCachePanel::CompareItems,(wxIntPtr)mColumnToSort);
 }
 
-int wxCALLBACK PlayerCachePanel::CompareItems(long item1, long item2, long columnToSort)
+int wxCALLBACK PlayerCachePanel::CompareItems(wxIntPtr item1, wxIntPtr item2, wxIntPtr mColumnToSort)
 {
 	wxString	field1;
 	wxString	field2;
@@ -200,7 +162,7 @@ int wxCALLBACK PlayerCachePanel::CompareItems(long item1, long item2, long colum
 
 	cacheEntry1=globalStatistics.playerCache.Item(item1);
 	cacheEntry2=globalStatistics.playerCache.Item(item2);
-	switch (columnToSort)
+	switch (mColumnToSort)
 	{
 		case 0:	// GUID
 			field1=cacheEntry1.guid;
@@ -234,7 +196,7 @@ void PlayerCachePanel::ApplyFilter()
 
 void PlayerCachePanel::SetFilterType(FilterTypes filterTypeIn)
 {
-	filterType=filterTypeIn;
+	mFilterType	= filterTypeIn;
 }
 
 void PlayerCachePanel::GetSelectedPlayers(wxArrayInt &selectedPlayers)
@@ -244,14 +206,14 @@ void PlayerCachePanel::GetSelectedPlayers(wxArrayInt &selectedPlayers)
 	wxString	msg;
 
 	selectedItem=-1;
-	selectedItem=cacheDisplay->GetNextItem(selectedItem,
+	selectedItem=mCacheDisplay->GetNextItem(selectedItem,
 								wxLIST_NEXT_ALL,
 								wxLIST_STATE_SELECTED);
 	while (selectedItem!=-1)
 	{
-		playerIndex=(int)cacheDisplay->GetItemData(selectedItem);
+		playerIndex=(int)mCacheDisplay->GetItemData(selectedItem);
 		selectedPlayers.Add(playerIndex);
-		selectedItem=cacheDisplay->GetNextItem(selectedItem,
+		selectedItem=mCacheDisplay->GetNextItem(selectedItem,
 								wxLIST_NEXT_ALL,
 								wxLIST_STATE_SELECTED);
 	}
@@ -266,24 +228,29 @@ void PlayerCachePanel::GetShownPlayers(wxArrayInt &shownPlayers)
 	wxString	msg;
 	
 	shownPlayers.Clear();
-	shownPlayersCount=cacheDisplay->GetItemCount();
+	shownPlayersCount=mCacheDisplay->GetItemCount();
 	for (shownPlayersIndex=0;
 		shownPlayersIndex<shownPlayersCount;
 		shownPlayersIndex++)
 	{
-		playerCacheIndex=cacheDisplay->GetItemData(shownPlayersIndex);
+		playerCacheIndex=mCacheDisplay->GetItemData(shownPlayersIndex);
 		shownPlayers.Add(playerCacheIndex);
 	}
 }
 
 void PlayerCachePanel::SetFilter(wxString &filterString)
 {
-	globalStatistics.configData.WriteTextValue(configKey,filterString);
-	filter->SetConfigKey(configKey);
+	globalStatistics.configData.WriteTextValue(mConfigKey,filterString);
+	mFilter->SetConfigKey(mConfigKey);
 }
 
 void PlayerCachePanel::SetFilterCallBack(bool  (*filterNameCallBackIn)(wxString &name))
 
 {
-	filterNameCallBack = filterNameCallBackIn;
+	mFilterNameCallBack = filterNameCallBackIn;
+}
+void PlayerCachePanel::OnSize(wxSizeEvent &event)
+{
+	STATSGEN_DEBUG_FUNCTION_START("PlayerCachePanel","OnSize")
+	STATSGEN_DEBUG_FUNCTION_END
 }

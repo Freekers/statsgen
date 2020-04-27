@@ -325,7 +325,7 @@ void GlobalStatistics::GenericKeyDebug(ArrayOfGenericKey &arrayKey,
 	for (keyIndex=0;keyIndex<keyCount;keyIndex++)
 	{
 		key=arrayKey.Item(keyIndex);
-		STATSGEN_DEBUG_CODE(msg.Printf("%03d:%s",keyIndex,key.id.GetData());)
+		STATSGEN_DEBUG_CODE(msg.Printf("%03d:%s",keyIndex,STRING_TO_CHAR(key.id));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
 	}
 	STATSGEN_DEBUG_FUNCTION_END
@@ -356,14 +356,14 @@ void GlobalStatistics::Debug()
 	}
 	*/
 
-	GenericKeyDebug(keysAction		,TABLE_NAME_KEY_ACTION);
-	GenericKeyDebug(keysAmmo		,TABLE_NAME_KEY_AMMO);
-	GenericKeyDebug(keysMap			,TABLE_NAME_KEY_MAP);
-	GenericKeyDebug(keysWeapon		,TABLE_NAME_KEY_WEAPON);
-	GenericKeyDebug(keysClass		,TABLE_NAME_KEY_CLASS);
-	GenericKeyDebug(keysTeam		,TABLE_NAME_KEY_TEAM);
-	GenericKeyDebug(keysGametype	,TABLE_NAME_KEY_GAMETYPE);
-	GenericKeyDebug(keysLocation	,TABLE_NAME_KEY_LOCATION);
+	GenericKeyDebug(keysAction		,(char *)TABLE_NAME_KEY_ACTION);
+	GenericKeyDebug(keysAmmo		,(char *)TABLE_NAME_KEY_AMMO);
+	GenericKeyDebug(keysMap			,(char *)TABLE_NAME_KEY_MAP);
+	GenericKeyDebug(keysWeapon		,(char *)TABLE_NAME_KEY_WEAPON);
+	GenericKeyDebug(keysClass		,(char *)TABLE_NAME_KEY_CLASS);
+	GenericKeyDebug(keysTeam		,(char *)TABLE_NAME_KEY_TEAM);
+	GenericKeyDebug(keysGametype	,(char *)TABLE_NAME_KEY_GAMETYPE);
+	GenericKeyDebug(keysLocation	,(char *)TABLE_NAME_KEY_LOCATION);
 
 	STATSGEN_DEBUG_CODE(errorMessage.Printf("Round Count=[%d]",roundCount);)
 	STATSGEN_DEBUG(DEBUG_ALWAYS,errorMessage)
@@ -451,9 +451,9 @@ bool GlobalStatistics::WriteToDatabase()
 	// Write Generic Keys
 	// Action
 	progress->Initiate((long)rounds.GetCount(),
-						" rounds",
+						(char *)" rounds",
 						1,
-						" rounds",
+						(char *)" rounds",
 						1);
 	beginTransaction="begin";
 	endTransaction="commit";
@@ -467,14 +467,14 @@ bool GlobalStatistics::WriteToDatabase()
 	for (keyIndex=0;keyIndex<keyCount;keyIndex++)
 	{
 		key=keysXP.Item(keyIndex);
-		key.WriteToDatabase(TABLE_NAME_KEY_XP,keyIndex);
+		key.WriteToDatabase((char *)TABLE_NAME_KEY_XP,keyIndex);
 	}
 	
 	keyCount=keysAction.GetCount();
 	for (keyIndex=0;keyIndex<keyCount;keyIndex++)
 	{
 		key=keysAction.Item(keyIndex);
-		key.WriteToDatabase(TABLE_NAME_KEY_ACTION,keyIndex);
+		key.WriteToDatabase((char *)TABLE_NAME_KEY_ACTION,keyIndex);
 	}
 	
 	// Ammo
@@ -482,7 +482,7 @@ bool GlobalStatistics::WriteToDatabase()
 	for (keyIndex=0;keyIndex<keyCount;keyIndex++)
 	{
 		key=keysAmmo.Item(keyIndex);
-		key.WriteToDatabase(TABLE_NAME_KEY_AMMO,keyIndex);
+		key.WriteToDatabase((char *)TABLE_NAME_KEY_AMMO,keyIndex);
 	}
 	
 	// Weapon
@@ -490,7 +490,7 @@ bool GlobalStatistics::WriteToDatabase()
 	for (keyIndex=0;keyIndex<keyCount;keyIndex++)
 	{
 		key=keysWeapon.Item(keyIndex);
-		key.WriteToDatabase(TABLE_NAME_KEY_WEAPON,keyIndex);
+		key.WriteToDatabase((char *)TABLE_NAME_KEY_WEAPON,keyIndex);
 	}
 	
 	// Map
@@ -498,7 +498,7 @@ bool GlobalStatistics::WriteToDatabase()
 	for (keyIndex=0;keyIndex<keyCount;keyIndex++)
 	{
 		key=keysMap.Item(keyIndex);
-		key.WriteToDatabase(TABLE_NAME_KEY_MAP,keyIndex);
+		key.WriteToDatabase((char *)TABLE_NAME_KEY_MAP,keyIndex);
 	}
 	
 	// Team
@@ -506,7 +506,7 @@ bool GlobalStatistics::WriteToDatabase()
 	for (keyIndex=0;keyIndex<keyCount;keyIndex++)
 	{
 		key=keysTeam.Item(keyIndex);
-		key.WriteToDatabase(TABLE_NAME_KEY_TEAM,keyIndex);
+		key.WriteToDatabase((char *)TABLE_NAME_KEY_TEAM,keyIndex);
 	}
 	
 	// Class
@@ -514,7 +514,7 @@ bool GlobalStatistics::WriteToDatabase()
 	for (keyIndex=0;keyIndex<keyCount;keyIndex++)
 	{
 		key=keysClass.Item(keyIndex);
-		key.WriteToDatabase(TABLE_NAME_KEY_CLASS,keyIndex);
+		key.WriteToDatabase((char *)TABLE_NAME_KEY_CLASS,keyIndex);
 	}
 	
 	// Gametype
@@ -522,7 +522,7 @@ bool GlobalStatistics::WriteToDatabase()
 	for (keyIndex=0;keyIndex<keyCount;keyIndex++)
 	{
 		key=keysGametype.Item(keyIndex);
-		key.WriteToDatabase(TABLE_NAME_KEY_GAMETYPE,keyIndex);
+		key.WriteToDatabase((char *)TABLE_NAME_KEY_GAMETYPE,keyIndex);
 	}
 	
 	// Location
@@ -530,10 +530,10 @@ bool GlobalStatistics::WriteToDatabase()
 	for (keyIndex=0;keyIndex<keyCount;keyIndex++)
 	{
 		key=keysLocation.Item(keyIndex);
-		key.WriteToDatabase(TABLE_NAME_KEY_LOCATION,keyIndex);
+		key.WriteToDatabase((char *)TABLE_NAME_KEY_LOCATION,keyIndex);
 	}
 	
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"Writing players to database")
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Writing players to database")
 	/*
 	playerCount=players.GetCount();
 	for (playerIndex=0;playerIndex<playerCount;playerIndex++)
@@ -553,7 +553,7 @@ bool GlobalStatistics::WriteToDatabase()
 	playerDataMisc1->WriteToDatabase();
 	playerDataMisc2->WriteToDatabase();
 
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"Writing award definition")
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Writing award definition")
 	awardCount=awardDefinitions.GetCount();
 	for (awardIndex=0;awardIndex<awardCount;awardIndex++)
 	{
@@ -561,7 +561,7 @@ bool GlobalStatistics::WriteToDatabase()
 		award.WriteToDatabase(awardIndex);
 	}
 
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"Writing clan definition")
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Writing clan definition")
 	clanCount=clans.GetCount();
 	STATSGEN_DEBUG_CODE(msg.Printf("CLAN COUNT WRITING=%d",clanCount);)
 	STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
@@ -571,13 +571,13 @@ bool GlobalStatistics::WriteToDatabase()
 		clan->WriteToDatabase(clanIndex);
 		clans.Add(clan);
 	}
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"Written clan definition")
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Written clan definition")
 
 	killTotalLists.WriteToDatabase();
 	totalXP.WriteToDatabase();
 
 	// Write Server Info
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"Writing server info")
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Writing server info")
 	serverCount=servers.GetCount();
 	for (serverIndex=0;serverIndex<serverCount;serverIndex++)
 	{
@@ -590,7 +590,7 @@ bool GlobalStatistics::WriteToDatabase()
 	}
 
 	// Write AKA Info
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"Writing AKA info")
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Writing AKA info")
 	AKACount=AKAList.GetCount();
 	for (AKAIndex=0;AKAIndex<AKACount;AKAIndex++)
 	{
@@ -600,7 +600,7 @@ bool GlobalStatistics::WriteToDatabase()
 
 	statsgenDatabase.SimpleExecute(endTransaction);
 	// Write Round Info (all sub bits written by the round writing)
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"Writing rounds")
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Writing rounds")
 	roundCount=rounds.GetCount();
 	for (roundIndex=0;roundIndex<roundCount;roundIndex++)
 	{
@@ -673,7 +673,7 @@ void GlobalStatistics::ReadPlayerCache()
 	wxString			guid;
 	wxString			name;
 
-	configData.ReadTextValue(configKey,&configValue,"playercache.dat");
+	configData.ReadTextValue(configKey,&configValue,(char *)"playercache.dat");
 	playerCache.Clear();
 	if (wxFileExists(configValue))
 	{
@@ -703,8 +703,8 @@ void GlobalStatistics::WritePlayerCache()
 	wxString			configKey="/General/playercache";
 	wxString			configValue;
 
-	configData.ReadTextValue(configKey,&configValue,"playercache.dat");
-	fp=fopen(configValue.GetData(),"w");
+	configData.ReadTextValue(configKey,&configValue,(char *)"playercache.dat");
+	fp=fopen(STRING_TO_CHAR(configValue),"w");
 	if (fp!=NULL)
 	{
 		playerCount=playerCache.GetCount();
@@ -712,8 +712,8 @@ void GlobalStatistics::WritePlayerCache()
 		{
 			playerCacheEntry=playerCache.Item(playerIndex);
 			fprintf(fp,"%s,%s\n",
-					playerCacheEntry.guid.GetData(),
-					playerCacheEntry.name.GetData());
+					STRING_TO_CHAR(playerCacheEntry.guid),
+					STRING_TO_CHAR(playerCacheEntry.name));
 		}
 		fclose(fp);
 	}
@@ -765,7 +765,7 @@ void GlobalStatistics::ReadAliasList()
 	wxString			status;
 
 	status="Reading Aliases"; progress->SetStatus(status);
-	configData.ReadTextValue(configKey,&configValue,"aliaslist.dat");
+	configData.ReadTextValue(configKey,&configValue,(char *)"aliaslist.dat");
 	aliasList.Clear();
 	EmptyAliasCache();
 	if (wxFileExists(configValue))
@@ -775,9 +775,9 @@ void GlobalStatistics::ReadAliasList()
 		{
 			aliasCount=fp.GetLineCount()/2;
 			progress->Initiate(aliasCount,
-							"",
+							(char *)"",
 							(long)1,
-							"",
+							(char *)"",
 							1);
 			for (aliasIndex=0;aliasIndex<aliasCount;aliasIndex++)
 			{
@@ -806,8 +806,8 @@ void GlobalStatistics::WriteAliasList()
 	wxString			configKey="/General/aliaslist";
 	wxString			configValue;
 
-	configData.ReadTextValue(configKey,&configValue,"aliaslist.dat");
-	fp=fopen(configValue.GetData(),"w");
+	configData.ReadTextValue(configKey,&configValue,(char *)"aliaslist.dat");
+	fp=fopen(STRING_TO_CHAR(configValue),"w");
 	if (fp!=NULL)
 	{
 		aliasCount=aliasList.GetCount();
@@ -850,19 +850,19 @@ void GlobalStatistics::AddAlias(AliasListEntry &aliasEntry)
 		(aliasEntry.primaryName.Cmp(aliasEntry.aliasName)!=0))
 	{
 		msg.Printf("primary [%s,%s] alias [%s,%s]",
-				aliasEntry.primaryGUID.GetData(),
-				aliasEntry.primaryName.GetData(),
-				aliasEntry.aliasGUID.GetData(),
-				aliasEntry.aliasName.GetData());
+				STRING_TO_CHAR(aliasEntry.primaryGUID),
+				STRING_TO_CHAR(aliasEntry.primaryName),
+				STRING_TO_CHAR(aliasEntry.aliasGUID),
+				STRING_TO_CHAR(aliasEntry.aliasName));
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
 		if (!FindAlias(aliasEntry))
 		{
-			STATSGEN_DEBUG(DEBUG_ALWAYS,"Alias does not already exist")
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Alias does not already exist")
 			// alias does not already exist - so safe to add
 			aliasList.Add(aliasEntry);
 			if (aliasCacheEnabled)
 			{
-				STATSGEN_DEBUG(DEBUG_ALWAYS,"Alias Cache Enabled")
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Alias Cache Enabled")
 				AddToAliasCache(aliasCache,
 									aliasEntry.aliasName,
 									aliasEntry.aliasGUID,
@@ -892,13 +892,13 @@ bool GlobalStatistics::FindAlias(AliasListEntry &aliasEntry)
 	STATSGEN_DEBUG_FUNCTION_START("GlobalStatistics","FindAlias")
 
 	msg.Printf("finding alias for [%s,%s]",
-					aliasEntry.aliasGUID.GetData(),
-					aliasEntry.aliasName.GetData());
+					STRING_TO_CHAR(aliasEntry.aliasGUID),
+					STRING_TO_CHAR(aliasEntry.aliasName));
 	STATSGEN_DEBUG(DEBUG_RARELY,msg);
 			
 	if (aliasCacheEnabled)
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Alias Cache Enabled")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Alias Cache Enabled")
 		AliasCacheEntry	searchKey;
 		searchKey.guid=aliasEntry.aliasGUID;
 		searchKey.name=aliasEntry.aliasName;
@@ -942,16 +942,16 @@ bool GlobalStatistics::FindAlias(AliasListEntry &aliasEntry)
 	}
 	else
 	{
-		STATSGEN_DEBUG(DEBUG_RARELY,"Alias Cache Not Enabled")
+		STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Alias Cache Not Enabled")
 		count=aliasList.GetCount();
 		for (index=0;index<count;index++)
 		{
 			foundAliasEntry=aliasList.Item(index);
 			msg.Printf("found alias for primary [%s,%s] alias [%s,%s]",
-				foundAliasEntry.primaryGUID.GetData(),
-				foundAliasEntry.primaryName.GetData(),
-				foundAliasEntry.aliasGUID.GetData(),
-				foundAliasEntry.aliasName.GetData());
+				STRING_TO_CHAR(foundAliasEntry.primaryGUID),
+				STRING_TO_CHAR(foundAliasEntry.primaryName),
+				STRING_TO_CHAR(foundAliasEntry.aliasGUID),
+				STRING_TO_CHAR(foundAliasEntry.aliasName));
 			STATSGEN_DEBUG(DEBUG_RARELY,msg)
 			if (
 				((foundAliasEntry.aliasGUID.Cmp(aliasEntry.aliasGUID)==0) &&
@@ -960,7 +960,7 @@ bool GlobalStatistics::FindAlias(AliasListEntry &aliasEntry)
 				((foundAliasEntry.primaryGUID.Cmp(aliasEntry.aliasGUID)==0) &&
 				(foundAliasEntry.primaryName.Cmp(aliasEntry.aliasName)==0)))
 			{
-				STATSGEN_DEBUG(DEBUG_RARELY,"Its a match")
+				STATSGEN_DEBUG(DEBUG_RARELY,(char *)"Its a match")
 				// This is a matching alias
 				// so update the aliasEntry with the primary data
 				aliasEntry.primaryGUID=foundAliasEntry.primaryGUID;
@@ -984,20 +984,20 @@ void GlobalStatistics::DeleteAlias(AliasListEntry &aliasEntry)
 
 	STATSGEN_DEBUG_FUNCTION_START("GlobalStatistics","DeleteAlias")
 	STATSGEN_DEBUG_CODE(msg.Printf("Deleting Alias Parent = [%s][%s] Child = [%s][%s]",
-			aliasEntry.primaryGUID.GetData(),
-			aliasEntry.primaryName.GetData(),
-			aliasEntry.aliasGUID.GetData(),
-			aliasEntry.aliasName.GetData());)
+			STRING_TO_CHAR(aliasEntry.primaryGUID),
+			STRING_TO_CHAR(aliasEntry.primaryName),
+			STRING_TO_CHAR(aliasEntry.aliasGUID),
+			STRING_TO_CHAR(aliasEntry.aliasName));)
 	STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
 	count=aliasList.GetCount();
 	for (index=0;index<count;index++)
 	{
 		foundAliasEntry=aliasList.Item(index);
 		STATSGEN_DEBUG_CODE(msg.Printf("checking against alias = [%s][%s] Child = [%s][%s]",
-			foundAliasEntry.primaryGUID.GetData(),
-			foundAliasEntry.primaryName.GetData(),
-			foundAliasEntry.aliasGUID.GetData(),
-			foundAliasEntry.aliasName.GetData());)
+			STRING_TO_CHAR(foundAliasEntry.primaryGUID),
+			STRING_TO_CHAR(foundAliasEntry.primaryName),
+			STRING_TO_CHAR(foundAliasEntry.aliasGUID),
+			STRING_TO_CHAR(foundAliasEntry.aliasName));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
 		if ((foundAliasEntry.primaryGUID.Cmp(aliasEntry.primaryGUID)==0) &&
 			(foundAliasEntry.primaryName.Cmp(aliasEntry.primaryName)==0) &&
@@ -1021,13 +1021,13 @@ void GlobalStatistics::DropPlayersAndRounds()
 	wxString	msg;
 
 	STATSGEN_DEBUG_FUNCTION_START("GlobalStatistics","DropPlayersAndRounds")
-	STATSGEN_DEBUG_CODE(msg.Printf("players=%d rounds=%d",playerList.GetCount(),rounds.GetCount());)
+	STATSGEN_DEBUG_CODE(msg.Printf("players=%d rounds=%d",(int)playerList.GetCount(),(int)rounds.GetCount());)
 	STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
 	progress->DisableTimeToGo();
 	progress->Initiate(topValue,
-						" Steps",
+						(char *)" Steps",
 						(long)1,
-						" Steps",
+						(char *)" Steps",
 						(long)1);
 	DropRounds();
 	progress->Update(1);
@@ -1059,7 +1059,7 @@ void GlobalStatistics::ProduceStats(
 
 	STATSGEN_DEBUG_FUNCTION_START("GlobalStatistics","ProduceStats")
 	configKey=AutomaticAliasConfigKey();
-	configData.ReadTextValue(configKey,&configValue,"n");
+	configData.ReadTextValue(configKey,&configValue,(char *)"n");
 	useAutomaticAliases=(configValue.CmpNoCase("y")==0);
 
 	if (ProcessStepAllowed(WINDOW_ID_PROGRESS_PANEL_DOWNLOAD_LOGS,allowedSteps))
@@ -1070,15 +1070,15 @@ void GlobalStatistics::ProduceStats(
 		progress->ChoosePanel(WINDOW_ID_PROGRESS_PANEL_GENERAL);
 
 		// Make sure the group gets deleted
-		configData.DeleteGroup("MessageCentreValues");
+		configData.DeleteGroup((char *)"MessageCentreValues");
 		configData.CommitChanges();
 
-		configData.ReadList("BannedSpeech",bannedSpeech);
+		configData.ReadList((char *)"BannedSpeech",bannedSpeech);
 
 		ReadDeathmatchGametypes();
 		ReadTeamSwapWeapons();
-		skillWeights.Initiate("SkillWeights");
-		scoreWeights.Initiate("ScoreWeights");
+		skillWeights.Initiate((char *)"SkillWeights");
+		scoreWeights.Initiate((char *)"ScoreWeights");
 		if (fullRun)
 		{
 			// Make everything start from scratch
@@ -1089,7 +1089,7 @@ void GlobalStatistics::ProduceStats(
 		{
 			configKey="/Template/QuickRun";
 		}
-		configData.ReadTextValue(configKey,&templateFilename,"");
+		configData.ReadTextValue(configKey,&templateFilename,(char *)"");
 		progress->LogError(templateFilename);
 		ReadAliasList();
 		ReadAwardDefinitions();
@@ -1115,7 +1115,7 @@ void GlobalStatistics::ProduceStats(
 				}
 				if (StepAllowed(STEP_DOWNLOAD_LOGS))
 				{
-					STATSGEN_DEBUG(DEBUG_ALWAYS,"Downloading files")
+					STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Downloading files")
 					server->DownloadBanFiles();
 					server->DownloadFiles();
 				}
@@ -1225,8 +1225,8 @@ void GlobalStatistics::ProduceStats(
 			playerDataMisc1->ReadFromFile();
 			playerDataMisc2->ReadFromFile();
 			WriteToDatabase();
-			statsgenDatabase.WriteMiscellaneousStatistic("starttime",startTime);
-			statsgenDatabase.WriteMiscellaneousStatistic("roundsprocessed",
+			statsgenDatabase.WriteMiscellaneousStatistic((char *)"starttime",(int)startTime);
+			statsgenDatabase.WriteMiscellaneousStatistic((char *)"roundsprocessed",
 													(int)rounds.GetCount());
 		}
 		progress->Finalise();
@@ -1257,7 +1257,7 @@ void GlobalStatistics::ProduceStats(
 		{
 			configKey="/Template/QuickRun";
 		}
-		configData.ReadTextValue(configKey,&templateFilename,"");
+		configData.ReadTextValue(configKey,&templateFilename,(char *)"");
 
 		progress->ChoosePanel(WINDOW_ID_PROGRESS_PANEL_READ_TEMPLATE);
 		progress->DisableTimeToGo();
@@ -1290,11 +1290,11 @@ void GlobalStatistics::ProduceStats(
 		progress->ChoosePanel(WINDOW_ID_PROGRESS_PANEL_WEBSITE);
 		if (StepAllowed(STEP_WEBSITE))
 		{
-			STATSGEN_DEBUG(DEBUG_ALWAYS,"Website Transfer Step Allowed");
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Website Transfer Step Allowed");
 			// Now time to transfer to the website
 			if (fullRun)
 			{
-				STATSGEN_DEBUG(DEBUG_ALWAYS,"Website Transfer Full Run");
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Website Transfer Full Run");
 				wxArrayString	createdFiles;
 
 				templateFile.GetCreatedFiles(createdFiles);
@@ -1334,9 +1334,9 @@ void GlobalStatistics::CalculateScores()
 	playerCount=playerList.GetCount();
 	progress->Initiate(
 						(long)roundCount,
-						" Rounds",
+						(char *)" Rounds",
 						1,
-						" Rounds",
+						(char *)" Rounds",
 						1);
 
 	for (roundIndex=0;roundIndex<roundCount;roundIndex++)
@@ -1365,9 +1365,9 @@ void GlobalStatistics::CalculateScores()
 	progress->ChoosePanel(WINDOW_ID_PROGRESS_PANEL_CALCULATING_SCORES2);
 	progress->Initiate(
 						(long)playerCount,
-						" Players",
+						(char *)" Players",
 						1,
-						" Players",
+						(char *)" Players",
 						1);
 	STATSGEN_DEBUG_CODE(msg.Printf("players=%d",playerCount);)
 	STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
@@ -1489,7 +1489,7 @@ void GlobalStatistics::ReadAwardDefinitions()
 	status="Read Award Definitions"; progress->SetStatus(status);
 	awardDefinitions.Clear();
 
-	configData.ReadList("AWARDLIST",awardList);
+	configData.ReadList((char *)"AWARDLIST",awardList);
 	awardCount=awardList.GetCount();
 	for (awardIndex=0;awardIndex<awardCount;awardIndex++)
 	{
@@ -1523,11 +1523,11 @@ void GlobalStatistics::DropPlayers()
 	// at all
 
 	globalStatistics.configData.ReadTextValue(
-									"/General/MinRoundsPerPlayer",
+									(char *)"/General/MinRoundsPerPlayer",
 									&minRoundsPerPlayerString,
-									"1");
+									(char *)"1");
 
-	minRoundsPerPlayer=atoi(minRoundsPerPlayerString.GetData());
+	minRoundsPerPlayer=atoi(STRING_TO_CHAR(minRoundsPerPlayerString));
 
 
 
@@ -1546,7 +1546,7 @@ void GlobalStatistics::DropPlayers()
 	// step through each round and add the round count
 	// to any player in it's list
 	playerCount=playerList.GetCount();
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"Count Rounds")
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Count Rounds")
 	roundCount=rounds.GetCount();
 	for (roundIndex=0;roundIndex<roundCount;roundIndex++)
 	{
@@ -1568,7 +1568,7 @@ void GlobalStatistics::DropPlayers()
 		}
 	}
 
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"Drop Players")
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Drop Players")
 	// Added all the rounds up now - drop any players that don't meet minimum
 	// round count
 	for (playerIndex=0;playerIndex<playerCount;playerIndex++)
@@ -1721,7 +1721,7 @@ void GlobalStatistics::ReadServersFromConfig()
 
 	STATSGEN_DEBUG_FUNCTION_START("GlobalStatistics","ReadServersFromConfig")
 	status="Updating Servers"; progress->SetStatus(status);
-	configData.ReadList("SERVERS",serverIDs);
+	configData.ReadList((char *)"SERVERS",serverIDs);
 
 	// Match up the config server id's to the active server id's
 	configServerCount=serverIDs.GetCount();
@@ -1762,7 +1762,7 @@ void GlobalStatistics::ReadClanDefinitions()
 	status="Read Clan Definitions"; progress->SetStatus(status);
 	clans.Clear();
 
-	configData.ReadList("CLANS",clanList);
+	configData.ReadList((char *)"CLANS",clanList);
 	clanCount=clanList.GetCount();
 	STATSGEN_DEBUG_CODE(msg.Printf("CLAN COUNT READ=%d",clanCount);)
 	STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
@@ -1814,7 +1814,7 @@ void GlobalStatistics::ReadMessageTimerConfig()
 	wxString	interval;
 
 	configKey="/RCONSettings/MessageIntervalTimer";
-	configData.ReadTextValue(configKey,&interval,"60");
+	configData.ReadTextValue(configKey,&interval,(char *)"60");
 	messageTimer.IntervalStart(interval);
 }
 
@@ -1826,7 +1826,7 @@ void GlobalStatistics::ReadProductionRunTimerConfig()
 	wxString	interval;
 
 	configKey="/Schedule/ProductionRun";
-	configData.ReadTextValue(configKey,&configValue,"00:00:00,86400");
+	configData.ReadTextValue(configKey,&configValue,(char *)"00:00:00,86400");
 	baseTime=configValue.BeforeFirst(',');
 	interval=configValue.AfterFirst(',');
 	productionRunTimer.ScheduledStart(baseTime,interval);
@@ -1839,7 +1839,7 @@ void GlobalStatistics::ReadQuickRunTimerConfig()
 	wxString	interval;
 
 	configKey="/Schedule/QuickRun";
-	configData.ReadTextValue(configKey,&interval,"0");
+	configData.ReadTextValue(configKey,&interval,(char *)"0");
 
 	quickRunTimer.IntervalStart(interval);
 }
@@ -1851,7 +1851,7 @@ bool GlobalStatistics::StepAllowed(const char *step)
 	bool		stepAllowed;
 
 	configKey.Printf("/Debug/Step%s",step);
-	configData.ReadTextValue(configKey,&configValue,"y");
+	configData.ReadTextValue(configKey,&configValue,(char *)"y");
 	stepAllowed=(configValue.CmpNoCase("y")==0);
 
 	return (stepAllowed);
@@ -1954,13 +1954,13 @@ void GlobalStatistics::ReadTeamSwapWeapons()
 	int			teamSwapCount;
 	wxString	teamSwap;
 
-	configData.ReadList("TEAMSWAP",teamSwapWeapons);
+	configData.ReadList((char *)"TEAMSWAP",teamSwapWeapons);
 	teamSwapCount=teamSwapWeapons.GetCount();
 	if (teamSwapCount==0)
 	{
 		teamSwap="COD1_MOD_SUICIDE";teamSwapWeapons.Add(teamSwap);
 		teamSwap="COD2_MOD_SUICIDE";teamSwapWeapons.Add(teamSwap);
-		configData.WriteList("TEAMSWAP",teamSwapWeapons);
+		configData.WriteList((char *)"TEAMSWAP",teamSwapWeapons);
 	}
 }
 
@@ -1969,13 +1969,13 @@ void GlobalStatistics::ReadDeathmatchGametypes()
 	int			gametypeCount;
 	wxString	gametype;
 
-	configData.ReadList("DEATHMATCH",deathmatchGametypes);
+	configData.ReadList((char *)"DEATHMATCH",deathmatchGametypes);
 	gametypeCount=deathmatchGametypes.GetCount();
 	if (gametypeCount==0)
 	{
 		gametype="COD1_dm";deathmatchGametypes.Add(gametype);
 		gametype="COD2_dm";deathmatchGametypes.Add(gametype);
-		configData.WriteList("DEATHMATCH",deathmatchGametypes);
+		configData.WriteList((char *)"DEATHMATCH",deathmatchGametypes);
 	}
 }
 
@@ -2092,11 +2092,11 @@ void GlobalStatistics::OpenSpeechFile()
 	wxString filename;
 
 	speechfp=NULL;
-	configData.ReadTextValue(CONFIG_KEY_SPEECHFILE,&filename);
+	configData.ReadTextValue((char *)CONFIG_KEY_SPEECHFILE,&filename);
 	if (filename.Length()>0)
 	{
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"Speech File Opened")
-		speechfp=fopen(filename.GetData(),"a");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Speech File Opened")
+		speechfp=fopen(STRING_TO_CHAR(filename),"a");
 	}
 	STATSGEN_DEBUG_FUNCTION_END
 }
@@ -2128,10 +2128,10 @@ void GlobalStatistics::WriteSpeechFile(
 	{
 		STATSGEN_DEBUG(DEBUG_RARELY,speech)
 		fprintf(speechfp,"%s %32s (%s): %s\n",
-				timeString.GetData(),
-				playername.GetData(),
-				guid.GetData(),
-				speech.GetData());
+				STRING_TO_CHAR(timeString),
+				STRING_TO_CHAR(playername),
+				STRING_TO_CHAR(guid),
+				STRING_TO_CHAR(speech));
 	}
 	STATSGEN_DEBUG_FUNCTION_END
 }
@@ -2150,7 +2150,7 @@ void GlobalStatistics::InitiateSkillCalculationType()
 
 	configKey=SkillCalculationTypeConfigKey();
 
-	configData.ReadTextValue(configKey,&configValue,"y");
+	configData.ReadTextValue(configKey,&configValue,(char *)"y");
 	negativeSkillAllowed=(configValue.CmpNoCase("y")==0);
 }
 
@@ -2183,15 +2183,15 @@ void GlobalStatistics::GenerateUpgrade(wxString &filename)
 	configValue=UPGRADE_TYPE_CONFIG;
 	upgradeConfigData.WriteTextValue(configKey,configValue);
 
-	configData.ReadList("AWARDLIST",awardIDs);
+	configData.ReadList((char *)"AWARDLIST",awardIDs);
 	awardCount=awardIDs.GetCount();
-	upgradeConfigData.Export(upgradeList,configData,"Which Gametypes Are Deathmatch","DEATHMATCH",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,"Overwrite");
-	upgradeConfigData.Export(upgradeList,configData,"Which Weapons Are Team Swap","TEAMSWAP",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,"Overwrite");
-	upgradeConfigData.Export(upgradeList,configData,"MOHAA Line Identification","LINEIDMOHAA",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,"Overwrite");
-	upgradeConfigData.Export(upgradeList,configData,"Wolfenstein Line Identification","LINEIDWOLFENSTEIN",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,"Overwrite");
-	upgradeConfigData.Export(upgradeList,configData,"Which GUIDs should not be auto aliased","AutoAliasBlockedGUIDS",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,"Overwrite");
-	upgradeConfigData.Export(upgradeList,configData,"RCON Message Formats","MessageCentreFormats",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,"Do Nothing");
-	upgradeConfigData.Export(upgradeList,configData,"Award Definitions","AWARDLIST",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,"Do Nothing");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Which Gametypes Are Deathmatch",(char *)"DEATHMATCH",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,(char *)"Overwrite");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Which Weapons Are Team Swap",(char *)"TEAMSWAP",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,(char *)"Overwrite");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"MOHAA Line Identification",(char *)"LINEIDMOHAA",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,(char *)"Overwrite");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Wolfenstein Line Identification",(char *)"LINEIDWOLFENSTEIN",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,(char *)"Overwrite");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Which GUIDs should not be auto aliased",(char *)"AutoAliasBlockedGUIDS",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,(char *)"Overwrite");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"RCON Message Formats",(char *)"MessageCentreFormats",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,(char *)"Do Nothing");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Award Definitions",(char *)"AWARDLIST",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,(char *)"Do Nothing");
 	for (awardIndex=0;awardIndex<awardCount;awardIndex++)
 	{
 		awardID=awardIDs.Item(awardIndex);
@@ -2200,28 +2200,28 @@ void GlobalStatistics::GenerateUpgrade(wxString &filename)
 		configData.ReadTextValue(configKey,&description);
 		description="Award - "+description;
 		upgradeConfigData.Export(upgradeList,configData,
-					(char *)description.GetData(),
-					(char *)awardKey.GetData(),
-					CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_USE_LAST,"");
+					description,
+					awardKey,
+					CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_USE_LAST,(char *)"");
 		
 	}
 
-	upgradeConfigData.Export(upgradeList,configData,"Logfile Substitution - Game Types","LogSubstituteGAMETYPE",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,"Do Nothing");
-	upgradeConfigData.Export(upgradeList,configData,"Logfile Substitution - Maps","LogSubstituteMAP",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,"Do Nothing");
-	upgradeConfigData.Export(upgradeList,configData,"Logfile Substitution - Teams","LogSubstituteTEAM",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,"Do Nothing");
-	upgradeConfigData.Export(upgradeList,configData,"Logfile Substitution - Weapons","LogSubstituteWEAPON",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,"Do Nothing");
-	upgradeConfigData.Export(upgradeList,configData,"Logfile Substitution - Ammo","LogSubstituteAMMO",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,"Do Nothing");
-	upgradeConfigData.Export(upgradeList,configData,"Logfile Substitution - Weapons & Ammo","LogSubstituteWEAPONAMMO",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,"Do Nothing");
-	upgradeConfigData.Export(upgradeList,configData,"Logfile Substitution - Locations","LogSubstituteLOCATION",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,"Do Nothing");
-	upgradeConfigData.Export(upgradeList,configData,"Logfile Substitution - Objectives","LogSubstituteACTION",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,"Do Nothing");
-	upgradeConfigData.Export(upgradeList,configData,"Logfile Substitution - Player Class","LogSubstituteCLASS",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,"Do Nothing");
-	upgradeConfigData.Export(upgradeList,configData,"Log Entries - Objectives","LogEntriesACTION",CONFIG_EXPORT_ALL,CONFIG_ANSWER_TYPE_ASK,"Update");
-	upgradeConfigData.Export(upgradeList,configData,"Log Entries - Weapons","LogEntriesWEAPON",CONFIG_EXPORT_ALL,CONFIG_ANSWER_TYPE_ASK,"Update");
-	upgradeConfigData.Export(upgradeList,configData,"Log Entries - Locations","LogEntriesLOCATION",CONFIG_EXPORT_ALL,CONFIG_ANSWER_TYPE_ASK,"Update");
-	upgradeConfigData.Export(upgradeList,configData,"Score Weights","ScoreWeights",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,"Update");
-	upgradeConfigData.Export(upgradeList,configData,"Skill Weights","SkillWeights",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,"Update");
-	upgradeConfigData.Export(upgradeList,configData,"Image References","Images",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,"Update");
-	upgradeConfigData.Export(upgradeList,configData,"Real Names","RealNames",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,"Update");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Logfile Substitution - Game Types",(char *)"LogSubstituteGAMETYPE",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,(char *)"Do Nothing");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Logfile Substitution - Maps",(char *)"LogSubstituteMAP",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,(char *)"Do Nothing");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Logfile Substitution - Teams",(char *)"LogSubstituteTEAM",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,(char *)"Do Nothing");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Logfile Substitution - Weapons",(char *)"LogSubstituteWEAPON",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,(char *)"Do Nothing");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Logfile Substitution - Ammo",(char *)"LogSubstituteAMMO",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,(char *)"Do Nothing");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Logfile Substitution - Weapons & Ammo",(char *)"LogSubstituteWEAPONAMMO",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,(char *)"Do Nothing");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Logfile Substitution - Locations",(char *)"LogSubstituteLOCATION",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,(char *)"Do Nothing");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Logfile Substitution - Objectives",(char *)"LogSubstituteACTION",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,(char *)"Do Nothing");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Logfile Substitution - Player Class",(char *)"LogSubstituteCLASS",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,(char *)"Do Nothing");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Log Entries - Objectives",(char *)"LogEntriesACTION",CONFIG_EXPORT_ALL,CONFIG_ANSWER_TYPE_ASK,(char *)"Update");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Log Entries - Weapons",(char *)"LogEntriesWEAPON",CONFIG_EXPORT_ALL,CONFIG_ANSWER_TYPE_ASK,(char *)"Update");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Log Entries - Locations",(char *)"LogEntriesLOCATION",CONFIG_EXPORT_ALL,CONFIG_ANSWER_TYPE_ASK,(char *)"Update");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Score Weights",(char *)"ScoreWeights",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,(char *)"Update");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Skill Weights",(char *)"SkillWeights",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,(char *)"Update");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Image References",(char *)"Images",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,(char *)"Update");
+	upgradeConfigData.Export(upgradeList,configData,(char *)"Real Names",(char *)"RealNames",CONFIG_EXPORT_SET_ONLY,CONFIG_ANSWER_TYPE_ASK,(char *)"Update");
 	wxArrayString	weaponGroups;
 	wxString		weaponGroup;
 	int				weaponGroupCount;
@@ -2232,13 +2232,13 @@ void GlobalStatistics::GenerateUpgrade(wxString &filename)
 	for (weaponGroupIndex=0;weaponGroupIndex<weaponGroupCount;weaponGroupIndex++)
 	{
 		weaponGroup=weaponGroups.Item(weaponGroupIndex);
-		weaponGroupDescription.Printf("Weapon Group - %s",weaponGroup.GetData());
+		weaponGroupDescription.Printf("Weapon Group - %s",STRING_TO_CHAR(weaponGroup));
 		upgradeConfigData.Export(upgradeList,configData,
-							(char *)weaponGroupDescription.GetData(),
-							(char *)weaponGroup.GetData(),
-							CONFIG_EXPORT_ALL,CONFIG_ANSWER_TYPE_ASK,"Overwrite");
+							weaponGroupDescription,
+							weaponGroup,
+							CONFIG_EXPORT_ALL,CONFIG_ANSWER_TYPE_ASK,(char *)"Overwrite");
 	}
-	upgradeConfigData.WriteList("UPGRADELIST",upgradeList);
+	upgradeConfigData.WriteList((char *)"UPGRADELIST",upgradeList);
 	upgradeConfigData.CommitChanges();
 }
 
@@ -2330,8 +2330,8 @@ int GlobalStatistics::ReadPriority(bool fullRun)
 		configKey="/General/QuickRunPriority";
 	}
 
-	configData.ReadTextValue(configKey,&configValue,"50");
-	return (atoi(configValue.GetData()));
+	configData.ReadTextValue(configKey,&configValue,(char *)"50");
+	return (atoi(STRING_TO_CHAR(configValue)));
 }
 
 void GlobalStatistics::WritePriority(bool fullRun,int priority)
@@ -2401,21 +2401,21 @@ void GlobalStatistics::ProduceStatsInitiate()
 		progress->ChoosePanel(WINDOW_ID_PROGRESS_PANEL_GENERAL);
 
 		configKey=AutomaticAliasConfigKey();
-		configData.ReadTextValue(configKey,&configValue,"n");
+		configData.ReadTextValue(configKey,&configValue,(char *)"n");
 		useAutomaticAliases=(configValue.CmpNoCase("y")==0);
 
 
 
 		// Make sure the group gets deleted
-		configData.DeleteGroup("MessageCentreValues");
+		configData.DeleteGroup((char *)"MessageCentreValues");
 		configData.CommitChanges();
 
-		configData.ReadList("BannedSpeech",bannedSpeech);
+		configData.ReadList((char *)"BannedSpeech",bannedSpeech);
 
 		ReadDeathmatchGametypes();
 		ReadTeamSwapWeapons();
-		skillWeights.Initiate("SkillWeights");
-		scoreWeights.Initiate("ScoreWeights");
+		skillWeights.Initiate((char *)"SkillWeights");
+		scoreWeights.Initiate((char *)"ScoreWeights");
 
 		OpenSpeechFile();
 		ReadAliasList();
@@ -2453,22 +2453,33 @@ void GlobalStatistics::ProduceStatsDownload()
 	int		serverCount;
 	int		serverIndex;
 	Server	*server;
+	wxString	msg;
 	STATSGEN_DEBUG_FUNCTION_START("GlobalStatistics","ProduceStatsDownload")
 
 	if (!recoveryMode)
 	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"!Recovery Mode");
 		progress->ChoosePanel(WINDOW_ID_PROGRESS_PANEL_DOWNLOAD_LOGS);
 		if (StepAllowed(STEP_DOWNLOAD_LOGS))
 		{
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Step Allowed");
 			serverCount=servers.GetCount();
 			for (serverIndex=0;serverIndex<serverCount;serverIndex++)
 			{
+				msg.Printf("Server:%d",serverIndex);
+				STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 				server=(Server *)servers.Item(serverIndex);
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Downloading Ban Files");
 				server->DownloadBanFiles();
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Downloading Log Files");
 				server->DownloadFiles();
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Downloaded Log Files");
 			}
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Step Allowed Finished");
 		}
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"!Recovery Mode Finalise");
 		progress->Finalise();
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"!Recovery Mode done");
 	}
 	STATSGEN_DEBUG_FUNCTION_END
 }
@@ -2485,120 +2496,176 @@ void GlobalStatistics::ProduceStatsProcess()
 
 	if (!recoveryMode)
 	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"not Recovery Mode");
 		progress->ChoosePanel(WINDOW_ID_PROGRESS_PANEL_DATABASE_READ_STATIC);
 		if (StepAllowed(STEP_DATABASE_READ_STATIC))
 		{
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Read Static Items");
 			ReadStaticItemsFromDatabase();
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Update Player Count");
 			statsgenDatabase.UpdatePlayerCount();
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Update Round Count");
 			statsgenDatabase.UpdateRoundCount();
 		}
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Read Static Done");
 		progress->Finalise();
 
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Empty Database");
 		progress->ChoosePanel(WINDOW_ID_PROGRESS_PANEL_EMPTY_DATABASE);
 		if (StepAllowed(STEP_EMPTY_DATABASE))
 		{
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Empty Database Perform");
 			statsgenDatabase.Empty();
 		}
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Empty Database Done");
 		progress->Finalise();
 
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Process Logs");
 		progress->ChoosePanel(WINDOW_ID_PROGRESS_PANEL_PROCESS_LOGS);
 		if (StepAllowed(STEP_PROCESS_LOG_FILES))
 		{
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Process Logs Perform");
 			serverCount=servers.GetCount();
 
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Process Logs Enable Cache");
 			playerList.EnableCache();
 			aliasCacheEnabled=true;
 
 			for (serverIndex=0;serverIndex<serverCount;serverIndex++)
 			{
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Process Logs Server");
 				server=(Server *)servers.Item(serverIndex);
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Process Logs Server Process Ban Files");
 				server->ProcessBanFiles();
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Process Logs Server Find Log Files");
 				server->FindLogfiles();
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Process Logs Server Create Log Files");
 				server->CreateLogFiles();
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Process Logs Server Adjust Log File Position");
 				server->AdjustLogfilePosition();
 			}
 			for (serverIndex=0;serverIndex<serverCount;serverIndex++)
 			{
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Process Logs Server Process Logs");
 				server=(Server *)servers.Item(serverIndex);
 				server->ProcessLogFiles(serverIndex);
 			}
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Process Logs Disable Cache");
 			playerList.DisableCache();
 			aliasCacheEnabled=false;
 			if (useAutomaticAliases)
 			{
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Process Logs Write Aliases");
 				WriteAliasList();
 			}
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Process Logs Close Speech File");
 			CloseSpeechFile();
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Process Logs Write Drop List");
 			dropList.Write();
 		}
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Process Logs done");
 		progress->Finalise();
 	
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Locate Existing Players");
 		progress->ChoosePanel(WINDOW_ID_PROGRESS_PANEL_DATABASE_LOCATE_EXISTING_PLAYERS);
 		if (StepAllowed(STEP_DATABASE_LOCATE_EXISTING_PLAYERS))
 		{
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Locate Existing Perform");
 			LocateExistingPlayers();
 		}
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Locate Existing Done");
 		progress->Finalise();
 		// By now all the stats have been gathered together - we
 		// no longer need the server objects
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Dropping Players");
 		progress->ChoosePanel(WINDOW_ID_PROGRESS_PANEL_DROPPING_PLAYERS);
 		if (StepAllowed(STEP_DROP_PLAYERS))
 		{
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Dropping Players Perform");
 			// drop players who have not played enough rounds
 			DropPlayersAndRounds();
 		}
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Dropping Players Done");
 		progress->Finalise();
 
 		progress->ChoosePanel(WINDOW_ID_PROGRESS_PANEL_CALCULATING_SCORES1);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Calculate Scores");
 		if (StepAllowed(STEP_CALCULATE_SCORES))
 		{
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Calculate Scores Perform");
 			CalculateScores();
 		}
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Calculate Scores Done");
 		progress->Finalise();
 
 		progress->ChoosePanel(WINDOW_ID_PROGRESS_PANEL_WRITE_DATABASE);
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Write Database");
 		if (StepAllowed(STEP_WRITE_DATABASE))
 		{
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Write Database Perform 1");
 			playerDataAvatars->ReadFromFile();
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Write Database Perform 2");
 			playerDataRealName->ReadFromFile();
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Write Database Perform 3");
 			playerDataWebsite->ReadFromFile();
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Write Database Perform 4");
 			playerDataPicture->ReadFromFile();
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Write Database Perform 5");
 			playerDataXfire->ReadFromFile();
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Write Database Perform 6");
 			playerDataClanRole->ReadFromFile();
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Write Database Perform 7");
 			playerDataMisc1->ReadFromFile();
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Write Database Perform 8");
 			playerDataMisc2->ReadFromFile();
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Write Database Perform 9");
 			WriteToDatabase();
-			statsgenDatabase.WriteMiscellaneousStatistic("starttime",startTime);
-			statsgenDatabase.WriteMiscellaneousStatistic("roundsprocessed",
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Write Database Perform 10");
+			statsgenDatabase.WriteMiscellaneousStatistic((char *)"starttime",(int)startTime);
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Write Database Perform 11");
+			statsgenDatabase.WriteMiscellaneousStatistic((char *)"roundsprocessed",
 													(int)rounds.GetCount());
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Write Database Perform 12");
 			statsgenDatabase.Optimize();
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Write Database Perform 13");
 		}
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Write Database Done");
 		progress->Finalise();
 	}
 
 	configKey="/Template/FullRun";
-	configData.ReadTextValue(configKey,&templateFilename,"");
+	configData.ReadTextValue(configKey,&templateFilename,(char *)"");
 
 	progress->ChoosePanel(WINDOW_ID_PROGRESS_PANEL_READ_TEMPLATE);
 	progress->DisableTimeToGo();
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Read Template");
 	if (StepAllowed(STEP_READ_TEMPLATE))
 	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Read Template Perform");
 		templateFile.ReadTemplate(templateFilename);
 	}
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Read Template Done");
 	progress->Finalise();
 
 	progress->ChoosePanel(WINDOW_ID_PROGRESS_PANEL_PROCESS_TEMPLATE);
 	progress->DisableTimeToGo();
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Process Template");
 	if (StepAllowed(STEP_PROCESS_TEMPLATE))
 	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Process Template Perform");
 		templateFile.Process();
 	}
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Process Template Done");
 
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Post Process Template");
 	if (StepAllowed(STEP_POST_PROCESS_TEMPLATE))
 	{
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Post Process Template perform 1");
 		PlayerListToPlayerCache();
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Post Process Template perform 2");
 		WritePlayerCache();
 	}
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Post Process Template Done");
 
 	progress->Finalise();
 	STATSGEN_DEBUG_FUNCTION_END
@@ -2620,9 +2687,9 @@ void GlobalStatistics::ProduceStatsTransfer()
 	progress->ChoosePanel(WINDOW_ID_PROGRESS_PANEL_WEBSITE);
 	if (StepAllowed(STEP_WEBSITE))
 	{
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"Website Transfer Step Allowed");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Website Transfer Step Allowed");
 		// Now time to transfer to the website
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"Website Transfer Full Run");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Website Transfer Full Run");
 		wxArrayString	createdFiles;
 
 		templateFile.GetCreatedFiles(createdFiles);
@@ -2698,7 +2765,7 @@ void GlobalStatistics::LocateExistingPlayers()
 	playerCount=playerList.GetCount();
 	msg.Printf("db count=%d playercount=%d",databasePlayerCount,playerCount);
 	STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
-	progress->Initiate(playerCount," players", 1, "players ", 1);
+	progress->Initiate(playerCount,(char *)" players", 1,(char *) "players ", 1);
 	for (playerIndex=0;playerIndex<playerCount;playerIndex++)
 	{
 		progress->Update(playerIndex);
@@ -2707,7 +2774,7 @@ void GlobalStatistics::LocateExistingPlayers()
 		player=playerList.Detach(0);
 		if (!player->UpdateFromDatabase(newPlayerIndex))
 		{
-			STATSGEN_DEBUG(DEBUG_RARELY,"not from db") 
+			STATSGEN_DEBUG(DEBUG_RARELY,(char *)"not from db") 
 			newPlayerIndex++;
 		}
 		playersChanged.Add(player->actualPlayerIndex);
@@ -2740,14 +2807,14 @@ void GlobalStatistics::DropExistingPlayers()
 
 	STATSGEN_DEBUG_FUNCTION_START("GlobalStatistics","DropExistingPlayers")
 	name=WORLD_PLAYER_NAME;
-	sql.Printf("update player set dropped='Y' where name='%s'",StatsgenDatabase::SafeForInsert(name).GetData());
+	sql.Printf("update player set dropped='Y' where name='%s'",STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(name)));
 	statsgenDatabase.SimpleExecute(sql);
 	globalStatistics.configData.ReadTextValue(
-									"/General/MinRoundsPerPlayer",
+									(char *)"/General/MinRoundsPerPlayer",
 									&minRoundsPerPlayerString,
-									"1");
+									(char *)"1");
 
-	minRoundsPerPlayer=atoi(minRoundsPerPlayerString.GetData());
+	minRoundsPerPlayer=atoi(STRING_TO_CHAR(minRoundsPerPlayerString));
 
 	sql="select * from player";
 
@@ -2760,9 +2827,9 @@ void GlobalStatistics::DropExistingPlayers()
 			continue;
 		}
 		cheat=false;
-		rounds=atoi(query.RetrieveProperty(propertyRounds).GetData());
+		rounds=atoi(STRING_TO_CHAR(query.RetrieveProperty(propertyRounds)));
 		dbDropped=(query.RetrieveProperty(propertyDropped).CmpNoCase("Y")==0);
-		playerIndex=atoi(query.RetrieveProperty(propertyPlayerIndex).GetData());
+		playerIndex=atoi(STRING_TO_CHAR(query.RetrieveProperty(propertyPlayerIndex)));
 		player.name=name;
 		player.rounds=rounds;
 		dropped=(rounds<=minRoundsPerPlayer) || dropList.IsDropped(name,&cheat);
@@ -2771,10 +2838,10 @@ void GlobalStatistics::DropExistingPlayers()
 					dbDropped,
 					dropped,
 					playerIndex,
-					name.GetData(),
+					STRING_TO_CHAR(name),
 					rounds,
 					minRoundsPerPlayer);
-STATSGEN_DEBUG(DEBUG_RARELY,msg)
+		STATSGEN_DEBUG(DEBUG_RARELY,msg)
 		if (cheat)
 		{
 			// This existing player has been classified as a cheat
@@ -2821,12 +2888,12 @@ void GlobalStatistics::UpdateExistingPlayersClan()
 	query.Initiate(sql,statsgenDatabase.DBHandle());
 	while (query.NextRow())
 	{
-		existingClanIndex=atoi(query.RetrieveProperty(propertyClan).GetData());
+		existingClanIndex=atoi(STRING_TO_CHAR(query.RetrieveProperty(propertyClan)));
 		existingName=query.RetrieveProperty(propertyName);
 		newClanIndex=ClanIndex(existingName);
 		if (newClanIndex!=existingClanIndex)
 		{
-			existingPlayerIndex=atoi(query.RetrieveProperty(propertyPlayerIndex).GetData());
+			existingPlayerIndex=atoi(STRING_TO_CHAR(query.RetrieveProperty(propertyPlayerIndex)));
 			sql.Printf("update player set clanindex=%d where playerindex=%d",
 						newClanIndex,existingPlayerIndex);
 			statsgenDatabase.SimpleExecute(sql);
@@ -2956,8 +3023,8 @@ void GlobalStatistics::DropExistingCheat(int playerIndex,int worldPlayerIndex)
 		table=tables.Item(tableIndex);
 		field=fields.Item(tableIndex);
 		SQL.Printf("delete from %s where %s=%d",
-					table.GetData(),
-					field.GetData(),
+					STRING_TO_CHAR(table),
+					STRING_TO_CHAR(field),
 					playerIndex);
 		statsgenDatabase.SimpleExecute(SQL);
 	}

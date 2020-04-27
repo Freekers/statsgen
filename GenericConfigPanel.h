@@ -21,19 +21,19 @@ class GenericConfigPanel : public wxPanel
 				const wxString &name);
 		virtual ~GenericConfigPanel();
 
-		void OnResize(wxSizeEvent& event);
-
-		void AddConfigGroup(GroupedConfigItemsPanel *configPanel);
-		void AddConfigGroup(GenericNumberedConfigPanel *configPanel);
-		void AddConfigGroup(wxPanel *configPanel);
+		void AddConfigGroup(GroupedConfigItemsPanel *configPanel,int sizerProportion=0,int sizerFlags=wxEXPAND);
+		void AddConfigGroup(GenericNumberedConfigPanel *configPanel,int sizerProportion=0,int sizerFlags=wxEXPAND);
+		void AddConfigGroup(wxPanel *configPanel,int sizerProportion=0,int sizerFlags=wxEXPAND);
 		void OnTextChange(wxCommandEvent &event);
 		bool UpdateFromTrigger();
 
+		void ConfigureSizer();
 	protected:
 
 	private:
 		ArrayOfPointers		configItems;
 		wxArrayInt		panelTypes;
+		wxBoxSizer		*mMainSizer;
 		DECLARE_EVENT_TABLE()
 };
 

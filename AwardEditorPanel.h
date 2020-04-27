@@ -37,29 +37,29 @@ class AwardDefinitionPanel : public wxPanel
 		void RemoveMiscComponent(wxString &code);
 		void RemoveXPComponent(wxString &code);
 
-		void OnResize(wxSizeEvent& event);
 		void OnRightClick(wxTreeEvent& event);
 		void PopulateList(wxTreeCtrl *listBox,
 						wxArrayString &codeList,
 						const char *realnamePrefix,
 						const char *suffix);
 
-		wxArrayString				selectedCodes;
-		long						selectedDefinitionTree;
-		AwardDefinition				*awardDefinition;
-		wxTreeCtrl					*weaponList;
-		wxTreeCtrl					*locationList;
-		wxTreeCtrl					*actionList;
-		wxTreeCtrl					*miscList;
-		wxTreeCtrl					*xpList;
-		wxStaticText				*label;
+		wxArrayString				mSelectedCodes;
+		long						mSelectedDefinitionTree;
+		AwardDefinition				*mAwardDefinition;
+		wxTreeCtrl					*mWeaponList;
+		wxTreeCtrl					*mLocationList;
+		wxTreeCtrl					*mActionList;
+		wxTreeCtrl					*mMiscList;
+		wxTreeCtrl					*mXPList;
+		wxStaticText				*mLabel;
 		void SetFilter(wxString &filterString);
 
 	protected:
 
 	private:
-		wxString			awardID;
-		wxString			filter;
+		wxString			mAwardID;
+		wxString			mFilter;
+		wxBoxSizer			*mMainSizer;
 
 		DECLARE_EVENT_TABLE()
 };
@@ -76,11 +76,10 @@ class AwardChoicesPanel : public wxPanel
 				wxString &awardIDIn);
 		virtual ~AwardChoicesPanel();
 
-		void OnResize(wxSizeEvent& event);
 		void OnRightClick(wxTreeEvent& event);
 
-		wxArrayString	selectedCodes;
-		long			selectedChoiceTree;
+		wxArrayString	mSelectedCodes;
+		long			mSelectedChoiceTree;
 		void SetFilter(wxString &filterString);
 
 	protected:
@@ -90,14 +89,15 @@ class AwardChoicesPanel : public wxPanel
 						const char *group,
 						const char *realnamePrefix);
 
-		wxString			awardID;
-		wxTreeCtrl			*weaponList;
-		wxTreeCtrl			*locationList;
-		wxTreeCtrl			*actionList;
-		wxTreeCtrl			*miscList;
-		wxTreeCtrl			*xpList;
-		wxStaticText		*label;
-		wxString			filter;
+		wxString			mAwardID;
+		wxTreeCtrl			*mWeaponList;
+		wxTreeCtrl			*mLocationList;
+		wxTreeCtrl			*mActionList;
+		wxTreeCtrl			*mMiscList;
+		wxTreeCtrl			*mXPList;
+		wxStaticText		*mLabel;
+		wxString			mFilter;
+		wxBoxSizer			*mMainSizer;
 
 		DECLARE_EVENT_TABLE()
 };
@@ -114,7 +114,6 @@ class AwardEditorPanel : public wxPanel
 				wxString &awardIDIn);
 		virtual ~AwardEditorPanel();
 
-		void OnResize(wxSizeEvent& event);
 		void OnRightClick(wxTreeEvent& event);
 		void OnPopupMenu(wxCommandEvent& event);
 		void OnConfigChanged(wxCommandEvent &event);
@@ -122,12 +121,13 @@ class AwardEditorPanel : public wxPanel
 	protected:
 
 	private:
-		wxString			awardID;
-		GroupedConfigItemsPanel		*overallConfig;
-		AwardChoicesPanel			*awardChoices;
-		AwardDefinitionPanel		*awardDefinition;
+		wxString					mAwardID;
+		GroupedConfigItemsPanel		*mOverallConfig;
+		AwardChoicesPanel			*mAwardChoices;
+		AwardDefinitionPanel		*mAwardDefinition;
 
-		wxSplitterWindow			*splitter;
+		wxSplitterWindow			*mSplitter;
+		wxBoxSizer					*mMainSizer;
 		DECLARE_EVENT_TABLE()
 };
 

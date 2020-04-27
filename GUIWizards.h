@@ -18,6 +18,8 @@
 #define WIZARD_CHOICE_EDIT		"Edit"
 #define WIZARD_CHOICE_DELETE	"Delete"
 
+#define WIZARD_SELECTION_NOTHING	"Nothing"
+
 class StatsgenWizard;
 class GUIWizardPageStatsgen	: public wxWizardPage
 {
@@ -33,34 +35,33 @@ class GUIWizardPageStatsgen	: public wxWizardPage
 		void SetCallBack(void(* callBackIn)(void *object),void *callBackObjectIn );
 		void SetPageCounter(int pageIndexIn,int pageCountIn);
 		void UpdateProgress();
-		void Resize(int maxHeight=-1);
 		virtual bool AutoAdvance(); 
 		void SetSectionTitle(const char *titleChars); 
 		virtual wxString GetValue()=0;
 		wxString GetPageID();
 		void PageContentsChanged();
 
-		StatsgenWizard	*wizard;
+		StatsgenWizard	*mWizard;
 	protected:
-		virtual wxSize ResizeControl(int x,int y,int width,bool resize);
 
 	protected:
 		virtual void UpdateScreen();
-		void (* callBack)(void *object);
-		void *callBackObject;
+		void (* mCallBack)(void *object);
+		void *mCallBackObject;
 
-		int		pageIndex;
-		int		wizardPageCount;
+		int				mPageIndex;
+		int				mWizardPageCount;
+		wxSizer			*mMainSizer;
+		wxSizer			*mContentsSizer;
 		
-	private:
-		wxWizardPage	*previousPage;
-		wxWizardPage	*nextPage;
-		wxString		helpText;
-		wxRichTextCtrl	*helpTextCtrl;
-		wxGauge			*installProgress;
-		wxStaticText	*sectionTitle;
-		wxString		pageID;
-
+	protected:
+		wxWizardPage	*mPreviousPage;
+		wxWizardPage	*mNextPage;
+		wxString		mHelpText;
+		wxRichTextCtrl	*mHelpTextCtrl;
+		wxGauge			*mInstallProgress;
+		wxStaticText	*mSectionTitle;
+		wxString		mPageID;
 };
 
 class GUIPageLinks
@@ -112,7 +113,6 @@ class GUIWizardPageConfig : public GUIWizardPageStatsgen
 		void AllowCtrlUpdates();
 		bool CtrlUpdatesAllowed();
 	protected:
-		virtual wxSize ResizeControl(int x,int y,int width,bool resize);
 		virtual void UpdateConfigFromValue();
 		virtual void UpdateCtrlFromValue();
 		virtual bool ConfigReady();
@@ -122,13 +122,13 @@ class GUIWizardPageConfig : public GUIWizardPageStatsgen
 		virtual void SetCtrlFromValue()=0;
 		virtual void SetValueFromCtrl()=0;
 
-		wxString		value;
-		wxString		title;
-		wxString		configKey;
-		wxString		defaultValue;
+		wxString		mValue;
+		wxString		mTitle;
+		wxString		mConfigKey;
+		wxString		mDefaultValue;
 	private:
-		wxStaticText	*titleCtrl;
-		bool		vetoUpdates;
+		wxStaticText	*mTitleCtrl;
+		bool			mVetoUpdates;
 };
 
 class GUIWizardPageConfigText : public GUIWizardPageConfig
@@ -139,11 +139,10 @@ class GUIWizardPageConfigText : public GUIWizardPageConfig
 	protected:
 		virtual void CreateControl();
 		virtual void SetCtrlFromValue();
-		virtual wxSize ResizeControl(int x,int y,int width,bool resize);
 		virtual bool ScreenReady();
 		virtual void SetValueFromCtrl();
 	protected:
-		wxTextCtrl		*valueCtrl;
+		wxTextCtrl		*mValueCtrl;
 		
 	DECLARE_EVENT_TABLE();
 };
@@ -157,14 +156,13 @@ class GUIWizardPageConfigBoolean : public GUIWizardPageConfig
 	protected:
 		virtual void CreateControl();
 		virtual void SetCtrlFromValue();
-		virtual wxSize ResizeControl(int x,int y,int width,bool resize);
 		virtual bool ScreenReady();
 		virtual void SetValueFromCtrl();
 	protected:
-		wxCheckBox		*valueCtrl;
+		wxCheckBox		*mValueCtrl;
 	private:
-		wxString	trueLabel;
-		wxString	falseLabel;
+		wxString	mTrueLabel;
+		wxString	mFalseLabel;
 		void UpdateLabel();
 		
 	DECLARE_EVENT_TABLE();
@@ -182,21 +180,20 @@ class GUIWizardPageConfigFile : public GUIWizardPageConfig
 	protected:
 		virtual void CreateControl();
 		virtual void SetCtrlFromValue();
-		virtual wxSize ResizeControl(int x,int y,int width,bool resize);
 		virtual bool ScreenReady();
 		virtual void SetValueFromCtrl();
 		virtual void UpdateConfigFromValue();
 		virtual wxString RequestFileFromUser()=0;
 	protected:
-		wxTextCtrl		*valueCtrl;
-		wxButton		*browseButton;
+		wxTextCtrl		*mValueCtrl;
+		wxButton		*mBrowseButton;
 	protected:
 		void GetConfigKeys(wxString &configDirectory,
 						wxString &configFilename);
 		virtual void CombineValue();
 
-		wxString		directory;
-		wxString		filename;
+		wxString		mDirectory;
+		wxString		mFilename;
 		
 	DECLARE_EVENT_TABLE();
 };
@@ -236,17 +233,16 @@ class GUIWizardPageConfigWildcard : public GUIWizardPageConfig
 	protected:
 		virtual void CreateControl();
 		virtual void SetCtrlFromValue();
-		virtual wxSize ResizeControl(int x,int y,int width,bool resize);
 		virtual bool ScreenReady();
 		virtual void SetValueFromCtrl();
 		virtual void UpdateConfigFromValue();
 	protected:
-		wxTextCtrl		*valueCtrl;
-		wxTextCtrl		*wildcardCtrl;
-		wxButton		*browseButton;
-		wxString		wildcardValue;
-		wxStaticText	*directoryLabel;
-		wxStaticText	*wildcardLabel;
+		wxTextCtrl		*mValueCtrl;
+		wxTextCtrl		*mWildcardCtrl;
+		wxButton		*mBrowseButton;
+		wxString		mWildcardValue;
+		wxStaticText	*mDirectoryLabel;
+		wxStaticText	*mWildcardLabel;
 	private:
 		void GetConfigKeys(wxString &configDirectory,
 						wxString &configFilename);
@@ -281,13 +277,12 @@ class GUIWizardPageConfigRemoteDirectory : public GUIWizardPageConfig
 	protected:
 		virtual void CreateControl();
 		virtual void SetCtrlFromValue();
-		virtual wxSize ResizeControl(int x,int y,int width,bool resize);
 		virtual bool ScreenReady();
 		virtual void SetValueFromCtrl();
 		virtual void UpdateConfigFromValue();
 	protected:
-		wxTextCtrl		*valueCtrl;
-		wxButton		*browseButton;
+		wxTextCtrl		*mValueCtrl;
+		wxButton		*mBrowseButton;
 		
 	DECLARE_EVENT_TABLE();
 };
@@ -307,7 +302,6 @@ class GUIWizardPageConfigChoice : public GUIWizardPageConfig
 	protected:
 		virtual void CreateControl();
 		virtual void SetCtrlFromValue();
-		virtual wxSize ResizeControl(int x,int y,int width,bool resize);
 		virtual bool ScreenReady();
 		virtual void SetValueFromCtrl();
 	public:
@@ -316,15 +310,16 @@ class GUIWizardPageConfigChoice : public GUIWizardPageConfig
 		void SetSelection(wxString &selection);
 	protected:
 
-		wxArrayPtrVoid	buttons;
-		wxArrayPtrVoid	labels;
-		wxArrayString	answerCodes;
-		wxArrayString	buttonTexts;
-		wxArrayString	buttonDescriptions;
-		wxTextCtrl		*valueCtrl;
-		wxStaticText	*selectionLabel;
+		wxArrayPtrVoid	mButtons;
+		wxArrayPtrVoid	mLabels;
+		wxArrayString	mAnswerCodes;
+		wxArrayString	mButtonTexts;
+		wxArrayString	mButtonDescriptions;
+		wxTextCtrl		*mValueCtrl;
+		wxStaticText	*mSelectionLabel;
 
-		wxString		choice;
+		wxString		mChoice;
+		wxBoxSizer		*mChoiceSizer;
 		
 	DECLARE_EVENT_TABLE();
 };
@@ -337,19 +332,18 @@ class GUIWizardPageRemoteTest : public GUIWizardPageStatsgen
 		void SetGroupPrefix(wxString &groupPrefixIn);
 		bool TestResult();
 		bool PerformTest();
-		virtual wxSize ResizeControl(int x,int y,int width,bool resize);
 		void OnButtonPressed(wxCommandEvent &event);
 		void ResetTestResult();
 		virtual wxString GetValue();
 
 	private:
-		wxStaticText	*statusCtrl;
-		wxRichTextCtrl	*errorCtrl;
-		wxButton		*testButton;
+		wxStaticText	*mStatusCtrl;
+		wxRichTextCtrl	*mErrorCtrl;
+		wxButton		*mTestButton;
 
-		wxString		groupPrefix;
+		wxString		mGroupPrefix;
 	private:
-		bool			lastConnectionResult;
+		bool			mLastConnectionResult;
 		
 
 	DECLARE_EVENT_TABLE();
@@ -362,7 +356,6 @@ class GUIWizardPageRun : public GUIWizardPageStatsgen
 		virtual ~GUIWizardPageRun();
 		bool TestResult();
 		bool PerformTest();
-		virtual wxSize ResizeControl(int x,int y,int width,bool resize);
 		void OnButtonPressed(wxCommandEvent &event);
 		void ResetTestResult();
 		virtual wxString GetValue();
@@ -370,13 +363,13 @@ class GUIWizardPageRun : public GUIWizardPageStatsgen
 		void SetSelection(const char *selection);
 
 	private:
-		wxStaticText	*statusCtrl;
-		wxRichTextCtrl	*errorCtrl;
-		wxButton		*testButton;
-		ProgressPanel	*progressPanel;
+		wxStaticText	*mStatusCtrl;
+		wxRichTextCtrl	*mErrorCtrl;
+		wxButton		*mTestButton;
+		ProgressPanel	*mProgressPanel;
 
 	private:
-		bool			runSuccessful;
+		bool			mRunSuccessful;
 
 	DECLARE_EVENT_TABLE();
 };
@@ -386,15 +379,14 @@ class GUIWizardPageImagePacks : public GUIWizardPageStatsgen
 	public:
 		GUIWizardPageImagePacks(StatsgenWizard *wizard,wxString parentPageID,wxString thisPageID);
 		virtual ~GUIWizardPageImagePacks();
-		virtual wxSize ResizeControl(int x,int y,int width,bool resize);
 		void OnButtonPressed(wxCommandEvent &event);
 		virtual wxString GetValue();
 
 	private:
-		wxScrolledWindow	*imagesCtrl;
-		wxButton			*testButton;
-		ProgressPanel		*progressPanel;
-		StatsgenWeb			statsgenSite;
+		wxScrolledWindow	*mImagesCtrl;
+		wxButton			*mTestButton;
+		ProgressPanel		*mProgressPanel;
+		StatsgenWeb			mStatsgenSite;
 
 	private:
 		void CreateImagePackPanels();
@@ -403,12 +395,12 @@ class GUIWizardPageImagePacks : public GUIWizardPageStatsgen
 		void ResizeImagePackPanels();
 
 	private:
-		wxArrayString				fileDescriptions;
-		wxArrayString				filePaths;
-		wxArrayString				serverTypes;
-		wxArrayString				thumbnails;
-		wxArrayString				upgradeFiles;
-		wxArrayPtrVoid				imagePackPanels;
+		wxArrayString				mFileDescriptions;
+		wxArrayString				mFilePaths;
+		wxArrayString				mServerTypes;
+		wxArrayString				mThumbnails;
+		wxArrayString				mUpgradeFiles;
+		wxArrayPtrVoid				mImagePackPanels;
 
 	DECLARE_EVENT_TABLE();
 };
@@ -421,24 +413,23 @@ class GUIWizardPageRemoteFileTest : public GUIWizardPageStatsgen
 		void SetGroupPrefix(wxString &groupPrefixIn);
 		bool TestResult();
 		bool PerformTest();
-		virtual wxSize ResizeControl(int x,int y,int width,bool resize);
 		void OnButtonPressed(wxCommandEvent &event);
 		void ResetTestResult();
 		void SetFile(wxString &fileDirectoryIn, wxString &fileNameIn);
 		virtual wxString GetValue();
 
 	private:
-		wxStaticText	*statusCtrl;
-		wxRichTextCtrl	*errorCtrl;
-		wxButton		*testButton;
+		wxStaticText	*mStatusCtrl;
+		wxRichTextCtrl	*mErrorCtrl;
+		wxButton		*mTestButton;
 
-		wxString		groupPrefix;
-		wxString		fileDirectory;
-		wxString		fileName;
+		wxString		mGroupPrefix;
+		wxString		mFileDirectory;
+		wxString		mFileName;
 	private:
-		bool			lastResult;
-		wxArrayString	filenameList;
-		wxArrayInt		filesizeList;
+		bool			mLastResult;
+		wxArrayString	mFilenameList;
+		wxArrayInt		mFilesizeList;
 		
 
 	DECLARE_EVENT_TABLE();
@@ -452,21 +443,20 @@ class GUIWizardPageRemoteDirectoryTest : public GUIWizardPageStatsgen
 		void SetGroupPrefix(wxString &groupPrefixIn);
 		bool TestResult();
 		bool PerformTest();
-		virtual wxSize ResizeControl(int x,int y,int width,bool resize);
 		void OnButtonPressed(wxCommandEvent &event);
 		void ResetTestResult();
 		void SetDirectory(wxString &fileDirectoryIn);
 		virtual wxString GetValue();
 
 	private:
-		wxStaticText	*statusCtrl;
-		wxRichTextCtrl	*errorCtrl;
-		wxButton		*testButton;
+		wxStaticText	*mStatusCtrl;
+		wxRichTextCtrl	*mErrorCtrl;
+		wxButton		*mTestButton;
 
-		wxString		groupPrefix;
-		wxString		fileDirectory;
+		wxString		mGroupPrefix;
+		wxString		mFileDirectory;
 	private:
-		bool			lastResult;
+		bool			mLastResult;
 		
 
 	DECLARE_EVENT_TABLE();
@@ -480,8 +470,8 @@ class GUIWizardPages
 		void SetPageID(wxString parentID,wxString pageIDIn);
 		virtual void CreateWizardPages(StatsgenWizard *wizard)=0;
 	protected:
-		wxString pageID;
-		StatsgenWizard	*wizard;
+		wxString mPageID;
+		StatsgenWizard	*mWizard;
 };
 
 class GUIWizardPagesRemoteMachine : public GUIWizardPages
@@ -491,7 +481,6 @@ class GUIWizardPagesRemoteMachine : public GUIWizardPages
 		virtual ~GUIWizardPagesRemoteMachine();
 		void SetGroupPrefix(wxString &groupPrefixIn);
 		virtual void CreateWizardPages(StatsgenWizard *wizard);
-		void ResizePages();
 		static void ConfigChangedCallBack(void *callingObject);
 		void SetCallBack(void(* callBackIn)(void *object),void *callBackObjectIn );
 		static void ConnectionTestCallBack(void *callingObject);
@@ -506,17 +495,17 @@ class GUIWizardPagesRemoteMachine : public GUIWizardPages
 		void ConnectionTest();
 
 	private:
-		wxString	groupPrefix;
-		GUIWizardPageConfigText		*pageHostname;
-		GUIWizardPageConfigBoolean	*pageEnabled;
-		GUIWizardPageConfigText		*pageUsername;
-		GUIWizardPageConfigText		*pagePassword;
-		GUIWizardPageConfigText		*pageFTPPort;
-		GUIWizardPageConfigBoolean	*pagePassive;
-		GUIWizardPageRemoteTest		*pageTest;
+		wxString	mGroupPrefix;
+		GUIWizardPageConfigText		*mPageHostname;
+		GUIWizardPageConfigBoolean	*mPageEnabled;
+		GUIWizardPageConfigText		*mPageUsername;
+		GUIWizardPageConfigText		*mPagePassword;
+		GUIWizardPageConfigText		*mPageFTPPort;
+		GUIWizardPageConfigBoolean	*mPagePassive;
+		GUIWizardPageRemoteTest		*mPageTest;
 
-		void (* callBack)(void *object);
-		void *callBackObject;
+		void (* mCallBack)(void *object);
+		void *mCallBackObject;
 };
 
 class GUIWizardPageChoice : public GUIWizardPageStatsgen
@@ -533,7 +522,6 @@ class GUIWizardPageChoice : public GUIWizardPageStatsgen
 			wxArrayString &buttonTextsIn,
 			wxArrayString &buttonDescriptionsIn);
 		wxString TestResult();
-		virtual wxSize ResizeControl(int x,int y,int width,bool resize);
 		void OnButtonPressed(wxCommandEvent &event);
 		wxString GetChoice();
 		void SelectChoice(wxString &choiceIn);
@@ -543,15 +531,16 @@ class GUIWizardPageChoice : public GUIWizardPageStatsgen
 		void SetSelection(const char *selection);
 		void SetSelection(wxString &selection);
 	private:
-		wxArrayPtrVoid	buttons;
-		wxArrayPtrVoid	labels;
-		wxArrayString	answerCodes;
-		wxArrayString	buttonTexts;
-		wxArrayString	buttonDescriptions;
-		wxStaticText	*selectedChoice;
-		wxStaticText	*selectionLabel;
+		wxArrayPtrVoid	mButtons;
+		wxArrayPtrVoid	mLabels;
+		wxArrayString	mAnswerCodes;
+		wxArrayString	mButtonTexts;
+		wxArrayString	mButtonDescriptions;
+		wxStaticText	*mSelectedChoice;
+		wxStaticText	*mSelectionLabel;
 
-		wxString		choice;
+		wxString		mChoice;
+		wxBoxSizer		*mChoiceSizer;
 
 	DECLARE_EVENT_TABLE();
 };
@@ -562,7 +551,6 @@ class GUIWizardPagesServer : public GUIWizardPages
 		GUIWizardPagesServer();
 		virtual ~GUIWizardPagesServer();
 		virtual void CreateWizardPages(StatsgenWizard *wizard);
-		void ResizePages();
 		void SetTestParameters();
 
 		void SetGroupPrefix(wxString &groupPrefixIn);
@@ -575,26 +563,26 @@ class GUIWizardPagesServer : public GUIWizardPages
 		void SetLogfileLimit();
 
 	private:
-		wxString	groupPrefix;
-		GUIWizardPagesRemoteMachine	remoteMachine;
-		GUIWizardPageConfigChoice			*pageServerType;
-		GUIWizardPageConfigChoice			*pageLocalOrRemote;
-		GUIWizardPageConfigBoolean			*pageMessagingEnabled;
-		GUIWizardPageConfigText				*pageRCONPassword;
-		GUIWizardPageConfigText				*pageRCONPort;
-		GUIWizardPageConfigRemoteDirectory	*pagePBRemoteDirectory;
-		GUIWizardPageRemoteDirectoryTest	*pagePBRemoteDirectoryTest;
-		GUIWizardPageConfigRemoteFile		*pageRemoteLatestFilename;
-		GUIWizardPageRemoteFileTest			*pageRemoteLatestFilenameTest;
-		GUIWizardPageConfigRemoteFile		*pageRemoteLatestSecondaryFilename;
-		GUIWizardPageRemoteFileTest			*pageRemoteLatestSecondaryFilenameTest;
-		GUIWizardPageConfigRemoteWildcard	*pageRemoteArchiveFilename;
-		GUIWizardPageRemoteFileTest			*pageRemoteArchiveFilenameTest;
-		GUIWizardPageConfigLocalFile		*pageLocalLatestFilename;
-		GUIWizardPageConfigLocalWildcard	*pageLocalArchiveFilename;
-		GUIWizardPageConfigLocalFile		*pageLocalLatestSecondaryFilename;
+		wxString							mGroupPrefix;
+		GUIWizardPagesRemoteMachine			mRemoteMachine;
+		GUIWizardPageConfigChoice			*mPageServerType;
+		GUIWizardPageConfigChoice			*mPageLocalOrRemote;
+		GUIWizardPageConfigBoolean			*mPageMessagingEnabled;
+		GUIWizardPageConfigText				*mPageRCONPassword;
+		GUIWizardPageConfigText				*mPageRCONPort;
+		GUIWizardPageConfigRemoteDirectory	*mPagePBRemoteDirectory;
+		GUIWizardPageRemoteDirectoryTest	*mPagePBRemoteDirectoryTest;
+		GUIWizardPageConfigRemoteFile		*mPageRemoteLatestFilename;
+		GUIWizardPageRemoteFileTest			*mPageRemoteLatestFilenameTest;
+		GUIWizardPageConfigRemoteFile		*mPageRemoteLatestSecondaryFilename;
+		GUIWizardPageRemoteFileTest			*mPageRemoteLatestSecondaryFilenameTest;
+		GUIWizardPageConfigRemoteWildcard	*mPageRemoteArchiveFilename;
+		GUIWizardPageRemoteFileTest			*mPageRemoteArchiveFilenameTest;
+		GUIWizardPageConfigLocalFile		*mPageLocalLatestFilename;
+		GUIWizardPageConfigLocalWildcard	*mPageLocalArchiveFilename;
+		GUIWizardPageConfigLocalFile		*mPageLocalLatestSecondaryFilename;
 
-		int							logfileLimit;
+		int									mLogfileLimit;
 };
 
 class GUIWizardPagesMessaging : public GUIWizardPages
@@ -603,14 +591,13 @@ class GUIWizardPagesMessaging : public GUIWizardPages
 		GUIWizardPagesMessaging();
 		virtual ~GUIWizardPagesMessaging();
 		virtual void CreateWizardPages(StatsgenWizard *wizard);
-		void ResizePages();
 		void SetSectionTitle(const char *sectionTitle);
 		static void ConfigChangedCallBack(void *object);
 		void UpdateConfigKeys();
 	private:
-		GUIWizardPageConfigBoolean			*pageMessagingEnabled;
-		GUIWizardPageConfigText				*pageMessagingFrequency;
-		GUIWizardPageConfigText				*pageMessagingPort;
+		GUIWizardPageConfigBoolean			*mPageMessagingEnabled;
+		GUIWizardPageConfigText				*mPageMessagingFrequency;
+		GUIWizardPageConfigText				*mPageMessagingPort;
 };
 
 class GUIWizardPagesServers : public GUIWizardPages
@@ -619,7 +606,6 @@ class GUIWizardPagesServers : public GUIWizardPages
 		GUIWizardPagesServers();
 		virtual ~GUIWizardPagesServers();
 		virtual void CreateWizardPages(StatsgenWizard *wizard);
-		void ResizePages();
 
 		static void DeleteEditNewCallBack(void *callingObject);
 		static void ServerSelectedCallBack(void *callingObject);
@@ -633,11 +619,11 @@ class GUIWizardPagesServers : public GUIWizardPages
 		void SetLogfileLimit(int limit);
 
 	private:
-		GUIWizardPagesServer			pageServer;
-		GUIWizardPageChoice				*pageDeleteEditNew;
-		GUIWizardPageChoice				*pageServerSelection;
+		GUIWizardPagesServer			mPageServer;
+		GUIWizardPageChoice				*mPageDeleteEditNew;
+		GUIWizardPageChoice				*mPageServerSelection;
 
-		int							logfileLimit;
+		int								mLogfileLimit;
 };
 
 class GUIWizardPagesWebsite : public GUIWizardPages
@@ -646,7 +632,6 @@ class GUIWizardPagesWebsite : public GUIWizardPages
 		GUIWizardPagesWebsite();
 		virtual ~GUIWizardPagesWebsite();
 		virtual void CreateWizardPages(StatsgenWizard *wizard);
-		void ResizePages();
 
 		void UpdateConfigKeys();
 		void SetGroupPrefix();
@@ -654,13 +639,13 @@ class GUIWizardPagesWebsite : public GUIWizardPages
 		void SetDirectory();
 
 	private:
-		GUIWizardPagesRemoteMachine				remoteMachine;
-		GUIWizardPageConfigRemoteDirectory		*pageRemoteDirectory;
-		GUIWizardPageRemoteDirectoryTest		*pageRemoteDirectoryTest;
+		GUIWizardPagesRemoteMachine				mRemoteMachine;
+		GUIWizardPageConfigRemoteDirectory		*mPageRemoteDirectory;
+		GUIWizardPageRemoteDirectoryTest		*mPageRemoteDirectoryTest;
 
-		wxString								groupPrefix;
+		wxString								mGroupPrefix;
 };
-class ImagePackPanel : wxPanel
+class ImagePackPanel : public wxPanel
 {
 	public:
 		ImagePackPanel(wxWindow *parent,
@@ -677,18 +662,20 @@ class ImagePackPanel : wxPanel
 		wxString GetUpgradeFile();
 		void SelectForUpload();
 		bool Selected();
-		wxSize ResizeControl(int x,int y,int width,int height,bool resize);
+		wxSize GetLabelSize();
+		void SetMinLabelSize(wxSize size);
 
 	private:
-		wxString		fileDescription;
-		wxString		filePath;
-		wxString		serverType;
-		wxString		thumbnail;
-		wxString		upgradeFile;
-		wxCheckBox		*checkCtrl;
-		wxStaticText	*descriptionCtrl;
-		wxImage			thumbnailImage;
-		ImagePanel		*thumbnailPanel;
+		wxString		mFileDescription;
+		wxString		mFilePath;
+		wxString		mServerType;
+		wxString		mThumbnail;
+		wxString		mUpgradeFile;
+		wxCheckBox		*mCheckCtrl;
+		wxStaticText	*mDescriptionCtrl;
+		wxImage			mThumbnailImage;
+		ImagePanel		*mThumbnailPanel;
+		wxBoxSizer		*mMainSizer;
 };
 
 class GUIWizardPagesImagePacks : public GUIWizardPages
@@ -697,10 +684,9 @@ class GUIWizardPagesImagePacks : public GUIWizardPages
 		GUIWizardPagesImagePacks();
 		virtual ~GUIWizardPagesImagePacks();
 		virtual void CreateWizardPages(StatsgenWizard *wizard);
-		void ResizePages();
 
 	private:
-		GUIWizardPageImagePacks		*pageImagePacks;
+		GUIWizardPageImagePacks		*mPageImagePacks;
 
 
 };
@@ -714,8 +700,8 @@ class GUIWizardPagesFullConfig : public GUIWizardPages
 
 
 	private:
-		GUIWizardPagesServers		pageServers;
-		GUIWizardPagesWebsite		pageWebsite;
+		GUIWizardPagesServers		mPageServers;
+		GUIWizardPagesWebsite		mPageWebsite;
 
 };
 
@@ -724,15 +710,14 @@ class StatsgenWizard : public wxWizard
 	public:
 		StatsgenWizard(wxWindow *parent,
 					int id = -1,
-					wxString &title = wxEmptyString,
+					wxString title = wxEmptyString,
 					const wxBitmap &bitmap=wxNullBitmap,
 					const wxPoint &pos = wxDefaultPosition,
 					long style = wxDEFAULT_DIALOG_STYLE);
 		void OnWizardPageChanged(wxWizardEvent &event);
 		void OnWizardFinish(wxWizardEvent &event);
 		void OnWizardCancel(wxWizardEvent &event);
-		void ResizePages();
-		GUIPageLinks	pageLinks;
+		GUIPageLinks	mPageLinks;
 		void AddPageLink(GUIWizardPageStatsgen *page,
 					const char *allowRule,
 					const char *continueRule);
@@ -741,7 +726,7 @@ class StatsgenWizard : public wxWizard
 		void SetInitialPageLinks();
 		GUIWizardPageStatsgen *GetFirstPage();
 	private:
-		bool initialised;
+		bool mInitialised;
 
 	DECLARE_EVENT_TABLE();
 };
@@ -755,11 +740,11 @@ class GUIWizardPagesFirstConfig : public GUIWizardPages
 
 
 	private:
-		GUIWizardPagesServers		pageServers;
-		GUIWizardPagesWebsite		pageWebsite;
-		GUIWizardPagesMessaging		pageMessaging;
-		GUIWizardPagesImagePacks	pageImagePacks;
-		GUIWizardPageRun			*pageTestRun;
+		GUIWizardPagesServers		mPageServers;
+		GUIWizardPagesWebsite		mPageWebsite;
+		GUIWizardPagesMessaging		mPageMessaging;
+		GUIWizardPagesImagePacks	mPageImagePacks;
+		GUIWizardPageRun			*mPageTestRun;
 
 };
 
@@ -768,15 +753,14 @@ class GUIWizardPageTemplatePacks : public GUIWizardPageStatsgen
 	public:
 		GUIWizardPageTemplatePacks(StatsgenWizard *wizard,wxString parentPageID,wxString thisPageID);
 		virtual ~GUIWizardPageTemplatePacks();
-		virtual wxSize ResizeControl(int x,int y,int width,bool resize);
 		void OnButtonPressed(wxCommandEvent &event);
 		virtual wxString GetValue();
 
 	private:
-		wxScrolledWindow	*imagesCtrl;
-		wxButton			*testButton;
-		ProgressPanel		*progressPanel;
-		StatsgenWeb			statsgenSite;
+		wxScrolledWindow	*mImagesCtrl;
+		wxButton			*mTestButton;
+		ProgressPanel		*mProgressPanel;
+		StatsgenWeb			mStatsgenSite;
 
 	private:
 		void CreateTemplatePackPanels();
@@ -785,14 +769,14 @@ class GUIWizardPageTemplatePacks : public GUIWizardPageStatsgen
 		void ResizeTemplatePackPanels();
 
 	private:
-		wxArrayString				fileDescriptions;
-		wxArrayString				filePaths;
-		wxArrayString				secondFilePaths;
-		wxArrayString				templateFilenames;
-		wxArrayString				serverTypes;
-		wxArrayString				upgradePaths;
-		wxArrayString				thumbnails;
-		wxArrayPtrVoid				templatePackPanels;
+		wxArrayString				mFileDescriptions;
+		wxArrayString				mFilePaths;
+		wxArrayString				mSecondFilePaths;
+		wxArrayString				mTemplateFilenames;
+		wxArrayString				mServerTypes;
+		wxArrayString				mUpgradePaths;
+		wxArrayString				mThumbnails;
+		wxArrayPtrVoid				mTemplatePackPanels;
 
 	DECLARE_EVENT_TABLE();
 };
@@ -803,15 +787,14 @@ class GUIWizardPagesTemplatePacks : public GUIWizardPages
 		GUIWizardPagesTemplatePacks();
 		virtual ~GUIWizardPagesTemplatePacks();
 		virtual void CreateWizardPages(StatsgenWizard *wizard);
-		void ResizePages();
 
 	private:
-		GUIWizardPageTemplatePacks		*pageTemplatePacks;
+		GUIWizardPageTemplatePacks		*mPageTemplatePacks;
 
 
 };
 
-class TemplatePackPanel : wxPanel
+class TemplatePackPanel : public wxPanel
 {
 	public:
 		TemplatePackPanel(wxWindow *parent,
@@ -832,20 +815,22 @@ class TemplatePackPanel : wxPanel
 		wxString GetTemplateFilename();
 		void SelectForUpload();
 		bool Selected();
-		wxSize ResizeControl(int x,int y,int width,int height,bool resize);
+		wxSize GetLabelSize();
+		void SetMinLabelSize(wxSize size);
 
 	private:
-		wxString		fileDescription;
-		wxString		filePath;
-		wxString		upgradePath;
-		wxString		secondFilePath;
-		wxString		templateFilename;
-		wxString		serverType;
-		wxString		thumbnail;
-		wxCheckBox		*checkCtrl;
-		wxStaticText	*descriptionCtrl;
-		wxImage			thumbnailImage;
-		ImagePanel		*thumbnailPanel;
+		wxString		mFileDescription;
+		wxString		mFilePath;
+		wxString		mUpgradePath;
+		wxString		mSecondFilePath;
+		wxString		mTemplateFilename;
+		wxString		mServerType;
+		wxString		mThumbnail;
+		wxCheckBox		*mCheckCtrl;
+		wxStaticText	*mDescriptionCtrl;
+		wxImage			mThumbnailImage;
+		ImagePanel		*mThumbnailPanel;
+		wxBoxSizer		*mMainSizer;
 };
 
 #endif

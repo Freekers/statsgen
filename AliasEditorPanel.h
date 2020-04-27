@@ -21,7 +21,6 @@ class AliasEditorPanel : public wxPanel
 				const wxSize &size=wxDefaultSize,
 				long style=wxTAB_TRAVERSAL,
 				const wxString &name="panel");
-		void OnResize(wxSizeEvent &event);
 		void OnAliasRightClick(wxTreeEvent &event);
 		void OnPlayerRightClick(wxListEvent &event);
 		void OnPopupMenu(wxCommandEvent &event);
@@ -59,6 +58,8 @@ static		bool FilterNameCallBack(wxString &name);
 		wxTreeCtrl				*aliasList;
 		GroupedConfigItemsPanel	*aliasConfigs;
 		wxString				aliasFilter;
+		wxBoxSizer				*mMainSizer;
+		wxBoxSizer				*mAliasListSizer;
 		DECLARE_EVENT_TABLE()
 };
 

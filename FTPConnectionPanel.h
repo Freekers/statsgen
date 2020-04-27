@@ -14,6 +14,7 @@ class FTPConnectionPanel : public GroupedConfigItemsPanel
 		FTPConnectionPanel();
 		~FTPConnectionPanel();
 		void CreateConfigs(char *group);
+		void CreateConfigs(wxString group);
 	protected:
 
 	private:

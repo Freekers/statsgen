@@ -1,14 +1,15 @@
 #include <wx/wx.h>
 #include <wx/string.h>
+#ifdef EXTERNAL_DB_ENABLED
 #include <mysql/errmsg.h>
 #include <mysql/mysql.h>
 #include <mysql/mysqld_error.h>
-
+#endif
 #include "ExternalDatabase.h"
 #include "GlobalStatistics.h"
 #include "TemplateOpenQuery.h"
 #include "Progress.h"
-
+#ifdef EXTERNAL_DB_ENABLED
 ExternalDatabase::ExternalDatabase()
 {
 	mySQLHandle=NULL;
@@ -50,7 +51,7 @@ void ExternalDatabase::UpdateFromConfig()
 
 	configKey="/ExternalDatabase/Port";
 	globalStatistics.configData.ReadTextValue(configKey,&configValue,"3306");
-	port=atoi(configValue.GetData());
+	port=atoi(STRING_TO_CHAR(configValue));
 }
 
 void ExternalDatabase::SplitFieldNames(wxString &createSQL,wxArrayString &fieldNames)
@@ -80,12 +81,12 @@ long ExternalDatabase::RowCount(wxString &tableName)
 	wxString			fieldName="rowcount";
 	wxString			fieldValue;
 
-	SQL.Printf("select count(*) as rowcount from %s",tableName.GetData());
+	SQL.Printf("select count(*) as rowcount from %s",STRING_TO_CHAR(tableName));
 	query.Initiate(SQL,globalStatistics.statsgenDatabase.DBHandle());
 	if (query.NextRow())
 	{
 		fieldValue=query.RetrieveProperty(fieldName);
-		rowCount=atoi(fieldValue.GetData());
+		rowCount=atoi(STRING_TO_CHAR(fieldValue));
 	}
 
 	return (rowCount);
@@ -146,7 +147,7 @@ void ExternalDatabase::TransferFromInternal()
 		{
 			progress->Update(currentRowCount);
 			tableName=tableNames.Item(tableIndex);
-			msg.Printf("Create Table:%s",tableName.GetData());
+			msg.Printf("Create Table:%s",STRING_TO_CHAR(tableName));
 			progress->SetStatus(msg);
 			createSQL=tableSQL.Item(tableIndex);
 			createSQL.Replace(" string"," varchar(255)",true);
@@ -182,9 +183,9 @@ void ExternalDatabase::TransferFromInternal()
 			ExecuteSQL(beginSQL);
 			progress->Update(currentRowCount);
 			tableName=tableNames.Item(tableIndex);
-			msg.Printf("Empty Table:%s",tableName.GetData());
+			msg.Printf("Empty Table:%s",STRING_TO_CHAR(tableName));
 			progress->SetStatus(msg);
-			SQL.Printf("delete from %s",tableName.GetData());
+			SQL.Printf("delete from %s",STRING_TO_CHAR(tableName));
 			ExecuteSQL(SQL);
 			ExecuteSQL(commitSQL);
 		}
@@ -192,7 +193,7 @@ void ExternalDatabase::TransferFromInternal()
 		{
 			createSQL=tableSQL.Item(tableIndex);
 			tableName=tableNames.Item(tableIndex);
-			msg.Printf("Transfer Table:%s",tableName.GetData());
+			msg.Printf("Transfer Table:%s",STRING_TO_CHAR(tableName));
 			progress->SetStatus(msg);
 			SplitFieldNames(createSQL,fieldNames);
 			TransferTableData(tableName,fieldNames,&currentRowCount);
@@ -204,7 +205,7 @@ void ExternalDatabase::TransferFromInternal()
 				ExecuteSQL(beginSQL);
 				progress->Update(currentRowCount);
 				indexName=indexNames.Item(indexIndex);
-				msg.Printf("Create index:%s",indexName.GetData());
+				msg.Printf("Create index:%s",STRING_TO_CHAR(indexName));
 				progress->SetStatus(msg);
 				createSQL=indexSQL.Item(indexIndex);
 				ExecuteSQL(createSQL);
@@ -216,7 +217,7 @@ void ExternalDatabase::TransferFromInternal()
 		{
 			progress->Update(currentRowCount);
 			viewName=viewNames.Item(viewIndex);
-			msg.Printf("Create view:%s",viewName.GetData());
+			msg.Printf("Create view:%s",STRING_TO_CHAR(viewName));
 			progress->SetStatus(msg);
 			STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
 			createSQL=viewSQL.Item(viewIndex);
@@ -230,7 +231,7 @@ void ExternalDatabase::TransferFromInternal()
 			{
 				mysql_real_escape_string(mySQLHandle,
 									buffer,
-									createSQL.GetData(),
+									STRING_TO_CHAR(createSQL),
 									createSQL.Length());
 				escapedSQL=buffer;
 				free(buffer);
@@ -270,10 +271,10 @@ void ExternalDatabase::TransferTableData(wxString &tableName,
 	STATSGEN_DEBUG_FUNCTION_START("ExternalDatabase","TransferTableData")
 
 	progress->SetStatus(tableName);
-	filename.Printf("mysqlupload.%s",tableName.GetData());
+	filename.Printf("mysqlupload.%s",STRING_TO_CHAR(tableName));
 	fieldCount=fieldNames.GetCount();
-	retrieveSQL.Printf("select * from %s",tableName.GetData());
-	insertSQLPrefix.Printf("insert into %s (",tableName.GetData());
+	retrieveSQL.Printf("select * from %s",STRING_TO_CHAR(tableName));
+	insertSQLPrefix.Printf("insert into %s (",STRING_TO_CHAR(tableName));
 	
 	for (fieldIndex=0;fieldIndex<fieldCount;fieldIndex++)
 	{
@@ -291,7 +292,7 @@ void ExternalDatabase::TransferTableData(wxString &tableName,
 	insertSQLPrefix+=") values(";
 	query.Initiate(retrieveSQL,globalStatistics.statsgenDatabase.DBHandle());
 	ExecuteSQL(beginSQL);
-	fp=fopen(filename.GetData(),"w");
+	fp=fopen(STRING_TO_CHAR(filename),"w");
 	rowCount=0;
 	while (query.NextRow())
 	{
@@ -318,7 +319,7 @@ void ExternalDatabase::TransferTableData(wxString &tableName,
 			{
 				mysql_real_escape_string(mySQLHandle,
 									buffer,
-									fieldValue.GetData(),
+									STRING_TO_CHAR(fieldValue),
 									fieldValue.Length());
 				insertSQL+=buffer;
 				free(buffer);
@@ -327,7 +328,7 @@ void ExternalDatabase::TransferTableData(wxString &tableName,
 		}
 		if (fp!=NULL)
 		{
-			fprintf(fp,"%s\n",(const char *)insertSQL.GetData());
+			fprintf(fp,"%s\n",(const char *)STRING_TO_CHAR(insertSQL));
 		}
 		/*
 		insertSQL+=")";
@@ -369,11 +370,11 @@ void ExternalDatabase::TransferTableData(wxString &tableName,
 				"LINES "
 				"TERMINATED BY '\\%s' "
 				,
-				filename.GetData(),
-				tableName.GetData(),
+				STRING_TO_CHAR(filename),
+				STRING_TO_CHAR(tableName),
 				'\t',	// Fields terminated by
 				'\\',	// Fields escaped by
-				lineTerminator.GetData()	// Line terminated by
+				STRING_TO_CHAR(lineTerminator)	// Line terminated by
 				);	// Escaped by
 	ExecuteSQL(insertSQL);
 	(*currentRowCount)+=(rowCount);
@@ -397,7 +398,7 @@ wxString ExternalDatabase::EscapedString(wxString &escaped)
 	{
 		mysql_real_escape_string(mySQLHandle,
 									buffer,
-									retVal.GetData(),
+									STRING_TO_CHAR(retVal),
 									retVal.Length());
 		retVal=buffer;
 		free(buffer);
@@ -414,7 +415,7 @@ bool ExternalDatabase::CreateDatabaseInstance()
 {
 	bool		retVal=true;
 	wxString	SQL;
-	SQL.Printf("create database %s",databasename.GetData());
+	SQL.Printf("create database %s",STRING_TO_CHAR(databasename));
 	retVal=ExecuteSQL(SQL);
 	return (retVal);
 }
@@ -432,9 +433,9 @@ bool ExternalDatabase::Connect()
 	{
 
 		if (mysql_real_connect(mySQLHandle,
-							hostname.GetData(),
-							username.GetData(),
-							password.GetData(),
+							STRING_TO_CHAR(hostname),
+							STRING_TO_CHAR(username),
+							STRING_TO_CHAR(password),
 							//databasename.GetData(),
 							NULL,
 							port,
@@ -451,10 +452,10 @@ bool ExternalDatabase::Connect()
 			retVal=CreateDatabaseInstance();
 
 			if (mysql_real_connect(mySQLHandle,
-							hostname.GetData(),
-							username.GetData(),
-							password.GetData(),
-							databasename.GetData(),
+							STRING_TO_CHAR(hostname),
+							STRING_TO_CHAR(username),
+							STRING_TO_CHAR(password),
+							STRING_TO_CHAR(databasename),
 							port,
 							NULL,
 							CLIENT_COMPRESS)==NULL)
@@ -484,7 +485,7 @@ bool ExternalDatabase::ExecuteSQL(wxString &SQL)
 	if (mySQLHandle!=NULL)
 	{
 		status=mysql_real_query(mySQLHandle,
-								SQL.GetData(),
+								STRING_TO_CHAR(SQL),
 								SQL.Length());
 		status=mysql_errno(mySQLHandle);
 		switch (status)
@@ -497,7 +498,7 @@ bool ExternalDatabase::ExecuteSQL(wxString &SQL)
 			default:
 				msg.Printf("SQL Error: %d %s",status,mysql_error(mySQLHandle));
 				progress->LogError(msg,SeverityError);
-				msg.Printf("SQL Attempted: %s",SQL.GetData());
+				msg.Printf("SQL Attempted: %s",STRING_TO_CHAR(SQL));
 				progress->LogError(msg,SeverityError);
 				retVal=false;
 				break;
@@ -506,4 +507,19 @@ bool ExternalDatabase::ExecuteSQL(wxString &SQL)
 	
 	return (retVal);
 }
+#else
+ExternalDatabase::ExternalDatabase()
+{
+}
 
+ExternalDatabase::~ExternalDatabase()
+{
+}
+
+void ExternalDatabase::TransferFromInternal()
+{
+	wxString error = "External Database Connectivity Disabled";
+	progress->LogError(error,SeverityError);
+}
+
+#endif

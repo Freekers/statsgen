@@ -19,9 +19,8 @@ class PlayerCachePanel : public wxPanel
 		};
 		PlayerCachePanel(wxString &configKeyIn,
 				wxString &labelTextIn);
-		void CreateScreen();
+		void CreateScreen(wxWindow *parent,int id);
 		void OnRightClick(wxListEvent &event);
-		void OnResize(wxSizeEvent &event);
 		void OnColumnClick(wxListEvent &event);
 		void ApplyFilter();
 		void UpdateCacheList();
@@ -32,22 +31,24 @@ class PlayerCachePanel : public wxPanel
 		void SetFilter(wxString &filterData);
 		void SetFilterCallBack(bool (*filterNameCallBack)(wxString &name));
 		static int wxCALLBACK CompareItems(
-					long item1,
-					long item2,
-					long columntosort);
+					wxIntPtr item1,
+					wxIntPtr item2,
+					wxIntPtr columntosort);
 
+		void OnSize(wxSizeEvent &event);
 
 	protected:
-		wxListCtrl			*cacheDisplay;
-		TextConfigItemGUI	*filter;
-		FilterTypes			filterType;
-		bool  (*filterNameCallBack)(wxString &name);
+		wxListCtrl			*mCacheDisplay;
+		TextConfigItemGUI	*mFilter;
+		FilterTypes			mFilterType;
+		bool  (*mFilterNameCallBack)(wxString &name);
+		wxBoxSizer			*mMainSizer;
 
 
 	private:
-		int columnToSort;
-		wxString	configKey;
-		wxString	labelText;
+		int			mColumnToSort;
+		wxString	mConfigKey;
+		wxString	mLabelText;
 		DECLARE_EVENT_TABLE()
 };
 

@@ -4,7 +4,6 @@
 #include "GlobalStatistics.h"
 
 BEGIN_EVENT_TABLE(GenericOKCancelDialog, wxDialog)
-		EVT_SIZE(GenericOKCancelDialog::OnResize)
 		EVT_BUTTON(WINDOW_ID_BUTTON_SAVE,GenericOKCancelDialog::OnSave)
 		EVT_BUTTON(WINDOW_ID_BUTTON_QUIT,GenericOKCancelDialog::OnQuit)
 END_EVENT_TABLE()
@@ -25,7 +24,7 @@ GenericOKCancelDialog::GenericOKCancelDialog(wxWindow *parent,
 				name)
 
 {
-	configPanel=NULL;
+	mConfigPanel=NULL;
 }
 
 void GenericOKCancelDialog::OnQuit(wxCommandEvent& event)
@@ -44,7 +43,7 @@ GenericOKCancelDialog::~GenericOKCancelDialog()
 
 void GenericOKCancelDialog::SetPanel(wxPanel *configPanelIn)
 {
-	configPanel=configPanelIn;
+	mConfigPanel =configPanelIn;
 }
 
 void GenericOKCancelDialog::CreateDialog()
@@ -53,32 +52,30 @@ void GenericOKCancelDialog::CreateDialog()
 	wxString	defaultValue="";
 	wxString	configKey;
 	wxSizeEvent	event;
-	wxPanel		*configPanel;
 
 	wxPoint		configItemsPosition=wxDefaultPosition;
 	wxSize		configItemsSize=wxDefaultSize;
 	STATSGEN_DEBUG_FUNCTION_START("GenericOKCancelDialog","CreateDialog")
 
 
-	saveButton.Create(this,
+	mSaveButton.Create(this,
 					WINDOW_ID_BUTTON_SAVE,
 					_T(WINDOW_ID_BUTTON_SAVE_TEXT),
 					wxDefaultPosition);
-	quitButton.Create(this,
+	mQuitButton.Create(this,
 					WINDOW_ID_BUTTON_QUIT,
 					_T(WINDOW_ID_BUTTON_QUIT_TEXT),
 					wxDefaultPosition);
 
 
 
-	OnResize(event);
 	STATSGEN_DEBUG_FUNCTION_END
 }
 
 bool GenericOKCancelDialog::DisplayDialog(wxPanel *panel)
 {
 	int			dialogRetVal;
-	bool			retVal;
+	bool		retVal;
 
 	// Called when we want to pop the dialog box
 	// into existance for the first time
@@ -87,8 +84,21 @@ bool GenericOKCancelDialog::DisplayDialog(wxPanel *panel)
 	// First we want to create all the items in the dialog box
 	CreateDialog();
 
-	// Now we can resize every item in the dialog to fit nicely
+	mMainSizer = new wxBoxSizer(wxVERTICAL);
 
+	mControlsSizer = new wxBoxSizer(wxHORIZONTAL);
+	ControlsSizerPre();
+	mControlsSizer->Add(&mSaveButton);
+	mControlsSizer->Add(&mQuitButton);
+	ControlsSizerPost();
+
+	mMainSizer->Add(mConfigPanel,1,wxEXPAND|wxALL);
+	mMainSizer->Add(mControlsSizer);
+
+	mMainSizer->SetSizeHints(this);
+	SetSizer(mMainSizer);
+	Layout();
+	Fit();
 	// Then we pop it into existance
 	dialogRetVal=ShowModal();
 
@@ -107,53 +117,10 @@ bool GenericOKCancelDialog::DisplayDialog(wxPanel *panel)
 	return (retVal);
 }
 
-void GenericOKCancelDialog::OnResize(wxSizeEvent &event)
+void GenericOKCancelDialog::ControlsSizerPre()
 {
-	wxString	msg;
-
-	int		dialogWidth;
-	int		dialogHeight;
-	int		quitWidth;
-	int		quitHeight;
-	int		saveWidth;
-	int		saveHeight;
-	int		panelWidth;
-	int		panelHeight;
-	wxSize	itemSize;
-	wxPoint	itemPosition;
-	int		yPosition;
-
-	STATSGEN_DEBUG_FUNCTION_START("GenericOKCancelDialog","OnResize")
-
-	itemSize=GetSize();
-	dialogWidth=itemSize.GetWidth();
-	dialogHeight=itemSize.GetHeight();
-
-	// Quit and Save buttons are at the bottom of the screen
-	itemSize=quitButton.GetSize();
-	quitWidth=itemSize.GetWidth();
-	quitHeight=itemSize.GetHeight();
-
-	itemSize=saveButton.GetSize();
-	saveWidth=itemSize.GetWidth();
-	saveHeight=itemSize.GetHeight();
-
-	panelHeight=dialogHeight-saveHeight-DIALOG_BOTTOM_BORDER_SIZE;
-	panelWidth=dialogWidth;
-
-	// Panel
-	yPosition=0;
-	configPanel->SetSize(0,yPosition,panelWidth,panelHeight);
-	// Save button
-	itemPosition.x=BUTTON_WIDTH_GAP;
-	itemPosition.y=dialogHeight-saveHeight-DIALOG_BOTTOM_BORDER_SIZE;
-	saveButton.SetPosition(itemPosition);
-
-	// Quit button
-	itemPosition.x=saveWidth+BUTTON_WIDTH_GAP+BUTTON_WIDTH_GAP;
-	itemPosition.y=dialogHeight-quitHeight-DIALOG_BOTTOM_BORDER_SIZE;
-	quitButton.SetPosition(itemPosition);
-
-	STATSGEN_DEBUG_FUNCTION_END
 }
 
+void GenericOKCancelDialog::ControlsSizerPost()
+{
+}

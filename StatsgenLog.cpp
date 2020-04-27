@@ -5,9 +5,21 @@
 #include "StatsgenLog.h"
 #include "Progress.h"
 
+/*
 void StatsgenLog::DoLog(wxLogLevel level,
 			const char *msg,
 			time_t timestamp)
+{
+	wxString	msgStr = msg;
+	LogMessages(level,msg);
+}
+*/
+
+void StatsgenLog::DoLogTextAtLevel(wxLogLevel level, const wxString &msg)
+{
+	LogMessages(level,msg);
+}
+void StatsgenLog::LogMessages(wxLogLevel level,wxString message)
 {
 	int			newSeverity;
 	wxString	messageString;
@@ -31,8 +43,7 @@ void StatsgenLog::DoLog(wxLogLevel level,
 			break;
 	}
 
-	messageString=msg;
+	messageString=message;
 
 	progress->LogError(messageString,newSeverity);
 }
-

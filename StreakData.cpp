@@ -54,7 +54,7 @@ wxString StreakData::SQLCreateTable()
 				"streaksize integer,"
 				"streakender integer"
 			")",
-			SQLTableName().GetData());
+			STRING_TO_CHAR(SQLTableName()));
 
 	return SQL;
 }
@@ -85,7 +85,7 @@ bool StreakData::WriteToDatabase(int roundIndex,int playerIndex,
 				"streaksize,streakender)"
 				"values"
 				"('%d','%d','%d','%d','%d','%d')",
-				SQLTableName().GetData(),
+				STRING_TO_CHAR(SQLTableName()),
 				roundIndex,playerIndex,streakIndex,streakType,
 				streakSize,actualStreakEnder);
 	globalStatistics.statsgenDatabase.SimpleExecute(SQL);

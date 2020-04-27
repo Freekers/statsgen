@@ -1,6 +1,7 @@
 #include <wx/wx.h>
 #include <wx/image.h>
 #include "ImagePanel.h"
+#include "ErrorData.h"
 
 BEGIN_EVENT_TABLE(ImagePanel, wxPanel)
     EVT_PAINT(ImagePanel::OnPaint)
@@ -19,8 +20,7 @@ ImagePanel::ImagePanel(wxWindow *parent,
 								style,
 								name)
 {
-	painting=false;
-	currentScale=1.0;
+	mCurrentScale	= 1.0;
 }
 ImagePanel::ImagePanel(wxWindow *parent,
 				wxWindowID id,
@@ -35,18 +35,31 @@ ImagePanel::ImagePanel(wxWindow *parent,
 								style,
 								name)
 {
-	image=imageIn;
+	STATSGEN_DEBUG_FUNCTION_START("ImagePanel","ImagePanel")
+	mImage	= imageIn;
+	STATSGEN_DEBUG_FUNCTION_END
+}
+
+ImagePanel::~ImagePanel()
+{
 }
 
 void ImagePanel::SetImage(wxImage &imageIn)
 {
-	image.Destroy();
-	image=imageIn.Copy();
-	DrawImage();
+	STATSGEN_DEBUG_FUNCTION_START("ImagePanel","SetImage")
+	if (mImage.IsOk())
+	{
+		mImage.Destroy();
+	}
+	mImage	= imageIn.Copy();
+	wxClientDC dc(this);
+	Render(dc);
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
-void ImagePanel::Maximise()
+void ImagePanel::UpdateImageScale(wxDC &dc)
 {
+	STATSGEN_DEBUG_FUNCTION_START("ImagePanel","UpdateImageScale")
 	wxSize	panelSize;
 	int	panelWidth;
 	int	panelHeight;
@@ -57,15 +70,19 @@ void ImagePanel::Maximise()
 	bool	growing;
 	float	smallestScale;
 	float	largestScale;
+	wxString	msg;
 
-	panelSize=GetSize();
-	panelWidth=panelSize.GetWidth();
-	panelHeight=panelSize.GetHeight();
-	imageWidth=image.GetWidth();
-	imageHeight=image.GetHeight();
+	//panelSize	= GetSize();
+	panelSize	= dc.GetSize();
+	panelWidth	= panelSize.GetWidth();
+	panelHeight	= panelSize.GetHeight();
+	imageWidth	= mImage.GetWidth();
+	imageHeight	= mImage.GetHeight();
+	msg.Printf("Panel [%d,%d] Image [%d,%d]",panelWidth,panelHeight,imageWidth,imageHeight);
+	STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 	if ((imageWidth==0)||(imageHeight==0))
 	{
-		currentScale=1.0;
+		mCurrentScale = 1.0;
 	}
 	else
 	{
@@ -89,127 +106,73 @@ void ImagePanel::Maximise()
 		}
 		if (growing)
 		{
-			currentScale=smallestScale;
+			mCurrentScale = smallestScale;
 		}
 		else
 		{
-			currentScale=smallestScale;
+			mCurrentScale = smallestScale;
 		}
 	}
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
-void ImagePanel::Scale(float scaleIn)
+void ImagePanel::Render(wxDC &dc)
 {
-	currentScale=scaleIn;
-}
-
-
-void ImagePanel::DrawImage()
-{
-	wxPaintDC	pdc(this);
-	wxClientDC	wdc(this);
-	wxDC		*dc;
+	STATSGEN_DEBUG_FUNCTION_START("ImagePanel","Render")
 	int			imageWidth;
 	int			imageHeight;
 	int			newHeight;
 	int			newWidth;
 	wxImage		newImage;
-
-	if (painting)
-	{
-		dc=&pdc;
-	}
-	else
-	{
-		dc=&wdc;
-	}
-	//dc=&pdc;
-	imageWidth=image.GetWidth();
-	imageHeight=image.GetHeight();
-	newHeight=(int)((float)imageHeight*currentScale);
-	newWidth=(int)((float)imageWidth*currentScale);
-	newImage=image.Rescale(newWidth,newHeight);
-	wxBitmap	bitmap(newImage);
-
-	PrepareDC(*dc);
-	dc->Clear();
-	dc->DrawBitmap(bitmap,0,0);
-}
-
-void ImagePanel::Clear()
-{
-	wxClientDC	dc(this);
-	dc.Clear();
-}
-
-void ImagePanel::Proportion(int maxWidth,int maxHeight)
-{
-	int		imageWidth;
-	int		imageHeight;
-	float		widthRatio;
-	float		heightRatio;
-	float		newRatio;
-	float		smallestScale;
-	float		largestScale;
-	bool		growing;
 	wxString	msg;
+	wxImage		image;
 
-	imageWidth=image.GetWidth();
-	imageHeight=image.GetHeight();
+	if (mImage.IsOk())
+	{
+		UpdateImageScale(dc);
+		imageWidth	= mImage.GetWidth();
+		imageHeight	= mImage.GetHeight();
+		newHeight	= (int)((float)imageHeight * mCurrentScale);
+		newWidth	= (int)((float)imageWidth * mCurrentScale);
+		if ((newHeight > 0)&&(newWidth > 0))
+		{
+			image	= mImage.Copy();
+			newImage	= image.Rescale(newWidth,newHeight);
+			wxBitmap	bitmap(newImage);
 
-	if ((imageWidth==0)||(imageHeight==0))
-	{
-		return;
-	}
-	widthRatio	=(float)maxWidth/(float)imageWidth;
-	heightRatio	=(float)maxHeight/(float)imageHeight;
-//	msg.Printf("[%d][%d] [%d][%d] [%.2f][%.2f]",maxWidth,maxHeight,imageWidth,imageHeight,widthRatio,heightRatio);wxMessageBox(msg);
-	if ((imageWidth>maxWidth)||(imageHeight>maxHeight))
-	{
-		growing=false;
+			PrepareDC(dc);
+			dc.Clear();
+			dc.DrawBitmap(bitmap,0,0);
+		}
 	}
 	else
 	{
-		growing=true;
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Image is not ok");
 	}
-
-	smallestScale	=widthRatio;
-	largestScale	=heightRatio;
-	if (widthRatio>heightRatio)
-	{
-		smallestScale	=heightRatio;
-		largestScale	=widthRatio;
-	}
-	if (growing)
-	{
-		newRatio=smallestScale;
-	}
-	else
-	{
-		newRatio=smallestScale;
-	}
-//msg.Printf("newRatio [%.2f] [%.2f][%.2f]",newRatio,
-//		(float)imageWidth * newRatio,
-//		(float)imageHeight * newRatio);wxMessageBox(msg);
-	Scale(newRatio);
-	DrawImage();
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void ImagePanel::OnPaint(wxPaintEvent &event)
 {
-	painting=true;
-	DrawImage();
-	painting=false;
-}
-
-ImagePanel::~ImagePanel()
-{
+	STATSGEN_DEBUG_FUNCTION_START("ImagePanel","OnPaint")
+	wxPaintDC	dc(this);
+	Render(dc);
+	STATSGEN_DEBUG_FUNCTION_END
 }
 
 void ImagePanel::OnResize(wxSizeEvent &event)
 {
-	//Maximise();
-	//
-	painting=false;
-	DrawImage();
+	STATSGEN_DEBUG_FUNCTION_START("ImagePanel","OnResize")
+	wxClientDC dc(this);
+	Render(dc);
+	Refresh();
+	event.Skip();
+	STATSGEN_DEBUG_FUNCTION_END
+}
+
+void ImagePanel::Clear()
+{
+	wxClientDC dc(this);
+	PrepareDC(dc);
+	dc.Clear();
 }

@@ -4,7 +4,6 @@
 #include "GlobalStatistics.h"
 
 BEGIN_EVENT_TABLE(GenericConfigGUI, wxDialog)
-		EVT_SIZE(GenericConfigGUI::OnResize)
 		EVT_BUTTON(WINDOW_ID_BUTTON_SAVE,GenericConfigGUI::OnSave)
 		EVT_BUTTON(WINDOW_ID_BUTTON_QUIT,GenericConfigGUI::OnQuit)
 END_EVENT_TABLE()
@@ -26,7 +25,7 @@ GenericConfigGUI::GenericConfigGUI(wxWindow *parent,
 
 {
 	configPanel=NULL;
-	firstTimeResize=false;
+	mMainSizer = new wxBoxSizer(wxVERTICAL);
 }
 
 void GenericConfigGUI::OnQuit(wxCommandEvent& event)
@@ -54,8 +53,6 @@ void GenericConfigGUI::CreateDialog()
 	wxString	defaultValue="";
 	wxString	configKey;
 	wxSizeEvent	event;
-	GroupedConfigItemsPanel	*configPanel;
-
 	wxPoint		configItemsPosition=wxDefaultPosition;
 	wxSize		configItemsSize=wxDefaultSize;
 
@@ -69,9 +66,9 @@ void GenericConfigGUI::CreateDialog()
 					_T(WINDOW_ID_BUTTON_QUIT_TEXT),
 					wxDefaultPosition);
 
-
-
-	OnResize(event);
+	mControlsSizer = new wxBoxSizer(wxHORIZONTAL);
+	mControlsSizer->Add(&saveButton);
+	mControlsSizer->Add(&quitButton);
 }
 
 void GenericConfigGUI::DisplayDialog()
@@ -83,6 +80,7 @@ void GenericConfigGUI::DisplayDialog()
 
 	// First we want to create all the items in the dialog box
 	CreateDialog();
+	ConfigureSizer();
 
 	// Now we can resize every item in the dialog to fit nicely
 
@@ -106,76 +104,11 @@ void GenericConfigGUI::DisplayDialog()
 	}
 }
 
-void GenericConfigGUI::OnResize(wxSizeEvent &event)
+void GenericConfigGUI::ConfigureSizer()
 {
-	wxString	msg;
-
-	int		dialogWidth;
-	int		dialogHeight;
-	int		quitWidth;
-	int		quitHeight;
-	int		saveWidth;
-	int		saveHeight;
-	int		configPanelWidth;
-	int		configPanelHeight;
-	wxSize	itemSize;
-	wxPoint	itemPosition;
-	int		yPosition;
-
-	itemSize=GetSize();
-	dialogWidth=itemSize.GetWidth();
-	dialogHeight=itemSize.GetHeight();
-
-	// Quit and Save buttons are at the bottom of the screen
-	itemSize=quitButton.GetSize();
-	quitWidth=itemSize.GetWidth();
-	quitHeight=itemSize.GetHeight();
-
-	itemSize=saveButton.GetSize();
-	saveWidth=itemSize.GetWidth();
-	saveHeight=itemSize.GetHeight();
-
-	configPanelHeight=dialogHeight-saveHeight-DIALOG_BOTTOM_BORDER_SIZE;
-	configPanelWidth=dialogWidth;
-
-	// Config Panel
-	yPosition=0;
-	// Config Panels resize themselves to fit
-	if (configPanel!=NULL)
-	{
-		itemSize=configPanel->GetSize();
-		if (firstTimeResize)
-		{
-			configPanelHeight=itemSize.GetHeight();
-			dialogHeight=configPanelHeight+
-						saveHeight+
-						DIALOG_BOTTOM_BORDER_SIZE;
-		}
-		configPanel->SetSize(0,yPosition,configPanelWidth,
-										configPanelHeight);
-		itemSize=configPanel->GetSize();
-		if (firstTimeResize)
-		{
-			configPanelHeight=itemSize.GetHeight();
-			dialogHeight=configPanelHeight+
-						saveHeight+
-						DIALOG_BOTTOM_BORDER_SIZE;
-		}
-	}
-	// Save button
-	itemPosition.x=BUTTON_WIDTH_GAP;
-	itemPosition.y=dialogHeight-saveHeight-DIALOG_BOTTOM_BORDER_SIZE;
-	saveButton.SetPosition(itemPosition);
-
-	// Quit button
-	itemPosition.x=saveWidth+BUTTON_WIDTH_GAP+BUTTON_WIDTH_GAP;
-	itemPosition.y=dialogHeight-quitHeight-DIALOG_BOTTOM_BORDER_SIZE;
-	quitButton.SetPosition(itemPosition);
-
-	if (firstTimeResize)
-	{
-		SetSize(dialogWidth,dialogHeight);
-	}
-	firstTimeResize=false;
+	mMainSizer->Clear();
+	mMainSizer->Add(configPanel,1,wxEXPAND);
+	mMainSizer->Add(mControlsSizer);
+	mMainSizer->SetSizeHints(this);
+	SetSizer(mMainSizer);
 }
-

@@ -23,18 +23,20 @@ class WebsiteConfigGUI : public wxDialog
 
 		void OnQuit(wxCommandEvent& event);
 		void OnSave(wxCommandEvent& event);
-		void OnResize(wxSizeEvent& event);
 
 		void DisplayDialog();
 
 	protected:
 		void CreateDialog();
+		void ConfigureSizer();
 
 	private:
 		//GroupedConfigItemsPanel	*configItems;
 		ArrayOfPointers		configItems;
 		wxButton	saveButton;
 		wxButton	quitButton;
+		wxBoxSizer	*mMainSizer;
+		wxBoxSizer	*mControlsSizer;
 		DECLARE_EVENT_TABLE()
 };
 

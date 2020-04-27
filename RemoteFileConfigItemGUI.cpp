@@ -10,15 +10,68 @@
 #include "FTPBrowserPanel.h"
 
 BEGIN_EVENT_TABLE(RemoteFileConfigItemGUI, wxPanel)
-		EVT_SIZE(RemoteFileConfigItemGUI::OnResize)
 		EVT_TEXT(WINDOW_ID_TEXTCTRL_CONFIGVALUE,RemoteFileConfigItemGUI::OnTextChange)
 		EVT_BUTTON(WINDOW_ID_CONFIG_BUTTON,RemoteFileConfigItemGUI::OnButtonPressed)
 END_EVENT_TABLE()
 
 RemoteFileConfigItemGUI::RemoteFileConfigItemGUI()
 {
-	maxCharacters=-1;
-	directoryConfig=NULL;
+	mDirectoryConfig	= NULL;
+	mFTPID				= "";
+}
+
+RemoteFileConfigItemGUI::~RemoteFileConfigItemGUI()
+{
+}
+
+void RemoteFileConfigItemGUI::SetConfigKey(wxString &configKey,wxString &defaultValue,wxString &id)
+{
+	BaseConfigItemGUI::SetConfigKey(configKey,defaultValue);
+	mFTPID = id;
+	if (mDirectoryConfig != NULL)
+	{
+		mDirectoryConfig->SetConfigKey(mConfigKey,mDefaultValue,id);
+	}
+}
+void RemoteFileConfigItemGUI::CreateDisplay(
+			wxWindow *parent,
+			int id,
+			wxString &labelTextIn,
+			RemoteDirectoryConfigItemGUI *directoryConfigIn)
+{
+	wxSize		buttonSize(16,16);
+
+	mLabelText			= labelTextIn;
+	mDirectoryConfig	= directoryConfigIn;
+	 
+
+	Create(parent,id);
+
+	mLabel = new wxStaticText();
+	mLabel->Create(this, wxID_ANY, mLabelText);
+
+
+	mTextEdit = new wxTextCtrl();
+	mTextEdit->Create(this,
+				WINDOW_ID_TEXTCTRL_CONFIGVALUE,
+				wxEmptyString,
+				wxDefaultPosition,
+				wxDefaultSize,
+				0,
+				wxDefaultValidator);
+
+	mButton = new wxBitmapButton();
+	mButton->Create(this,
+				WINDOW_ID_CONFIG_BUTTON,
+				wxArtProvider::GetIcon(wxART_FILE_OPEN,
+										wxART_OTHER,
+										buttonSize));
+	mMainSizer = new wxBoxSizer(wxHORIZONTAL);
+	mMainSizer->Add(mLabel,2,wxEXPAND);
+	mMainSizer->Add(mButton,0);
+	mMainSizer->Add(mTextEdit,7,wxEXPAND);
+
+	ConfigureSizer();
 }
 
 void RemoteFileConfigItemGUI::OnTextChange(wxCommandEvent& event)
@@ -27,163 +80,38 @@ void RemoteFileConfigItemGUI::OnTextChange(wxCommandEvent& event)
 	wxString	key;
 	wxString	value;
 
-	value=textEdit.GetValue();
-	if (configKey.Length()>0)
+	if (mConfigKey.Length() == 0)
 	{
-		globalStatistics.configData.WriteTextValue(configKey,
-										value);
+		return;
 	}
+	value=GetValue();
+	globalStatistics.configData.WriteTextValue(mConfigKey,
+										value);
 	if (GetParent()!=NULL)
 	{
 		wxCommandEvent	newEvent;
 		newEvent.SetId(WINDOW_ID_TEXTCTRL_CONFIGVALUE);
 		newEvent.SetEventType(wxEVT_COMMAND_TEXT_UPDATED);
-		GetParent()->AddPendingEvent(newEvent);
+		//GetParent()->AddPendingEvent(newEvent);
+		GetParent()->GetEventHandler()->AddPendingEvent(newEvent);
 	}
 }
 
-RemoteFileConfigItemGUI::~RemoteFileConfigItemGUI()
-{
-}
-
-void RemoteFileConfigItemGUI::SetConfigKey(wxString &configKeyIn)
+void RemoteFileConfigItemGUI::ApplyConfigKeyChange()
 {
 	wxString	value;
 
-	configKey=configKeyIn;
-	if (configKey.Length()>0)
+	if (mConfigKey.Length() == 0)
 	{
-		globalStatistics.configData.ReadTextValue(configKey,
-										&value,
-										(char *)defaultValue.GetData());
-		textEdit.SetValue(value);
+		return;
 	}
+
+	globalStatistics.configData.ReadTextValue(mConfigKey,&value,mDefaultValue);
+	mTextEdit->SetValue(value);
 }
-
-void RemoteFileConfigItemGUI::Set(
-			wxString &configKeyIn,
-			wxString &labelTextIn,
-			wxString &defaultValueIn,
-			int maxCharactersIn,
-			wxString &FTPIDIn,
-			RemoteDirectoryConfigItemGUI *directoryConfigIn)
-{
-	wxSizeEvent	event;
-	wxSize		buttonSize(16,16);
-
-	configKey=configKeyIn;
-	labelText=labelTextIn;
-	defaultValue=defaultValueIn;
-	maxCharacters=maxCharactersIn;
-	FTPID=FTPIDIn;
-	directoryConfig=directoryConfigIn;
-	 
-	//SetConfigKey(configKey);
-
-	// Create the config items
-	label.Create(this,
-				-1,
-				labelText,
-				wxPoint(0,0));
-
-	textEdit.Create(this,
-				WINDOW_ID_TEXTCTRL_CONFIGVALUE,
-				defaultValue,
-				wxDefaultPosition,
-				wxDefaultSize,
-				0,
-				wxDefaultValidator);
-
-	SetConfigKey(configKey);
-	button.Create(this,
-				WINDOW_ID_CONFIG_BUTTON,
-				wxArtProvider::GetIcon(wxART_FILE_OPEN,
-										wxART_OTHER,
-										buttonSize));
-				
-	OnResize(event);
-}
-
 wxString RemoteFileConfigItemGUI::GetValue()
 {
-	return (textEdit.GetValue());
-}
-
-int RemoteFileConfigItemGUI::GetLabelWidth()
-{
-	wxSize		itemSize;
-
-	itemSize=label.GetSize();
-	return (itemSize.GetWidth());
-}
-
-void RemoteFileConfigItemGUI::SetLabelWidth(int width)
-{
-	wxSize		itemSize;
-	wxPoint		itemPosition;
-
-	itemSize=label.GetSize();
-	itemPosition=label.GetPosition();
-
-	label.SetSize(itemPosition.x,
-						itemPosition.y,
-						width,
-						itemSize.GetHeight());
-}
-
-void RemoteFileConfigItemGUI::OnResize(wxSizeEvent &event)
-{
-	wxString	msg;
-
-	wxSize		itemSize;
-	int			textWidth;
-	int			textHeight;
-	int			labelWidth;
-	int			labelHeight;
-	int			panelWidth;
-	int			panelHeight;
-	int			buttonWidth;
-	int			buttonHeight;
-	int			widthForTextEdit;
-	int			fixedWidth;
-	
-
-	itemSize=GetSize();
-	panelWidth=itemSize.GetWidth();
-	panelHeight=itemSize.GetHeight();
-
-	itemSize=label.GetSize();
-	labelWidth=itemSize.GetWidth();
-	labelHeight=itemSize.GetHeight();
-
-	itemSize=button.GetSize();
-	buttonWidth=itemSize.GetWidth();
-	buttonHeight=itemSize.GetHeight();
-
-	label.SetSize(0,0,labelWidth,labelHeight);
-	labelWidth+=5;
-
-	itemSize=textEdit.GetSize();
-	textWidth=itemSize.GetWidth();
-	textHeight=itemSize.GetHeight();
-
-	widthForTextEdit=panelWidth-labelWidth-buttonWidth;
-	fixedWidth=(maxCharacters * FONT_CHAR_WIDTH)+FONT_TEXT_CTRL_GAP;
-	if (maxCharacters>0)
-	{
-		// We have an overriding field width
-		if (fixedWidth<widthForTextEdit)
-		{
-			widthForTextEdit=fixedWidth;
-		}
-	}
-	if (widthForTextEdit<1)
-	{
-		widthForTextEdit=1;
-	}
-
-	button.SetSize(labelWidth,0,buttonWidth,buttonHeight);
-	textEdit.SetSize(labelWidth+buttonWidth,0,widthForTextEdit,textHeight);
+	return (mTextEdit->GetValue());
 }
 
 void RemoteFileConfigItemGUI::OnButtonPressed(wxCommandEvent& event)
@@ -197,11 +125,11 @@ void RemoteFileConfigItemGUI::OnButtonPressed(wxCommandEvent& event)
 	bool		result;
 	long		selectedSize;
 
-	value=textEdit.GetValue();
+	value=GetValue();
 
-	if (directoryConfig!=NULL)
+	if (mDirectoryConfig!=NULL)
 	{
-		path=directoryConfig->GetValue();
+		path=mDirectoryConfig->GetValue();
 	}
 	else
 	{
@@ -209,7 +137,7 @@ void RemoteFileConfigItemGUI::OnButtonPressed(wxCommandEvent& event)
 	}
 	message="Select File";
 
-	GenericOKCancelDialog dialog(this,-1,
+	GenericOKCancelDialog dialog(this,wxID_ANY,
 							message,
 							wxDefaultPosition,
 							wxDefaultSize,
@@ -220,34 +148,32 @@ void RemoteFileConfigItemGUI::OnButtonPressed(wxCommandEvent& event)
 							wxMAXIMIZE_BOX,
 							_T(""));
 	FTPBrowserPanel	*browserPanel=new FTPBrowserPanel(
-										FTPID,
+										mFTPID,
 										path,
 										true);
 	browserPanel->Create(&dialog,
-						-1,
+						wxID_ANY,
 						wxDefaultPosition,
 						wxDefaultSize,
 						wxTAB_TRAVERSAL,
 						_T("panel"));
 	browserPanel->CreateScreen();
 	
-	dialog.SetPanel(browserPanel);
-	dialog.CreateDialog();
-	result=(dialog.ShowModal()==WINDOW_ID_BUTTON_SAVE);
+	result = dialog.DisplayDialog(browserPanel);
 	if (result)
 	{
-		newFilename=browserPanel->GetCurrentSelection();
-		selectedSize=browserPanel->selectedSize;
+		newFilename		= browserPanel->GetCurrentSelection();
+		selectedSize	= browserPanel->mSelectedSize;
 		// FTP and UNIX are the same format
 		wxFileName	filename(newFilename,wxPATH_UNIX);
 		// above path setting doesn't bloody work
 		// replace by hand
-		textEdit.SetValue(filename.GetFullName());
-		if (directoryConfig!=NULL)
+		mTextEdit->SetValue(filename.GetFullName());
+		if (mDirectoryConfig!=NULL)
 		{
 			path=filename.GetPath();
 			path.Replace("\\","/");
-			directoryConfig->SetValue(path);
+			mDirectoryConfig->SetValue(path);
 		}
 	}
 	else

@@ -43,6 +43,7 @@ class StatsgenWeb
 		WebFile *GetWebFile(wxString &filepath);
 	private:
 		wxString Hostname();
+		int Port();
 
 };
 

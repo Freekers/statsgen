@@ -20,60 +20,60 @@
 
 char *ServerTypeCodes[SERVER_TYPE_COUNT]=
 {
-	SERVER_TYPE_COD1,
-	SERVER_TYPE_COD2,
-	SERVER_TYPE_COD4,
-	SERVER_TYPE_COD5,
-	SERVER_TYPE_MOHAA,
-	SERVER_TYPE_QUAKEWARS,
-	SERVER_TYPE_WOLFENSTEIN
+	(char *)SERVER_TYPE_COD1,
+	(char *)SERVER_TYPE_COD2,
+	(char *)SERVER_TYPE_COD4,
+	(char *)SERVER_TYPE_COD5,
+	(char *)SERVER_TYPE_MOHAA,
+	(char *)SERVER_TYPE_QUAKEWARS,
+	(char *)SERVER_TYPE_WOLFENSTEIN
 };
 
 char *ServerTypeNames[SERVER_TYPE_COUNT]=
 {
-	SERVER_TYPE_NAME_COD1,
-	SERVER_TYPE_NAME_COD2,
-	SERVER_TYPE_NAME_COD4,
-	SERVER_TYPE_NAME_COD5,
-	SERVER_TYPE_NAME_MOHAA,
-	SERVER_TYPE_NAME_QUAKEWARS,
-	SERVER_TYPE_NAME_WOLFENSTEIN
+	(char *)SERVER_TYPE_NAME_COD1,
+	(char *)SERVER_TYPE_NAME_COD2,
+	(char *)SERVER_TYPE_NAME_COD4,
+	(char *)SERVER_TYPE_NAME_COD5,
+	(char *)SERVER_TYPE_NAME_MOHAA,
+	(char *)SERVER_TYPE_NAME_QUAKEWARS,
+	(char *)SERVER_TYPE_NAME_WOLFENSTEIN
 };
 
 char *SkillTypeCodes[SKILL_TYPE_COUNT]=
 {
-	STAT_TYPE_CODE_WEAPON,
-	STAT_TYPE_CODE_LOCATION,
-	STAT_TYPE_CODE_GAMETYPE
+	(char *)STAT_TYPE_CODE_WEAPON,
+	(char *)STAT_TYPE_CODE_LOCATION,
+	(char *)STAT_TYPE_CODE_GAMETYPE
 };
 
 char *SkillTypeNames[SKILL_TYPE_COUNT]=
 {
-	STAT_TYPE_NAME_WEAPON,
-	STAT_TYPE_NAME_LOCATION,
-	STAT_TYPE_NAME_GAMETYPE
+	(char *)STAT_TYPE_NAME_WEAPON,
+	(char *)STAT_TYPE_NAME_LOCATION,
+	(char *)STAT_TYPE_NAME_GAMETYPE
 };
 
 char *ImageTypeCodes[IMAGE_TYPE_COUNT]=
 {
-	STAT_TYPE_CODE_WEAPON,
-	STAT_TYPE_CODE_MAP,
-	STAT_TYPE_CODE_LOCATION,
-	STAT_TYPE_CODE_GAMETYPE,
-	STAT_TYPE_CODE_TEAM,
-	STAT_TYPE_CODE_ACTION,
-	STAT_TYPE_CODE_CLASS
+	(char *)STAT_TYPE_CODE_WEAPON,
+	(char *)STAT_TYPE_CODE_MAP,
+	(char *)STAT_TYPE_CODE_LOCATION,
+	(char *)STAT_TYPE_CODE_GAMETYPE,
+	(char *)STAT_TYPE_CODE_TEAM,
+	(char *)STAT_TYPE_CODE_ACTION,
+	(char *)STAT_TYPE_CODE_CLASS
 };
 
 char *ImageTypeNames[IMAGE_TYPE_COUNT]=
 {
-	STAT_TYPE_NAME_WEAPON,
-	STAT_TYPE_NAME_MAP,
-	STAT_TYPE_NAME_LOCATION,
-	STAT_TYPE_NAME_GAMETYPE,
-	STAT_TYPE_NAME_TEAM,
-	STAT_TYPE_NAME_ACTION,
-	STAT_TYPE_NAME_CLASS
+	(char *)STAT_TYPE_NAME_WEAPON,
+	(char *)STAT_TYPE_NAME_MAP,
+	(char *)STAT_TYPE_NAME_LOCATION,
+	(char *)STAT_TYPE_NAME_GAMETYPE,
+	(char *)STAT_TYPE_NAME_TEAM,
+	(char *)STAT_TYPE_NAME_ACTION,
+	(char *)STAT_TYPE_NAME_CLASS
 };
 
 wxString	sortingWildCard;
@@ -116,19 +116,19 @@ bool Server::Initiate()
 		configBaseKey+="/";
 
 		configKey=configBaseKey+"MaxLogfileSize";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"0");
-		maxLogfileSize=atol(configValue.GetData());
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"0");
+		maxLogfileSize=atol(STRING_TO_CHAR(configValue));
 
 		configKey=configBaseKey+"archiveDirectory";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		archiveDirectory=configValue;
 
 		configKey=configBaseKey+"archiveWildcard";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		archiveWildcard=configValue;
 
 		configKey=configBaseKey+"latestDirectory";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		latestDirectory=configValue;
 
 		configKey=configBaseKey+"latestFilename";
@@ -136,87 +136,87 @@ bool Server::Initiate()
 		latestFilename=configValue;
 
 		configKey=configBaseKey+"secondaryArchiveDirectory";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		secondaryArchiveDirectory=configValue;
 
 		configKey=configBaseKey+"secondaryArchiveWildcard";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		secondaryArchiveWildcard=configValue;
 
 		configKey=configBaseKey+"secondaryLatestDirectory";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		secondaryLatestDirectory=configValue;
 
 		configKey=configBaseKey+"secondaryLatestFilename";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		secondaryLatestFilename=configValue;
 
 		configKey=configBaseKey+"serverType";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,SERVER_TYPE_COD1);
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)SERVER_TYPE_COD1);
 		serverType=configValue;
 
 		configKey=configBaseKey+"banFile1Type";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,SERVER_BAN_TYPE_COD);
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)SERVER_BAN_TYPE_COD);
 		banFile1Type=configValue;
 
 		configKey=configBaseKey+"Ban1Directory";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		ban1Directory=configValue;
 
 		configKey=configBaseKey+"FTPBanFile1Directory";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		FTPBanFile1Directory=configValue;
 
 		configKey=configBaseKey+"FTPBanFile1Filename";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		FTPBanFile1Filename=configValue;
 
 		configKey=configBaseKey+"banFile2Type";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,SERVER_BAN_TYPE_COD);
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)SERVER_BAN_TYPE_COD);
 		banFile2Type=configValue;
 
 		configKey=configBaseKey+"Ban2Directory";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		ban2Directory=configValue;
 
 		configKey=configBaseKey+"FTPBanFile2Directory";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		FTPBanFile2Directory=configValue;
 
 		configKey=configBaseKey+"FTPBanFile2Filename";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		FTPBanFile2Filename=configValue;
 
 		configKey=configBaseKey+"gameIP";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		gameIP=configValue;
 
 		configKey=configBaseKey+"gamePort";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		gamePort=-1;
 		if (configValue.Length()>0)
 		{
-			gamePort=atoi(configValue.GetData());
+			gamePort=atoi(STRING_TO_CHAR(configValue));
 		}
 
 		configKey=configBaseKey+"FTPEnabled";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"n");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"n");
 		FTPEnabled=(configValue.CmpNoCase("y")==0);
 
 		configKey=configBaseKey+"FTPRestartDownload";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"y");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"y");
 		restartDownload=(configValue.CmpNoCase("y")==0);
 
 		configKey=configBaseKey+"FTPArchiveDirectory";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		FTPArchiveDirectory=configValue;
 
 		configKey=configBaseKey+"FTPArchiveWildcard";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		FTPArchiveWildcard=configValue;
 
 		configKey=configBaseKey+"FTPLatestDirectory";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		FTPLatestDirectory=configValue;
 
 		configKey=configBaseKey+"FTPLatestFilename";
@@ -224,15 +224,15 @@ bool Server::Initiate()
 		FTPLatestFilename=configValue;
 
 		configKey=configBaseKey+"FTPSecondaryArchiveDirectory";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		FTPSecondaryArchiveDirectory=configValue;
 
 		configKey=configBaseKey+"FTPSecondaryArchiveWildcard";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		FTPSecondaryArchiveWildcard=configValue;
 
 		configKey=configBaseKey+"FTPSecondaryLatestDirectory";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"");
 		FTPSecondaryLatestDirectory=configValue;
 
 		configKey=configBaseKey+"FTPSecondaryLatestFilename";
@@ -256,7 +256,7 @@ bool Server::Initiate()
 			secondaryArchiveWildcard=FTPSecondaryArchiveWildcard;
 		}
 		configKey=configBaseKey+"GuessTeamIDs";
-		globalStatistics.configData.ReadTextValue(configKey,&configValue,"y");
+		globalStatistics.configData.ReadTextValue(configKey,&configValue,(char *)"y");
 		fakeTeamIDs=(configValue.CmpNoCase("y")==0);
 	}
 
@@ -285,9 +285,9 @@ bool Server::DownloadFiles()
 	STATSGEN_DEBUG_FUNCTION_START("Server","DownloadFiles")
 	
 	progress->Initiate(totalFileSize,
-							" kb",
+							(char *)" kb",
 							1024,
-							"kb",
+							(char *)"kb",
 							1024);
 	progress->Update(0);
 	if (FTPEnabled)
@@ -333,12 +333,12 @@ bool Server::DownloadFiles()
 			(!secondaryArchiveEnabled)&&(!secondaryCurrentEnabled))
 		{
 			// We have FTP enabled but no logfile downloading enabled
-			STATSGEN_DEBUG(DEBUG_ALWAYS,"FTP Download enabled, but no directory details");
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"FTP Download enabled, but no directory details");
 			msg.Printf("FTP Enabled but no directories and/or filenames setup for this server.Latest Directory=[%s], Filename=[%s], FTP Directory [%s], FTP Latest Filename [%s]",
-						latestDirectory.GetData(),
-						latestFilename.GetData(),
-						FTPLatestDirectory.GetData(),
-						FTPLatestFilename.GetData());
+						STRING_TO_CHAR(latestDirectory),
+						STRING_TO_CHAR(latestFilename),
+						STRING_TO_CHAR(FTPLatestDirectory),
+						STRING_TO_CHAR(FTPLatestFilename));
 			progress->LogError(msg,SeverityError);
 		}
 	}
@@ -373,8 +373,8 @@ bool Server::DownloadFiles()
 			else
 			{
 				msg.Printf("Failed to get directory listing [%s] using [%s]",
-					FTPArchiveDirectory.GetData(),
-					FTPArchiveWildcard.GetData());
+					STRING_TO_CHAR(FTPArchiveDirectory),
+					STRING_TO_CHAR(FTPArchiveWildcard));
 				progress->LogError(msg,SeverityError);
 				STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 			}
@@ -400,8 +400,8 @@ bool Server::DownloadFiles()
 			else
 			{
 				msg.Printf("Failed to get directory listing [%s] using [%s]",
-					FTPLatestDirectory.GetData(),
-					FTPLatestFilename.GetData());
+					STRING_TO_CHAR(FTPLatestDirectory),
+					STRING_TO_CHAR(FTPLatestFilename));
 				progress->LogError(msg,SeverityError);
 				STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 			}
@@ -434,8 +434,8 @@ bool Server::DownloadFiles()
 			else
 			{
 				msg.Printf("Failed to get directory listing [%s] using [%s]",
-					FTPSecondaryArchiveDirectory.GetData(),
-					FTPSecondaryArchiveWildcard.GetData());
+					STRING_TO_CHAR(FTPSecondaryArchiveDirectory),
+					STRING_TO_CHAR(FTPSecondaryArchiveWildcard));
 				progress->LogError(msg,SeverityError);
 				STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 			}
@@ -461,8 +461,8 @@ bool Server::DownloadFiles()
 			else
 			{
 				msg.Printf("Failed to get directory listing [%s] using [%s]",
-					FTPSecondaryLatestDirectory.GetData(),
-					FTPSecondaryLatestFilename.GetData());
+					STRING_TO_CHAR(FTPSecondaryLatestDirectory),
+					STRING_TO_CHAR(FTPSecondaryLatestFilename));
 				progress->LogError(msg,SeverityError);
 				STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 			}
@@ -475,9 +475,9 @@ bool Server::DownloadFiles()
 			}
 		}
 		progress->Initiate(totalFileSize,
-							" kb",
+							(char *)" kb",
 							1024,
-							"kb",
+							(char *)"kb",
 							1024);
 		fileCount=archiveFiles.GetCount();
 		//progress->SetStatus(msg);
@@ -527,7 +527,7 @@ bool Server::DownloadFiles()
 	}
 	else
 	{
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"FTP Download not enabled");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"FTP Download not enabled");
 		msg="Transfer Not Enabled";
 		progress->LogError(msg,SeverityCaution);
 	}
@@ -564,12 +564,12 @@ bool Server::FindLogfiles()
 
 			wildCard=WildCardFormatToWildCard(secondaryArchiveWildcard);
 			STATSGEN_DEBUG_CODE(msg.Printf("Secondary Archive Enabled for directory [%s] wildcard [%s]",
-					secondaryArchiveDirectory.GetData(),
-					wildCard.GetData());)
+					STRING_TO_CHAR(secondaryArchiveDirectory),
+					STRING_TO_CHAR(wildCard));)
 			STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 			if (wxDir::Exists(secondaryArchiveDirectory))
 			{
-				STATSGEN_DEBUG(DEBUG_ALWAYS,"Getting Secondary Archive File List")
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Getting Secondary Archive File List")
 				wxDir::GetAllFiles(secondaryArchiveDirectory,
 									&secondaryArchiveFiles,
 									wildCard,
@@ -579,7 +579,7 @@ bool Server::FindLogfiles()
 			{
 				// Archiving enabled - but directory does not exist
 				retVal=false;
-				msg.Printf("Secondary Archive Directory [%s] does not exist",secondaryArchiveDirectory.GetData());
+				msg.Printf("Secondary Archive Directory [%s] does not exist",STRING_TO_CHAR(secondaryArchiveDirectory));
 				STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
 				progress->LogError(msg,SeverityError);
 			}
@@ -588,19 +588,19 @@ bool Server::FindLogfiles()
 		else
 		{
 			// Archive directory access disabled - this is ok
-			STATSGEN_DEBUG(DEBUG_ALWAYS,"Secondary Archive directory access disabled")
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Secondary Archive directory access disabled")
 			retVal=true;
 		}
 		if ((secondaryLatestDirectory.Length()>0) &&
 			(secondaryLatestFilename.Length()>0))
 		{
 			STATSGEN_DEBUG_CODE(msg.Printf("Secondary Latest Enabled for directory [%s] wildcard [%s]",
-					secondaryLatestDirectory.GetData(),
-					secondaryLatestFilename.GetData());)
+					STRING_TO_CHAR(secondaryLatestDirectory),
+					STRING_TO_CHAR(secondaryLatestFilename));)
 			STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
 			if (wxDir::Exists(secondaryLatestDirectory))
 			{
-				STATSGEN_DEBUG(DEBUG_ALWAYS,"Getting Secondary Latest File List");
+				STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Getting Secondary Latest File List");
 				wxDir::GetAllFiles(secondaryLatestDirectory,
 									&secondaryLatestFiles,
 									secondaryLatestFilename,
@@ -610,7 +610,7 @@ bool Server::FindLogfiles()
 			{
 				// latest directory enabled but directory does not exist
 				retVal=false;
-				msg.Printf("Secondary Latest Directory [%s] does not exist",secondaryLatestDirectory.GetData());
+				msg.Printf("Secondary Latest Directory [%s] does not exist",STRING_TO_CHAR(secondaryLatestDirectory));
 				STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
 				progress->LogError(msg,SeverityError);
 			}
@@ -618,7 +618,7 @@ bool Server::FindLogfiles()
 		else
 		{
 			retVal=true;
-			STATSGEN_DEBUG(DEBUG_ALWAYS,"Latest directory access disabled");
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Latest directory access disabled");
 		}
 	}
 
@@ -628,12 +628,12 @@ bool Server::FindLogfiles()
 		wxString	wildCard;
 		wildCard=WildCardFormatToWildCard(archiveWildcard);
 		STATSGEN_DEBUG_CODE(msg.Printf("Archive Enabled for directory [%s] wildcard [%s]",
-				archiveDirectory.GetData(),
-				wildCard.GetData());)
+				STRING_TO_CHAR(archiveDirectory),
+				STRING_TO_CHAR(wildCard));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 		if (wxDir::Exists(archiveDirectory))
 		{
-			STATSGEN_DEBUG(DEBUG_ALWAYS,"Getting Archive File List")
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Getting Archive File List")
 			wxDir::GetAllFiles(archiveDirectory,
 								&archiveFiles,
 								wildCard,
@@ -643,7 +643,7 @@ bool Server::FindLogfiles()
 		{
 			// Archiving enabled - but directory does not exist
 			retVal=false;
-			msg.Printf("Archive Directory [%s] does not exist",archiveDirectory.GetData());
+			msg.Printf("Archive Directory [%s] does not exist",STRING_TO_CHAR(archiveDirectory));
 			STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
 			progress->LogError(msg,SeverityError);
 		}
@@ -652,27 +652,27 @@ bool Server::FindLogfiles()
 	else
 	{
 		// Archive directory access disabled - this is ok
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"Archive directory access disabled")
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Archive directory access disabled")
 		retVal=true;
 	}
 	if (retVal)
 	{
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"After Archive we are ok")
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"After Archive we are ok")
 	}
 	else
 	{
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"After Archive we are not ok")
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"After Archive we are not ok")
 	}
 	if ((latestDirectory.Length()>0) &&
 		(latestFilename.Length()>0))
 	{
 		STATSGEN_DEBUG_CODE(msg.Printf("latest Enabled for directory [%s] wildcard [%s]",
-				latestDirectory.GetData(),
-				latestFilename.GetData());)
+				STRING_TO_CHAR(latestDirectory),
+				STRING_TO_CHAR(latestFilename));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
 		if (wxDir::Exists(latestDirectory))
 		{
-			STATSGEN_DEBUG(DEBUG_ALWAYS,"Getting Latest File List");
+			STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Getting Latest File List");
 			wxDir::GetAllFiles(latestDirectory,
 								&latestFiles,
 								latestFilename,
@@ -682,7 +682,7 @@ bool Server::FindLogfiles()
 		{
 			// latest directory enabled but directory does not exist
 			retVal=false;
-			msg.Printf("Latest Directory [%s] does not exist",latestDirectory.GetData());
+			msg.Printf("Latest Directory [%s] does not exist",STRING_TO_CHAR(latestDirectory));
 			STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
 			progress->LogError(msg,SeverityError);
 		}
@@ -690,7 +690,7 @@ bool Server::FindLogfiles()
 	else
 	{
 		retVal=true;
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"Latest directory access disabled");
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Latest directory access disabled");
 	}
 
 	logFilenames.Clear();
@@ -736,7 +736,7 @@ bool Server::FindLogfiles()
 	}
 	else
 	{
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"retVal is false???")
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"retVal is false???")
 	}
 
 	count=logFilenames.GetCount();
@@ -758,13 +758,13 @@ bool Server::FindLogfiles()
 	for (index=0;index<count;index++)
 	{
 		filename=logFilenames.Item(index);
-		STATSGEN_DEBUG_CODE(msg.Printf("Logfile [%d] = [%s]",index,filename.GetData());)
+		STATSGEN_DEBUG_CODE(msg.Printf("Logfile [%d] = [%s]",index,STRING_TO_CHAR(filename));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
 	}
 	for (index=0;index<secondaryCount;index++)
 	{
 		filename=secondaryLogFilenames.Item(index);
-		STATSGEN_DEBUG_CODE(msg.Printf("Secondary Logfile [%d] = [%s]",index,filename.GetData());)
+		STATSGEN_DEBUG_CODE(msg.Printf("Secondary Logfile [%d] = [%s]",index,STRING_TO_CHAR(filename));)
 		STATSGEN_DEBUG(DEBUG_ALWAYS,msg)
 	}
 
@@ -830,9 +830,9 @@ bool Server::ProcessLogFiles(int serverIndex)
 	logfilesSize=logFiles->Size();
 	progress->Initiate(
 			logfilesSize,
-			" kb",
+			(char *)" kb",
 			1024,
-			"kb",
+			(char *)"kb",
 			1024);
 	logFiles->Process(this,serverIndex,maxLogfileSize);
 
@@ -1025,9 +1025,9 @@ wxString Server::SQLCreateTable()
 				"%s,"
 				"gameport int"
 			")",
-			SQLTableName().GetData(),
-			StatsgenDatabase::StringFieldDefinition("servertype","servertype",FIELD_WIDTH_SERVER_TYPE).GetData(),
-			StatsgenDatabase::StringFieldDefinition("hostname","serverhostname",FIELD_WIDTH_HOSTNAME).GetData()
+			STRING_TO_CHAR(SQLTableName()),
+			STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("servertype","servertype",FIELD_WIDTH_SERVER_TYPE)),
+			STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("hostname","serverhostname",FIELD_WIDTH_HOSTNAME))
 );
 
 	return (SQL);
@@ -1043,9 +1043,9 @@ wxString Server::SQLCreateVariableTable()
 				"%s,"
 				"%s"
 			")",
-			SQLVariableTableName().GetData(),
-			StatsgenDatabase::StringFieldDefinition("variable","servervariable",FIELD_WIDTH_VARIABLE).GetData(),
-			StatsgenDatabase::StringFieldDefinition("value","servervalue",FIELD_WIDTH_VALUE).GetData()
+			STRING_TO_CHAR(SQLVariableTableName()),
+			STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("variable","servervariable",FIELD_WIDTH_VARIABLE)),
+			STRING_TO_CHAR(StatsgenDatabase::StringFieldDefinition("value","servervalue",FIELD_WIDTH_VALUE))
 			);
 
 	return (SQL);
@@ -1061,7 +1061,7 @@ wxString Server::SQLCreateProgressTable()
 				"primaryposition integer,"
 				"secondaryposition integer"
 			")",
-			SQLProgressTableName().GetData());
+			STRING_TO_CHAR(SQLProgressTableName()));
 
 	return (SQL);
 }
@@ -1081,11 +1081,11 @@ void Server::WriteToDatabase(int serverIndex)
 	SQL.Printf("insert into %s "
 				"(serveridx,servertype,logfilesize,hostname,gameport) "
 				"values ('%d','%s','%ld','%s','%d')",
-				Server::SQLTableName().GetData(),
+				STRING_TO_CHAR(Server::SQLTableName()),
 				serverIndex,
-				serverType.GetData(),
+				STRING_TO_CHAR(serverType),
 				logfilesSize,
-				remoteMachine.IPAddress.GetData(),
+				STRING_TO_CHAR(remoteMachine.IPAddress),
 				gamePort);
 
 	globalStatistics.statsgenDatabase.SimpleExecute(SQL);
@@ -1095,7 +1095,7 @@ void Server::WriteToDatabase(int serverIndex)
 		// if we have variables to process then delete any existing
 		// ones first
 		SQL.Printf("delete from %s where serveridx=%d",
-			Server::SQLVariableTableName().GetData(),
+			STRING_TO_CHAR(Server::SQLVariableTableName()),
 			serverIndex);
 		globalStatistics.statsgenDatabase.SimpleExecute(SQL);
 	}
@@ -1106,10 +1106,10 @@ void Server::WriteToDatabase(int serverIndex)
 		SQL.Printf("insert into %s "
 					"(serveridx,variable,value) "
 					"values ('%d','%s','%s')",
-					Server::SQLVariableTableName().GetData(),
+					STRING_TO_CHAR(Server::SQLVariableTableName()),
 					serverIndex,
-					variable.GetData(),
-					value.GetData());
+					STRING_TO_CHAR(variable),
+					STRING_TO_CHAR(value));
 		globalStatistics.statsgenDatabase.SimpleExecute(SQL);
 	}
 	if (logFiles!=NULL)
@@ -1119,16 +1119,16 @@ void Server::WriteToDatabase(int serverIndex)
 
 		// Delete existing progress first
 		SQL.Printf("delete from %s where serverid='%s'",
-			Server::SQLProgressTableName().GetData(),
-			StatsgenDatabase::SafeForInsert(ID).GetData());
+			STRING_TO_CHAR(Server::SQLProgressTableName()),
+			STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(ID)));
 		globalStatistics.statsgenDatabase.SimpleExecute(SQL);
 
 		logFiles->RetrieveLastRoundPositions(&primaryPosition,&secondaryPosition);
 		SQL.Printf("insert into %s "
 					"(serverid, primaryposition, secondaryposition) "
 					"values ('%s','%ld','%ld')",
-					Server::SQLProgressTableName().GetData(),
-					StatsgenDatabase::SafeForInsert(ID).GetData(),
+					STRING_TO_CHAR(Server::SQLProgressTableName()),
+					STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(ID)),
 					primaryPosition,
 					secondaryPosition);
 		globalStatistics.statsgenDatabase.SimpleExecute(SQL);
@@ -1149,18 +1149,18 @@ void Server::AdjustLogfilePosition()
 	secondaryPosition=0;
 	sql.Printf(
 		"select primaryposition,secondaryposition from %s where serverid=\'%s\' limit 1",
-		SQLProgressTableName().GetData(),
-		StatsgenDatabase::SafeForInsert(ID).GetData());
+		STRING_TO_CHAR(SQLProgressTableName()),
+		STRING_TO_CHAR(StatsgenDatabase::SafeForInsert(ID)));
 	query.Initiate(sql,globalStatistics.statsgenDatabase.DBHandle());
 	if (query.NextRow())
 	{
 		property="primaryposition";
 		fieldValue=query.RetrieveProperty(property);
-		primaryPosition=atol(fieldValue.GetData());
+		primaryPosition=atol(STRING_TO_CHAR(fieldValue));
 
 		property="secondaryposition";
 		fieldValue=query.RetrieveProperty(property);
-		secondaryPosition=atol(fieldValue.GetData());
+		secondaryPosition=atol(STRING_TO_CHAR(fieldValue));
 	}
 
 	if (logFiles!=NULL)
@@ -1214,7 +1214,7 @@ void Server::SortFiles(wxArrayString &filenameList,wxString &wildCard)
 
 	STATSGEN_DEBUG(DEBUG_ALWAYS,wildCard)
 	filenameCount=filenameList.GetCount();
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"Before Sort")
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Before Sort")
 	for (filenameIndex=0;filenameIndex<filenameCount;filenameIndex++)
 	{
 		filename=filenameList.Item(filenameIndex);
@@ -1223,7 +1223,7 @@ void Server::SortFiles(wxArrayString &filenameList,wxString &wildCard)
 	sortingWildCard=wildCard;
 	sortingWildCard.Replace(".","\\.");
 	filenameList.Sort(Server::CompareFilenames);
-	STATSGEN_DEBUG(DEBUG_ALWAYS,"After Sort")
+	STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"After Sort")
 	for (filenameIndex=0;filenameIndex<filenameCount;filenameIndex++)
 	{
 		filename=filenameList.Item(filenameIndex);
@@ -1330,11 +1330,11 @@ int Server::CompareFilenames(const wxString &firstIn, const wxString &secondIn)
 			if (firstMatchCount!=secondMatchCount)
 			{
 				msg.Printf("wildcard [%s] evaluated to regex [%s] but produced 2 different match counts [%s][%d] [%s][%d], using alphabetical sorting",
-						sortingWildCard.GetData(),
-						regularExpString.GetData(),
-						first.GetData(),
+						STRING_TO_CHAR(sortingWildCard),
+						STRING_TO_CHAR(regularExpString),
+						STRING_TO_CHAR(first),
 						firstMatchCount,
-						second.GetData(),
+						STRING_TO_CHAR(second),
 						secondMatchCount
 					);
 				progress->LogError(msg,SeverityCaution);
@@ -1382,10 +1382,10 @@ int Server::CompareFilenames(const wxString &firstIn, const wxString &secondIn)
 				if (positionCount!=firstMatchCount)
 				{
 					msg.Printf("wildcard [%s] evaluated to regular expression [%s] but produced a different match count to positions [%s] [%s] matchCount=[%d], positionCount=[%d], using alphabetical sorting",
-						sortingWildCard.GetData(),
-						regularExpString.GetData(),
-						first.GetData(),
-						second.GetData(),
+						STRING_TO_CHAR(sortingWildCard),
+						STRING_TO_CHAR(regularExpString),
+						STRING_TO_CHAR(first),
+						STRING_TO_CHAR(second),
 						firstMatchCount,
 						positions.GetCount()
 					);
@@ -1410,8 +1410,8 @@ int Server::CompareFilenames(const wxString &firstIn, const wxString &secondIn)
 						position=positions.Item(positionIndex);
 						firstValueStr=firstMatches.Item(positionIndex);
 						secondValueStr=secondMatches.Item(positionIndex);
-						firstValue=atoi(firstValueStr.GetData());
-						secondValue=atoi(secondValueStr.GetData());
+						firstValue=atoi(STRING_TO_CHAR(firstValueStr));
+						secondValue=atoi(STRING_TO_CHAR(secondValueStr));
 						if (position==positionYear)
 						{
 							msg.Printf("Setting year to [%d] [%d]",firstValue,secondValue);
@@ -1461,32 +1461,32 @@ int Server::CompareFilenames(const wxString &firstIn, const wxString &secondIn)
 					}
 
 					retVal=0;
-					msg.Printf("comparing %s to %s",first.GetData(),second.GetData());
+					msg.Printf("comparing %s to %s",STRING_TO_CHAR(first),STRING_TO_CHAR(second));
 					STATSGEN_DEBUG(DEBUG_ALWAYS,msg);
 					if (firstDate.IsEarlierThan(secondDate))
 					{
-						STATSGEN_DEBUG(DEBUG_ALWAYS,"First less than second")
+						STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"First less than second")
 						retVal=-1;
 					}
 					if (firstDate.IsLaterThan(secondDate))
 					{
-						STATSGEN_DEBUG(DEBUG_ALWAYS,"First greater than second")
+						STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"First greater than second")
 						retVal=+1;
 					}
-					STATSGEN_DEBUG(DEBUG_ALWAYS,"Comparison Complete")
+					STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Comparison Complete")
 				}
 			}
 		}
 		else
 		{
-			msg.Printf("wildcard [%s] evaluated to regular expression [%s] but it won't compile using alphabetical sorting",sortingWildCard.GetData(),regularExpString.GetData());
+			msg.Printf("wildcard [%s] evaluated to regular expression [%s] but it won't compile using alphabetical sorting",STRING_TO_CHAR(sortingWildCard),STRING_TO_CHAR(regularExpString));
 			progress->LogError(msg,SeverityCaution);
 			dateUsed=false;
 		}
 	}
 	if (!dateUsed)
 	{
-		STATSGEN_DEBUG(DEBUG_ALWAYS,"Date Not Used")
+		STATSGEN_DEBUG(DEBUG_ALWAYS,(char *)"Date Not Used")
 		retVal=first.Cmp(second);
 	}
 
